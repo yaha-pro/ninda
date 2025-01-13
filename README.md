@@ -109,3 +109,6 @@
 | API | ひらがな化API |
 | npm | Mantine / rocketicons / ESLint / AOS.js / axios |
 | その他 | RSpec / Rubocop / CarrierWave / OmniAuth / kaminari / ransack|
+
+## ■ 画面遷移図
+[画面遷移図-figma](https://www.figma.com/design/MUWyifE8X73gID227EqkEL/%E7%94%BB%E9%9D%A2%E9%81%B7%E7%A7%BB%E5%9B%B3?m=auto&t=SgrHqLoXZK9nIhRN-6)
