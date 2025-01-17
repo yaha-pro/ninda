@@ -112,3 +112,6 @@
 
 ## ■ 画面遷移図
 [画面遷移図-figma](https://www.figma.com/design/MUWyifE8X73gID227EqkEL/%E7%94%BB%E9%9D%A2%E9%81%B7%E7%A7%BB%E5%9B%B3?m=auto&t=SgrHqLoXZK9nIhRN-6)
+
+## ■ ER図
+[ER図-dbdiagram.io](https://dbdiagram.io/d/6788e77f6b7fa355c314d713)
