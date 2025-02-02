@@ -1,6 +1,6 @@
 import './globals.css';
 import { Header } from '@/components/Header';
-// import { Footer } from '@/components/Footer';
+import { Footer } from '@/components/Footer';
 
 export const metadata = {
   title: 'Ninda - タイピングゲームサービス',
@@ -20,7 +20,7 @@ export default function RootLayout({
             <main className="flex-1">
               {children}
             </main>
-            {/* <Footer /> */}
+            <Footer />
           </div>
       </body>
     </html>
