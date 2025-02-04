@@ -13,8 +13,8 @@ development:
 
 test:
   <<: *default
-  database: storage/test.sqlite3
+  database: app_test
 
 production:
-  <<: *default
-  # database: path/to/persistent/storage/production.sqlite3
+  adapter: postgresql
+  url: <%= ENV['DATABASE_URL'] %>
