@@ -26,11 +26,8 @@ FROM base AS build
 RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
         build-essential \
+        git \
         libpq-dev \
-        libjemalloc2 \
-        libyaml-dev \
-        imagemagick \
-        libmagickwand-dev \
         fonts-noto-cjk \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/*
@@ -39,9 +36,13 @@ RUN apt-get update -qq && \
 COPY Gemfile Gemfile.lock ./
 
 # 必要なGemのインストール
-RUN bundle install && \
-    bundle exec bootsnap precompile --gemfile && \
-    rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
+RUN bundle install
+
+# Bootsnapのプリコンパイル
+RUN bundle exec bootsnap precompile --gemfile
+
+# キャッシュのクリア
+RUN rm -rf ~/.bundle/ "${BUNDLE_PATH}"/ruby/*/cache "${BUNDLE_PATH}"/ruby/*/bundler/gems/*/.git
 
 # アプリケーションコードをコピー
 COPY . .
@@ -57,10 +58,6 @@ RUN apt-get update -qq && \
     apt-get install --no-install-recommends -y \
         curl \
         postgresql-client \
-        libjemalloc2 \
-        libyaml-dev \
-        imagemagick \
-        libmagickwand-dev \
         fonts-noto-cjk \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
@@ -74,6 +71,7 @@ RUN groupadd --system --gid 1000 rails && \
     useradd rails --uid 1000 --gid 1000 --create-home --shell /bin/bash && \
     chown -R 1000:1000 db log storage tmp
 RUN mkdir -p /rails/public/ogp && chmod 777 /rails/public/ogp
+
 
 USER 1000:1000
 
