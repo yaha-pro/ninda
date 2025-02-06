@@ -80,7 +80,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       toast.success("ログインしました");
       sessionStorage.removeItem("registrationState");
       onClose();
-    } catch (error: unknown) {
+    } catch (_error: unknown) {
       toast.error("ログインに失敗しました");
     } finally {
       setIsLoading(false);
@@ -122,7 +122,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
           email: email,
         })
       );
-    } catch (error: unknown) {
+    } catch (_error: unknown) {
       toast.error("登録に失敗しました");
     } finally {
       setIsLoading(false);
@@ -147,7 +147,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       sessionStorage.removeItem("registrationState");
       onClose();
       setIsProfile(false); // モーダルが閉じたときにプロファイル設定画面のリセット
-    } catch (error: unknown) {
+    } catch (_error: unknown) {
       toast.error("登録に失敗しました");
     } finally {
       setIsLoading(false);
