@@ -5,6 +5,8 @@ Rails.application.routes.draw do
         registrations: 'api/v1/auth/registrations',
         sessions:      'api/v1/auth/sessions'
       }
+
+      resource :user, only: [:show] # ユーザー情報取得のエンドポイント
     end
   end
 end
