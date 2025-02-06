@@ -1,6 +1,8 @@
 import './globals.css';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
+import { Toaster } from 'react-hot-toast';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 export const metadata = {
   title: 'Ninda - タイピングゲームサービス',
@@ -16,11 +18,14 @@ export default function RootLayout({
     <html lang="ja">
       <body>
           <div className="w-full min-h-screen max-w-8xl mx-auto bg-[#faf7ef] flex flex-col">
-            <Header />
-            <main className="flex-1">
-              {children}
-            </main>
-            <Footer />
+            <AuthProvider>
+              <Header />
+              <main className="flex-1">
+                {children}
+              </main>
+              <Footer />
+              <Toaster />
+            </AuthProvider>
           </div>
       </body>
     </html>
