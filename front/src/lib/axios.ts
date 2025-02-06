@@ -10,7 +10,7 @@ const api = axios.create({
 });
 
 // DeviseTokenAuthのレスポンスヘッダーを保存
-const saveAuthHeaders = (headers: any) => {
+const saveAuthHeaders = (headers: { [key: string]: string }) => {
   const authHeaders = {
     'access-token': headers['access-token'],
     'client': headers['client'],
@@ -49,28 +49,29 @@ export interface UpdateProfileParams {
 }
 
 export async function login(email: string, password: string): Promise<LoginResponse> {
-  const response = await api.post('/auth/sign_in', {
+  const response = await api.post<LoginResponse>('/auth/sign_in', {
     email,
     password,
   });
-  saveAuthHeaders(response.headers);
+  saveAuthHeaders(response.headers as { [key: string]: string });
   return response.data;
 }
 
 export async function register(params: RegisterParams): Promise<LoginResponse> {
-  const response = await api.post('/auth', {
-    registration: {
-      name: params.name,
-      email: params.email,
-      password: params.password,
-      password_confirmation: params.password_confirmation,
-    },
+  const response = await api.post<LoginResponse>('/auth', {
+    name: params.name,
+    email: params.email,
+    password: params.password,
+    password_confirmation: params.password_confirmation,
   });
-  saveAuthHeaders(response.headers);
+  saveAuthHeaders(response.headers as { [key: string]: string });
   return response.data;
 }
 
 export async function updateProfile(params: UpdateProfileParams): Promise<void> {
-  const response = await api.put('/auth', { registration: params });
-  saveAuthHeaders(response.headers);
+  const response = await api.put('/auth', { 
+    name: params.name, 
+    bio: params.bio 
+  });
+  saveAuthHeaders(response.headers as { [key: string]: string });
 }
