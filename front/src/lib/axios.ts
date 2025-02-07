@@ -1,4 +1,5 @@
 import axios from 'axios';
+import Cookies from 'js-cookie';
 import { User } from './types';
 
 const api = axios.create({
@@ -9,28 +10,32 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// DeviseTokenAuthのレスポンスヘッダーを保存
+// DeviseTokenAuthのレスポンスヘッダーを保存（Cookiesに保存）
 const saveAuthHeaders = (headers: { [key: string]: string }) => {
-  const authHeaders = {
-    'access-token': headers['access-token'],
-    'client': headers['client'],
-    'uid': headers['uid']
-  };
-  localStorage.setItem('authHeaders', JSON.stringify(authHeaders));
+  Cookies.set('access-token', headers['access-token'], { secure: true, sameSite: 'Strict' });
+  Cookies.set('client', headers['client'], { secure: true, sameSite: 'Strict' });
+  Cookies.set('uid', headers['uid'], { secure: true, sameSite: 'Strict' });
 };
 
 // 保存されたヘッダーをリクエストに追加
-api.interceptors.request.use((config) => {
-  const authHeaders = localStorage.getItem('authHeaders');
-  if (authHeaders) {
-    const headers = JSON.parse(authHeaders);
-    config.headers = {
-      ...config.headers,
-      ...headers
-    };
+api.interceptors.request.use(
+  (config) => {
+    const accessToken = Cookies.get('access-token');
+    const client = Cookies.get('client');
+    const uid = Cookies.get('uid');
+
+    if (accessToken && client && uid) {
+      config.headers['access-token'] = accessToken;
+      config.headers['client'] = client;
+      config.headers['uid'] = uid;
+    }
+
+    return config;
+  },
+  (error) => {
+    return Promise.reject(error);
   }
-  return config;
-});
+);
 
 export interface LoginResponse {
   data: User;
