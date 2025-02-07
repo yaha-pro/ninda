@@ -1,13 +1,15 @@
 "use client";
 
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, } from "@/components/ui/sheet";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { LoginModal } from "../LoginModal";
+import { useAuth } from "@/contexts/AuthContext";
 
 export function HamburgerMenu() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
+  const { isAuthenticated } = useAuth();
 
   const handleLoginClick = () => {
     setIsLoginOpen(true);
@@ -25,12 +27,28 @@ export function HamburgerMenu() {
             <SheetTitle></SheetTitle>
           </SheetHeader>
           <nav className="mt-4 space-y-4 text-gray-600">
-            <button
-              onClick={handleLoginClick}
-              className="block w-full text-left px-4 py-2 text-lg hover:underline"
-            >
-              新規登録/ログイン
-            </button>
+            {isAuthenticated ? (
+              <>
+                <a href="#" className="block px-4 py-2 text-lg hover:underline">
+                  マイページ
+                </a>
+                <a href="#" className="block px-4 py-2 text-lg hover:underline">
+                  ログアウト
+                </a>
+                <a href="#" className="block px-4 py-2 text-lg hover:underline">
+                  投稿する
+                </a>
+              </>
+            ) : (
+              <>
+                <button
+                  onClick={handleLoginClick}
+                  className="block w-full text-left px-4 py-2 text-lg hover:underline"
+                >
+                  新規登録/ログイン
+                </button>
+              </>
+            )}
             <a href="#" className="block px-4 py-2 text-lg hover:underline">
               使い方
             </a>
