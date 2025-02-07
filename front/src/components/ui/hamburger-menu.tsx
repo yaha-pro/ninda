@@ -9,7 +9,7 @@ import { useAuth } from "@/contexts/AuthContext";
 export function HamburgerMenu() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, user } = useAuth();
+  const { isAuthenticated } = useAuth();
 
   const handleLoginClick = () => {
     setIsLoginOpen(true);
