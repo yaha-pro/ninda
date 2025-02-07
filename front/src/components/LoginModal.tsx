@@ -160,15 +160,15 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
       <Dialog open={isProfile} onOpenChange={() => {}}>
         {" "}
         {/* onOpenChangeを空の関数にして閉じれないようにする */}
-        <DialogContentWithoutClose className="sm:max-w-[425px]">
+        <DialogContentWithoutClose className="sm:max-w-[390px] h-[64vh]">
           <DialogHeader>
             <DialogTitle className="text-center text-2xl font-bold">
               新規登録
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-6 space-y-6">
+          <div className="space-y-6">
             {/* 表示名入力フィールド */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label className="text-sm font-medium">表示名</label>
               <Input
                 type="text"
@@ -178,7 +178,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               />
             </div>
             {/* 自己紹介文入力フィールド */}
-            <div className="space-y-2">
+            <div className="space-y-1">
               <label className="text-sm font-medium">紹介文</label>
               <textarea
                 className="w-full px-4 py-2 border rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:border-transparent"
@@ -190,7 +190,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
             </div>
             {/* 登録完了ボタン */}
             <Button
-              className="w-full bg-red-600 hover:bg-red-700"
+              className="w-full bg-[#FF8D76] text-white hover:bg-red-500"
               onClick={handleCompleteRegistration}
               disabled={isLoading}
             >
@@ -204,7 +204,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[390px] h-[80vh]">
+      <DialogContent className="sm:max-w-[390px] h-[72vh]">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
             {isLogin ? "ログイン" : "新規登録"}
