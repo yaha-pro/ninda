@@ -1,19 +1,39 @@
 "use client";
 
 import { useState } from "react";
-import { Sheet, SheetContent, SheetTrigger, SheetHeader, SheetTitle, } from "@/components/ui/sheet";
+import {
+  Sheet,
+  SheetContent,
+  SheetTrigger,
+  SheetHeader,
+  SheetTitle,
+} from "@/components/ui/sheet";
 import { RxHamburgerMenu } from "react-icons/rx";
 import { LoginModal } from "../LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
+import { logout } from "@/lib/axios";
+import toast from "react-hot-toast";
 
 export function HamburgerMenu() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated } = useAuth();
+  const { isAuthenticated, setUser } = useAuth();
 
   const handleLoginClick = () => {
     setIsLoginOpen(true);
     setIsMenuOpen(false); // メニューを閉じる
+  };
+
+  // ログアウト処理
+  const handleLogout = async () => {
+    try {
+      await logout();
+      setUser(null);
+      toast.success("ログアウトしました");
+    } catch {
+      toast.error("ログアウトに失敗しました");
+    }
+    setIsMenuOpen(false);
   };
 
   return (
@@ -32,9 +52,12 @@ export function HamburgerMenu() {
                 <a href="#" className="block px-4 py-2 text-lg hover:underline">
                   マイページ
                 </a>
-                <a href="#" className="block px-4 py-2 text-lg hover:underline">
+                <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-lg hover:underline"
+                >
                   ログアウト
-                </a>
+                </button>
                 <a href="#" className="block px-4 py-2 text-lg hover:underline">
                   投稿する
                 </a>
