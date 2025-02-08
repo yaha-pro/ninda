@@ -44,6 +44,17 @@ api.interceptors.request.use(
   }
 );
 
+// セッションの確認
+export async function checkSession(): Promise<User | null> {
+  try {
+    console.log("セッション確認");
+    const response = await api.get('/auth/validate_token');
+    return response.data.data;
+  } catch {
+    return null;
+  }
+}
+
 export interface LoginResponse {
   data: User;
 }
@@ -60,6 +71,7 @@ export interface UpdateProfileParams {
   bio?: string;
 }
 
+// ログイン
 export async function login(email: string, password: string): Promise<LoginResponse> {
   const response = await api.post<LoginResponse>('/auth/sign_in', {
     email,
@@ -69,6 +81,7 @@ export async function login(email: string, password: string): Promise<LoginRespo
   return response.data;
 }
 
+// 新規登録
 export async function register(params: RegisterParams): Promise<LoginResponse> {
   const response = await api.post<LoginResponse>('/auth', {
     name: params.name,
@@ -80,6 +93,7 @@ export async function register(params: RegisterParams): Promise<LoginResponse> {
   return response.data;
 }
 
+// プロフィール更新
 export async function updateProfile(params: UpdateProfileParams): Promise<void> {
   const response = await api.put('/auth', {
     name: params.name,
@@ -88,13 +102,8 @@ export async function updateProfile(params: UpdateProfileParams): Promise<void> 
   saveAuthHeaders(response.headers as { [key: string]: string });
 }
 
-// セッションの確認
-export async function checkSession(): Promise<User | null> {
-  try {
-    console.log("セッション確認");
-    const response = await api.get('/auth/validate_token');
-    return response.data.data;
-  } catch {
-    return null;
-  }
+// ログアウト
+export async function logout(): Promise<void> {
+  await api.delete('/auth/sign_out');
+  Cookies.remove('auth', { path: '/' });
 }
