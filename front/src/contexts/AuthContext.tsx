@@ -1,7 +1,9 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode } from 'react';
+import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
 import { User, AuthContextType } from '@/lib/types';
+import { checkSession } from '@/lib/axios';
+import Cookies from 'js-cookie';
 
 // 認証コンテキストの作成
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -9,6 +11,32 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 // 認証コンテキストプロバイダーコンポーネント
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
+  const [loading, setLoading] = useState(true);
+
+  // 初回マウント時にセッションを確認（自動ログイン）
+  useEffect(() => {
+    const validateSession = async () => {
+      try {
+        // authCookieが存在する場合のみセッションを確認
+        const authCookie = Cookies.get('auth');
+        if (authCookie) {
+          const userData = await checkSession();
+          setUser(userData);
+        }
+      } catch (error) {
+        console.error('Session validation failed:', error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
+    validateSession();
+  }, []);
+
+  // ローディング中はローディング表示を返す
+  if (loading) {
+    return <div>Loading...</div>;
+  }
 
   return (
     <AuthContext.Provider value={{

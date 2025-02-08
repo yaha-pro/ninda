@@ -1,9 +1,9 @@
 class Api::V1::Auth::SessionsController < DeviseTokenAuth::SessionsController
   def index
-    if current_api_v1_user
+    if current_user
       render json: {
         logged_in: true,
-        user: current_api_v1_user
+        user: current_user
       }
     else
       render json: {

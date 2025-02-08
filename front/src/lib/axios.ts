@@ -10,11 +10,16 @@ const api = axios.create({
   withCredentials: true,
 });
 
-// DeviseTokenAuthのレスポンスヘッダーを保存（Cookiesに保存）
+console.log('NODE_ENV:', process.env.NODE_ENV);
+
+// 環境判定ロジック
+const isProduction = process.env.NODE_ENV === 'production';
+
+ // DeviseTokenAuth のレスポンスヘッダーを保存（Cookies に保存）
 const saveAuthHeaders = (headers: { [key: string]: string }) => {
-  Cookies.set('access-token', headers['access-token'], { secure: true, sameSite: 'Strict' });
-  Cookies.set('client', headers['client'], { secure: true, sameSite: 'Strict' });
-  Cookies.set('uid', headers['uid'], { secure: true, sameSite: 'Strict' });
+  Cookies.set('access-token', headers['access-token'], { secure: isProduction, sameSite: 'Lax' });
+  Cookies.set('client', headers['client'], { secure: isProduction, sameSite: 'Lax' });
+  Cookies.set('uid', headers['uid'], { secure: isProduction, sameSite: 'Lax' });
 };
 
 // 保存されたヘッダーをリクエストに追加
@@ -23,6 +28,8 @@ api.interceptors.request.use(
     const accessToken = Cookies.get('access-token');
     const client = Cookies.get('client');
     const uid = Cookies.get('uid');
+
+    console.log("🛠 リクエストに追加するクッキー:", { accessToken, client, uid });
 
     if (accessToken && client && uid) {
       config.headers['access-token'] = accessToken;
@@ -74,9 +81,20 @@ export async function register(params: RegisterParams): Promise<LoginResponse> {
 }
 
 export async function updateProfile(params: UpdateProfileParams): Promise<void> {
-  const response = await api.put('/auth', { 
-    name: params.name, 
-    bio: params.bio 
+  const response = await api.put('/auth', {
+    name: params.name,
+    bio: params.bio
   });
   saveAuthHeaders(response.headers as { [key: string]: string });
+}
+
+// セッションの確認
+export async function checkSession(): Promise<User | null> {
+  try {
+    console.log("セッション確認");
+    const response = await api.get('/auth/validate_token');
+    return response.data.data;
+  } catch {
+    return null;
+  }
 }

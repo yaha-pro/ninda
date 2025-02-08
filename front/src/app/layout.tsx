@@ -17,7 +17,7 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-          <div className="w-full min-h-screen max-w-8xl mx-auto bg-[#faf7ef] flex flex-col">
+          <div className="w-full min-h-screen max-w-8xl mx-auto flex flex-col">
             <AuthProvider>
               <Header />
               <main className="flex-1">
