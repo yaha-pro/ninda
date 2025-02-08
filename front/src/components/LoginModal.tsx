@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LuMail, LuLock } from "react-icons/lu";
 import { login, register, updateProfile } from "@/lib/axios";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from '@/contexts/AuthContext';
 import toast from "react-hot-toast";
 
 interface LoginModalProps {
