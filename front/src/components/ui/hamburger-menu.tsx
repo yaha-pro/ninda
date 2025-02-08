@@ -17,7 +17,7 @@ import toast from "react-hot-toast";
 export function HamburgerMenu() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, user, setUser } = useAuth();
+  const { isAuthenticated, setUser } = useAuth();
 
   const handleLoginClick = () => {
     setIsLoginOpen(true);
