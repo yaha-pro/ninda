@@ -6,6 +6,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/button";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import Link from "next/link";
 import Image from "next/image";
 import ninda_header_Logo from "/public/ninda_logo.png";
 
@@ -19,18 +20,22 @@ export function Header() {
   };
 
   return (
-    <header className="shadow-sm  bg-[#faf7ef]">
+    <header className="fixed top-0 left-0 w-full shadow-sm bg-[#faf7ef] z-50">
       <div className="px-4 sm:px-6 lg:px-8 py-4">
         <div className="flex justify-between items-center">
-          <Image
-            src={ninda_header_Logo}
-            alt="Ninda"
-            width={128}
-            height={32}
-            className="w-32"
-          />
+          <Link href="/" passHref>
+            <Image
+              src={ninda_header_Logo}
+              alt="Ninda"
+              width={128}
+              height={32}
+              className="w-32"
+            />
+          </Link>
           <div className="flex gap-6 align-items-center">
-            <Button>投稿一覧</Button>
+            <Link href="/posts" passHref>
+              <Button>投稿一覧</Button>
+            </Link>
             {isAuthenticated ? (
               <>
                 <Button>投稿する</Button>
