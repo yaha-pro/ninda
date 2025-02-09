@@ -1,6 +1,7 @@
 "use client";
 
-import { Search, Filter, Heart } from "lucide-react";
+// import { Search, Filter, Heart } from "lucide-react";
+import { Heart } from "lucide-react";
 // import { Input } from "@/components/ui/input";
 // import { Button } from "@/components/ui/button";
 // import Link from "next/link";

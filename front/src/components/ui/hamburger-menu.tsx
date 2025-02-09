@@ -13,6 +13,7 @@ import { LoginModal } from "../LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { logout } from "@/lib/axios";
 import toast from "react-hot-toast";
+import Link from "next/link";
 
 export function HamburgerMenu() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
@@ -81,9 +82,14 @@ export function HamburgerMenu() {
             <a href="#" className="block px-4 py-2 text-lg hover:underline">
               使い方
             </a>
-            <a href="#" className="block px-4 py-2 text-lg hover:underline">
-              投稿一覧
-            </a>
+            <Link href="/posts" passHref className="block">
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="px-4 py-2 text-lg hover:underline"
+              >
+                投稿一覧
+              </button>
+            </Link>
             <a href="#" className="block px-4 py-2 text-lg hover:underline">
               ユーザー一覧
             </a>
