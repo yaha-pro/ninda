@@ -65,6 +65,12 @@ export function HamburgerMenu() {
             ) : (
               <>
                 <button
+                  onClick={handleLogout}
+                  className="block w-full text-left px-4 py-2 text-lg hover:underline"
+                >
+                  ログアウト
+                </button>
+                <button
                   onClick={handleLoginClick}
                   className="block w-full text-left px-4 py-2 text-lg hover:underline"
                 >
