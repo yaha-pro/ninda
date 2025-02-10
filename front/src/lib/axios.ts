@@ -15,34 +15,29 @@ console.log('NODE_ENV:', process.env.NODE_ENV);
 // 環境判定ロジック
 const isProduction = process.env.NODE_ENV === 'production';
 
- // DeviseTokenAuth のレスポンスヘッダーを保存（Cookies に保存）
+// DeviseTokenAuthのレスポンスヘッダーを保存
 const saveAuthHeaders = (headers: { [key: string]: string }) => {
-  Cookies.set('access-token', headers['access-token'], { secure: isProduction, sameSite: 'Lax' });
-  Cookies.set('client', headers['client'], { secure: isProduction, sameSite: 'Lax' });
-  Cookies.set('uid', headers['uid'], { secure: isProduction, sameSite: 'Lax' });
+  const authHeaders = {
+    'access-token': headers['access-token'],
+    'client': headers['client'],
+    'uid': headers['uid']
+  };
+  // js-cookieを使用してCookieを保存（30日間有効）
+  Cookies.set('auth', JSON.stringify(authHeaders), { secure: isProduction, sameSite: 'Lax', expires: 14, path: '/' });
 };
 
 // 保存されたヘッダーをリクエストに追加
-api.interceptors.request.use(
-  (config) => {
-    const accessToken = Cookies.get('access-token');
-    const client = Cookies.get('client');
-    const uid = Cookies.get('uid');
-
-    console.log("🛠 リクエストに追加するクッキー:", { accessToken, client, uid });
-
-    if (accessToken && client && uid) {
-      config.headers['access-token'] = accessToken;
-      config.headers['client'] = client;
-      config.headers['uid'] = uid;
-    }
-
-    return config;
-  },
-  (error) => {
-    return Promise.reject(error);
+api.interceptors.request.use((config) => {
+  const authCookie = Cookies.get('auth');
+  if (authCookie) {
+    const headers = JSON.parse(authCookie);
+    config.headers = {
+      ...config.headers,
+      ...headers
+    };
   }
-);
+  return config;
+});
 
 // セッションの確認
 export async function checkSession(): Promise<User | null> {

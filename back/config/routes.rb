@@ -11,6 +11,8 @@ Rails.application.routes.draw do
       namespace :auth do
         resources :sessions, only: %i[index]
       end
+      
+      get "up" => "rails/health#show", as: :rails_health_check
     end
   end
 end

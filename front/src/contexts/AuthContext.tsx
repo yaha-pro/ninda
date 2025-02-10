@@ -13,20 +13,27 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
 
+  console.log("認証コンテキストプロバイダーコンポーネントチェック");
+
   // 初回マウント時にセッションを確認（自動ログイン）
   useEffect(() => {
+    console.log("useEffectチェック");
     const validateSession = async () => {
       try {
         // authCookieが存在する場合のみセッションを確認
         const authCookie = Cookies.get('auth');
+        console.log(authCookie);
         if (authCookie) {
+          console.log("セッション確認開始");
           const userData = await checkSession();
           setUser(userData);
         }
       } catch (error) {
         console.error('Session validation failed:', error);
+        console.log("セッション確認失敗");
       } finally {
         setLoading(false);
+        console.log("セッション確認完了");
       }
     };
 
