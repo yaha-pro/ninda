@@ -59,18 +59,17 @@ export function HamburgerMenu() {
                 >
                   ログアウト
                 </button>
-                <a href="#" className="block px-4 py-2 text-lg hover:underline">
-                  投稿する
-                </a>
+                <Link href="/create" passHref className="block">
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="px-4 py-2 text-lg hover:underline"
+                  >
+                    投稿する
+                  </button>
+                </Link>
               </>
             ) : (
               <>
-                <button
-                  onClick={handleLogout}
-                  className="block w-full text-left px-4 py-2 text-lg hover:underline"
-                >
-                  ログアウト
-                </button>
                 <button
                   onClick={handleLoginClick}
                   className="block w-full text-left px-4 py-2 text-lg hover:underline"

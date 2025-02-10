@@ -16,7 +16,7 @@ console.log('NODE_ENV:', process.env.NODE_ENV);
 const isProduction = process.env.NODE_ENV === 'production';
 
 // DeviseTokenAuthのレスポンスヘッダーを保存
-const saveAuthHeaders = (headers: any) => {
+const saveAuthHeaders = (headers: { [key: string]: string }) => {
   const authHeaders = {
     'access-token': headers['access-token'],
     'client': headers['client'],
