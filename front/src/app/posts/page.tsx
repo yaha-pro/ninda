@@ -4,7 +4,7 @@
 import { Heart } from "lucide-react";
 // import { Input } from "@/components/ui/input";
 // import { Button } from "@/components/ui/button";
-// import Link from "next/link";
+import Link from "next/link";
 import Image from "next/image";
 import post_image_def from "/public/post_image_def.png";
 import posts_title from "/public/posts_title.png";
@@ -80,7 +80,14 @@ export default function PostsPage() {
 
   return (
     <>
-      <main className="sm:px-6 lg:py-12 flex-1 bg-[#f5f7ef]">
+      <main className="sm:px-16 py-12 flex-1 bg-[#f5f7ef]">
+        <div className="mb-6">
+          <Link href="/" className="text-blue-500 hover:underline text-sm">
+            TOP
+          </Link>
+          <span className="mx-2 text-gray-500">&gt;</span>
+          <span className="text-sm text-gray-500">投稿一覧</span>
+        </div>
         <div className="flex justify-center items-center mb-6">
           <Image
             src={posts_title}

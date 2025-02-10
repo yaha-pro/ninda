@@ -4,7 +4,7 @@ import hero_bg_image from "/public/hero_bg_image.png";
 
 export default function Home() {
   return (
-    <div className="sm:px-6 lg:py-12 relative overflow-hidden">
+    <div className="sm:px-16 py-12 relative overflow-hidden">
       <Image
         src={hero_bg_image}
         alt="背景画像"
