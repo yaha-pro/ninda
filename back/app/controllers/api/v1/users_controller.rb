@@ -1,16 +1,15 @@
 class Api::V1::UsersController < ApplicationController
   before_action :authenticate_api_v1_user! # ログインユーザーのみアクセス可能
-  before_action :set_user, only: [:show]
 
-  # ログイン中のユーザー情報を返す
+  # ユーザー情報を取得
   def show
-    render json: { user: @user }
-  end
+    Rails.logger.info "current_api_v1_user: #{current_api_v1_user.inspect}"
+    user = User.find_by(id: params[:id])
 
-  private
-
-  # 現在のログインユーザーをセット
-  def set_user
-    @user = current_api_v1_user
+    if user
+      render json: user, status: :ok
+    else
+      render json: { errors: ["ユーザーが見つかりません"] }, status: :not_found
+    end
   end
 end

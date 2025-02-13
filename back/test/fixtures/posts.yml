@@ -1,0 +1,19 @@
+# Read about fixtures at https://api.rubyonrails.org/classes/ActiveRecord/FixtureSet.html
+
+one:
+  user: one
+  title: MyString
+  description: MyText
+  display_text: MyText
+  typing_text: MyText
+  thumbnail_image: MyString
+  typing_play_count: 1
+
+two:
+  user: two
+  title: MyString
+  description: MyText
+  display_text: MyText
+  typing_text: MyText
+  thumbnail_image: MyString
+  typing_play_count: 1

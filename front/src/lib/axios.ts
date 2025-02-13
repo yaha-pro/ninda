@@ -44,6 +44,7 @@ export async function checkSession(): Promise<User | null> {
   try {
     console.log("セッション確認");
     const response = await api.get('/auth/validate_token');
+    console.log(response);
     return response.data.data;
   } catch {
     return null;
