@@ -1,4 +1,5 @@
 Rails.application.routes.draw do
+  get "health/show"
   namespace :api do
     namespace :v1 do
       mount_devise_token_auth_for 'User', at: 'auth', controllers: {
@@ -6,13 +7,17 @@ Rails.application.routes.draw do
         sessions: 'api/v1/auth/sessions'
       }
 
-      resource :user, only: [:show] # ユーザー情報取得のエンドポイント
-
-      namespace :auth do
-        resources :sessions, only: %i[index]
+      devise_scope :api_v1_user do
+        namespace :auth do
+          resources :sessions, only: %i[index]
+        end
       end
-      
-      get "up" => "rails/health#show", as: :rails_health_check
+
+      resources :users, only: [:show] # ユーザー情報取得のエンドポイント
+      resources :posts, only: [:index, :show, :create, :destroy]
+
     end
   end
+
+  get "up" => "rails/health#show", as: :rails_health_check
 end
