@@ -1,5 +1,5 @@
 class ApplicationController < ActionController::API
-  before_action :set_user
+  before_action :set_user, except: [:create]
   include DeviseTokenAuth::Concerns::SetUserByToken
 
   private
