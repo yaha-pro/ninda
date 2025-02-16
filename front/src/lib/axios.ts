@@ -1,6 +1,6 @@
 import axios from 'axios';
 import Cookies from 'js-cookie';
-import { User } from './types';
+import { User, LoginResponse, RegisterParams, UpdateProfileParams, CreatePostParams, Post} from './types';
 
 const api = axios.create({
   baseURL: process.env.NEXT_PUBLIC_API_URL,
@@ -51,22 +51,6 @@ export async function checkSession(): Promise<User | null> {
   }
 }
 
-export interface LoginResponse {
-  data: User;
-}
-
-export interface RegisterParams {
-  name: string;
-  email: string;
-  password: string;
-  password_confirmation: string;
-}
-
-export interface UpdateProfileParams {
-  name: string;
-  bio?: string;
-}
-
 // ログイン
 export async function login(email: string, password: string): Promise<LoginResponse> {
   const response = await api.post<LoginResponse>('/auth/sign_in', {
@@ -102,4 +86,33 @@ export async function updateProfile(params: UpdateProfileParams): Promise<void> 
 export async function logout(): Promise<void> {
   await api.delete('/auth/sign_out');
   Cookies.remove('auth', { path: '/' });
+}
+
+// 投稿の作成
+export async function createPost(params: CreatePostParams): Promise<Post> {
+  const response = await api.post('/posts', params);
+  return response.data;
+}
+
+// 投稿一覧の取得
+export async function getPosts(): Promise<Post[]> {
+  const response = await api.get('/posts');
+  return response.data;
+}
+
+// 投稿の取得
+export async function getPost(id: string): Promise<Post> {
+  const response = await api.get(`/posts/${id}`);
+  return response.data;
+}
+
+// 投稿の更新
+export async function updatePost(id: string, params: Partial<CreatePostParams>): Promise<Post> {
+  const response = await api.put(`/posts/${id}`, params);
+  return response.data;
+}
+
+// 投稿の削除
+export async function deletePost(id: string): Promise<void> {
+  await api.delete(`/posts/${id}`);
 }

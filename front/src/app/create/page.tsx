@@ -5,29 +5,58 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ImagePlus } from "lucide-react";
+import { createPost } from "@/lib/axios";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
 import create_post_title from "/public/create_post_title.png";
+import toast from "react-hot-toast";
 
 export default function CreatePostPage() {
+  const router = useRouter();
   const [title, setTitle] = useState("");
   const [description, setDescription] = useState("");
-  // const [tags, setTags] = useState("");
+  // const [tags, setTags] = useState(""); // タグ機能実装時に追加（以降関連項目についてコメントアウト）
   const [displayText, setDisplayText] = useState("");
   const [typingText, setTypingText] = useState("");
-  // const [imageUrl, setImageUrl] = useState("");
+  // const [imageUrl, setImageUrl] = useState(""); // 画像投稿機能実装時に追加（以降関連項目についてコメントアウト）
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    // TODO: API実装後に投稿処理を追加
-    console.log({
-      title,
-      description,
-      // tags: tags.split(",").map((tag) => tag.trim()),
-      displayText,
-      typingText,
-      // imageUrl,
-    });
+
+    if (!title) {
+      toast.error("タイトルを入力してください");
+      return;
+    }
+    else if (!displayText) {
+      toast.error("問題の表示文を入力してください");
+      return;
+    }
+    else if (!typingText) {
+      toast.error("問題のタイピングテキストを入力してください");
+      return;
+    }
+
+    try {
+      setIsSubmitting(true);
+      await createPost({
+        title,
+        description,
+        // image_url: imageUrl || null,
+        display_text: displayText,
+        typing_text: typingText,
+        // tags: tags.split(",").map(tag => tag.trim()).filter(Boolean)
+      });
+      
+      toast.success("投稿を作成しました");
+      router.push("/posts");
+    } catch (error) {
+      toast.error("投稿の作成に失敗しました");
+      console.error(error);
+    } finally {
+      setIsSubmitting(false);
+    }
   };
 
   return (
@@ -119,7 +148,8 @@ export default function CreatePostPage() {
                 placeholder="表示文を入力"
                 className="h-32"
               />
-              {/* <Button
+              {/* // 自動変換機能実装時に追加
+                  <Button
                   type="button"
                   variant="outline"
                   size="sm"
@@ -145,11 +175,16 @@ export default function CreatePostPage() {
                 type="button"
                 onClick={() => window.history.back()}
                 className="text-gray-400"
+                disabled={isSubmitting}
               >
                 キャンセル
               </Button>
-              <Button type="submit" className="text-[#ff8d76]">
-                作成する
+              <Button
+                type="submit"
+                className="text-[#ff8d76]"
+                disabled={isSubmitting}
+              >
+                {isSubmitting ? "作成中..." : "作成する"}
               </Button>
             </div>
           </form>
