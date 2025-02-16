@@ -74,7 +74,7 @@ function PostCard({ post }: PostCardProps) {
 /** ランキング機能実装時に追加 **/
 function RankingSection() {
   return (
-    <div className="bg-white rounded-2xl p-6 mb-6">
+    <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
       <div className="flex justify-between items-center mb-6 gap-12">
         <h2 className="font-bold text-lg">総合ランキング</h2>
         <Link
@@ -104,7 +104,7 @@ function RankingSection() {
 /** タグ機能実装時に追加 **/
 function TagsSection() {
   return (
-    <div className="bg-white rounded-2xl p-6">
+    <div className="bg-white rounded-2xl p-6 shadow-sm">
       <div className="flex justify-between items-center mb-6">
         <h2 className="font-bold text-lg">おすすめタグ</h2>
         <Link
