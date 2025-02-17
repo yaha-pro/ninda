@@ -1,6 +1,7 @@
 "use client";
 
-import { useEffect, useState, use } from "react";
+import { useEffect, useState } from "react";
+import { useAuth } from "@/contexts/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
 import { Heart } from "lucide-react";
@@ -11,13 +12,12 @@ import { getPost } from "@/lib/axios";
 import type { Post } from "@/lib/types";
 import post_image_def from "/public/post_image_def.png";
 import toast from "react-hot-toast";
+import { useParams } from "next/navigation";
 
-export default function PostDetailPage({
-  params,
-}: {
-  params: Promise<{ id?: string }>;
-}) {
-  const { id } = use(params); // params を unwrap
+export default function PostDetailPage() {
+  const { user } = useAuth(); // 現在のユーザー情報を取得
+  const params = useParams(); // URLから投稿IDを取得
+  const id: string = params.id as string; // 明示的に `string` 型に変換
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -67,16 +67,31 @@ export default function PostDetailPage({
   return (
     <main className="min-h-screen bg-[#f5f7ef] sm:px-16 py-12">
       {/* Breadcrumb */}
-      <div className="flex items-center gap-2 text-sm mb-10">
-        <Link href="/" className="text-blue-500 hover:underline">
-          TOP
-        </Link>
-        <span className="text-gray-500">&gt;</span>
-        <Link href="/posts" className="text-blue-500 hover:underline">
-          投稿一覧
-        </Link>
-        <span className="text-gray-500">&gt;</span>
-        <span className="text-gray-500">{post.title}</span>
+      <div className="flex justify-between">
+        <div className="flex items-center gap-2 text-sm mb-10">
+          <Link href="/" className="text-blue-500 hover:underline">
+            TOP
+          </Link>
+          <span className="text-gray-500">&gt;</span>
+          <Link href="/posts" className="text-blue-500 hover:underline">
+            投稿一覧
+          </Link>
+          <span className="text-gray-500">&gt;</span>
+          <span className="text-gray-500">{post.title}</span>
+        </div>
+        <div className="flex">
+          {user && user.id === post.user_id ? (
+            <Link href={`/posts/${post.id}/edit`} className="ml-auto">
+              <Button
+                variant="outline"
+                size="sm"
+                className="w-full max-w-xs text-md"
+              >
+                編集する
+              </Button>
+            </Link>
+          ) : null}
+        </div>
       </div>
       {/* Main Content */}
       <div className="max-w-4xl mx-auto">
@@ -89,8 +104,13 @@ export default function PostDetailPage({
               height={200}
               className="rounded-lg mx-auto"
             />
-            <h1 className="text-3xl font-extrabold text-gray-700">{post.title}</h1>
-            <Button className="w-full max-w-xs text-[#FF8D76] border-2 border-[#FF8D76]" size="lg">
+            <h1 className="text-3xl font-extrabold text-gray-700">
+              {post.title}
+            </h1>
+            <Button
+              size="lg"
+              className="w-full max-w-xs text-[#FF8D76] border-2 border-[#FF8D76]"
+            >
               スタート
             </Button>
           </div>

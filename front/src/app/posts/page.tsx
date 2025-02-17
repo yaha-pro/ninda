@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/contexts/AuthContext";
+import { FiMoreVertical, FiEdit } from "react-icons/fi";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
 import { Heart, ChevronRight } from "lucide-react"; // 検索機能実装時に追加
 import {
   Select,
@@ -24,8 +31,33 @@ interface PostCardProps {
 }
 
 function PostCard({ post }: PostCardProps) {
+  const { user } = useAuth(); // 現在のユーザー情報を取得
+
   return (
     <div className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow p-6">
+      <div className="flex items-center justify-end">
+        {user && user.id === post.user_id ? (
+          <DropdownMenu>
+            <DropdownMenuTrigger className="text-gray-500 hover:text-gray-600 transition-colors">
+              <FiMoreVertical className="w-6 h-6" />
+            </DropdownMenuTrigger>
+            <DropdownMenuContent className="absolute -left-8 mt-1 rounded-md shadow-lg bg-white ring-1 ring-black ring-opacity-5">
+              <DropdownMenuItem>
+                <Link href={`/posts/${post.id}/edit`} className="flex items-center gap-2 text-gray-500">
+                  <FiEdit />
+                  編集する
+                </Link>
+              </DropdownMenuItem>
+              {/* <DropdownMenuItem onSelect={handleDelete} className="flex items-center gap-2 text-gray-500">
+                  <FiTrash />
+                  削除する
+                </DropdownMenuItem> */}
+            </DropdownMenuContent>
+          </DropdownMenu>
+        ) : (
+          <div className="w-6 h-6" /> // 空のdivで幅を確保
+        )}
+      </div>
       <div className="flex gap-3">
         <div className="w-40 h-40 shrink-0">
           <Image
@@ -35,9 +67,7 @@ function PostCard({ post }: PostCardProps) {
           />
         </div>
         <div className="flex-1 min-w-0">
-          <h3 className="font-bold text-lg mb-2 line-clamp-2">
-            {post.title}
-          </h3>
+          <h3 className="font-bold text-lg mb-2 line-clamp-2">{post.title}</h3>
           <p className="text-sm text-gray-600 line-clamp-3 mb-2">
             {post.description}
           </p>
@@ -69,7 +99,6 @@ function PostCard({ post }: PostCardProps) {
     </div>
   );
 }
-
 
 /** ランキング機能実装時に追加 **/
 function RankingSection() {
@@ -212,18 +241,18 @@ export default function PostsPage() {
               </div> */}
             </div>
           </div>
-            <div className="w-48 mb-4">
-              <Select value={sortBy} onValueChange={setSortBy}>
-                <SelectTrigger>
-                  <SelectValue placeholder="よくプレイされている順" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="recent">新着順</SelectItem>
-                  <SelectItem value="popular">人気順</SelectItem>
-                  <SelectItem value="plays">プレイ回数順</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
+          <div className="w-48 mb-4">
+            <Select value={sortBy} onValueChange={setSortBy}>
+              <SelectTrigger>
+                <SelectValue placeholder="よくプレイされている順" />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="recent">新着順</SelectItem>
+                <SelectItem value="popular">人気順</SelectItem>
+                <SelectItem value="plays">プレイ回数順</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
           <div className="flex flex-col lg:flex-row gap-6">
             <div className="flex-1">
               <div className="space-y-4">
@@ -252,13 +281,10 @@ export default function PostsPage() {
                   </>
                 ) : (
                   <div className="text-center py-12 bg-white rounded-2xl">
-                    <p className="text-gray-500">
-                      投稿が見つかりませんでした
-                    </p>
+                    <p className="text-gray-500">投稿が見つかりませんでした</p>
                   </div>
                 )}
               </div>
-
             </div>
             <div className="space-y-6">
               <RankingSection />
