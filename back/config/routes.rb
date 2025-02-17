@@ -14,7 +14,7 @@ Rails.application.routes.draw do
       end
 
       resources :users, only: [:show] # ユーザー情報取得のエンドポイント
-      resources :posts, only: [:index, :show, :create, :destroy]
+      resources :posts, only: [:index, :show, :create, :update, :destroy]
 
     end
   end

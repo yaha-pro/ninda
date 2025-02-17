@@ -26,6 +26,13 @@ class Api::V1::PostsController < ApplicationController
 
   # 投稿の更新
   def update
+    post = @user.posts.find(params[:id])
+
+    if post.update(post_params)
+      render json: { message: 'Post updated successfully', post: post }, status: :ok
+    else
+      render json: { errors: post.errors.full_messages }, status: :unprocessable_entity
+    end
   end
 
   # 投稿の削除
