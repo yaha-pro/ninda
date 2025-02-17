@@ -1,6 +1,6 @@
 // ユーザー情報の型定義
 export interface User {
-    id: number;
+    id: string;
     email: string;
     name: string;
     bio?: string;
