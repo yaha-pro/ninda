@@ -26,8 +26,21 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
   const { user } = useAuth(); // 現在のユーザー情報を取得
   const { handleDelete } = useDeletePost();
 
+  const handleDeleteClick = (event: React.MouseEvent) => {
+    event.preventDefault(); // 親の Link の遷移を防ぐ
+    event.stopPropagation(); // イベントの伝播を防ぐ
+    handleDelete(post.id, post.title, setPosts);
+  };
+
   return (
-    <div className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow p-6">
+    <div
+      className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow p-6"
+      onClick={(event) => {
+        if (event.target instanceof HTMLButtonElement) {
+          event.stopPropagation(); // ボタンをクリックしたときのみ遷移を防ぐ
+        }
+      }}
+    >
       <div className="flex items-center justify-end">
         {user && user.id === post.user_id ? (
           <DropdownMenu>
@@ -45,7 +58,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
                 </Link>
               </DropdownMenuItem>
               <DropdownMenuItem
-                onSelect={() => handleDelete(post.id, post.title, setPosts)}
+                onClick={handleDeleteClick}
                 className="flex items-center gap-2 text-gray-500"
               >
                 <FiTrash />

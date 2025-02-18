@@ -18,17 +18,17 @@ export const useDeletePost = () => {
         await deletePost(postId);
         toast.success("" + postTitle + "が削除されました");
 
+        // 投稿情報を再取得
+        const updatedPosts = await getPosts();
+        setPosts(updatedPosts);
+
+        // カレントページにリダイレクト
+        router.push(pathname);
       } catch (error) {
         console.error("Error deleting or fetching posts:", error);
         toast.error("投稿の削除に失敗しました");
       }
     }
-    // 投稿情報を再取得
-    const updatedPosts = await getPosts();
-    setPosts(updatedPosts);
-
-    // カレントページにリダイレクト
-    router.push(pathname);
   };
 
   return { handleDelete };
