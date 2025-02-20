@@ -13,6 +13,7 @@ import type { Post } from "@/lib/types";
 import post_image_def from "/public/post_image_def.png";
 import toast from "react-hot-toast";
 import { useParams } from "next/navigation";
+import TypingGame from "@/components/TypingGame";
 
 export default function PostDetailPage() {
   const { user } = useAuth(); // 現在のユーザー情報を取得
@@ -20,6 +21,7 @@ export default function PostDetailPage() {
   const id: string = params.id as string; // 明示的に `string` 型に変換
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
+  const [isPlaying, setIsPlaying] = useState(false);
 
   useEffect(() => {
     if (!id) {
@@ -96,24 +98,32 @@ export default function PostDetailPage() {
       {/* Main Content */}
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl p-6 shadow-md border-8 border-[#FF8D76] h-[450px]">
-          <div className="max-w-2xl mx-auto text-center space-y-6">
-            <Image
-              src={post_image_def}
-              alt="Post image"
-              width={200}
-              height={200}
-              className="rounded-lg mx-auto"
+          {!isPlaying ? (
+            <div className="max-w-2xl mx-auto text-center space-y-6">
+              <Image
+                src={post_image_def}
+                alt="Post image"
+                width={200}
+                height={200}
+                className="rounded-lg mx-auto"
+              />
+              <h1 className="text-3xl font-extrabold text-gray-700">
+                {post.title}
+              </h1>
+              <Button
+                size="lg"
+                className="w-full max-w-xs text-[#FF8D76] border-2 border-[#FF8D76]"
+                onClick={() => setIsPlaying(true)}
+              >
+                スタート
+              </Button>
+            </div>
+          ) : (
+            <TypingGame
+              displayText={post.display_text}
+              typingText={post.typing_text}
             />
-            <h1 className="text-3xl font-extrabold text-gray-700">
-              {post.title}
-            </h1>
-            <Button
-              size="lg"
-              className="w-full max-w-xs text-[#FF8D76] border-2 border-[#FF8D76]"
-            >
-              スタート
-            </Button>
-          </div>
+          )}
         </div>
         {/* User Info */}
         <div className="flex items-center justify-between mt-2">
