@@ -7,6 +7,12 @@ import { Button } from "@/components/ui/button";
 import { ImagePlus } from "lucide-react";
 import { getPost, updatePost } from "@/lib/axios";
 import { useParams } from "next/navigation";
+import {
+  SMALL_KANA_MAP,
+  BASIC_KANA_TO_ROMAN,
+  COMPOUND_KANA_TO_ROMAN,
+  SPLIT_PATTERNS,
+} from "@/constants/KanaMappings";
 import Link from "next/link";
 import Image from "next/image";
 import edit_post_title from "/public/edit_post_title.png";
@@ -23,6 +29,24 @@ export default function EditPostPage() {
   // const [imageUrl, setImageUrl] = useState(""); // 画像投稿機能実装時に追加（以降関連項目についてコメントアウト）
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const validCharacters = new Set([
+    ...Object.keys(SMALL_KANA_MAP),
+    ...Object.keys(BASIC_KANA_TO_ROMAN),
+    ...Object.keys(COMPOUND_KANA_TO_ROMAN),
+    ...Object.keys(SPLIT_PATTERNS),
+    ..."abcdefghijklmnopqrstuvwxyz",
+    ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    ..."0123456789"
+  ]);
+
+  const validateInput = (input: string) => {
+    for (const char of input) {
+      if (!validCharacters.has(char)) {
+        return false;
+      }
+    }
+    return true;
+  };
 
   useEffect(() => {
     if (!id) {
@@ -60,6 +84,11 @@ export default function EditPostPage() {
       return;
     } else if (!typingText) {
       toast.error("問題のタイピングテキストを入力してください");
+      return;
+    }
+
+    if (!validateInput(typingText)) {
+      toast.error("タイピングテキストはひらがな、英数字を入力してください");
       return;
     }
 
@@ -172,7 +201,7 @@ export default function EditPostPage() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <label className="block text-lg font-bold">問題文</label>
-                <span className="text-xs text-gray-500">(500文字以内)</span>
+                <span className="text-xs text-gray-500">(50文字以内)</span>
               </div>
               <div className="flex items-center gap-2 text-gray-500 pt-2">
                 <label className="block text-sm font-medium">・表示文</label>
@@ -180,7 +209,7 @@ export default function EditPostPage() {
               <Textarea
                 value={displayText}
                 onChange={(e) => setDisplayText(e.target.value)}
-                maxLength={500}
+                maxLength={50}
                 placeholder="表示文を入力"
                 className="h-32"
               />

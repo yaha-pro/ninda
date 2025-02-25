@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { ChevronRight } from "lucide-react"; // 検索機能実装時に追加
+import { ChevronRight, ChevronLeft } from "lucide-react"; // 検索機能実装時に追加
 import {
   Select,
   SelectContent,
@@ -13,6 +13,7 @@ import PostCard from "@/components/PostCard";
 import { getPosts } from "@/lib/axios";
 import { Post } from "@/lib/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
 import posts_title from "/public/posts_title.png";
@@ -81,7 +82,7 @@ export default function PostsPage() {
   const [loading, setLoading] = useState(true);
   const [searchQuery] = useState("");
   const [sortBy, setSortBy] = useState("recent");
-  const [currentPage] = useState(1);
+  const [currentPage, setCurrentPage] = useState(1);
   const postsPerPage = 8;
 
   useEffect(() => {
@@ -124,7 +125,7 @@ export default function PostsPage() {
   const indexOfLastPost = currentPage * postsPerPage;
   const indexOfFirstPost = indexOfLastPost - postsPerPage;
   const currentPosts = sortedPosts.slice(indexOfFirstPost, indexOfLastPost);
-  // const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
+  const totalPages = Math.ceil(sortedPosts.length / postsPerPage);
 
   return (
     <>
@@ -192,19 +193,59 @@ export default function PostsPage() {
                           key={post.id}
                           className="block"
                         >
-                          <PostCard
-                            post={post}
-                            setPosts={setPosts}
-                          />
+                          <PostCard post={post} setPosts={setPosts} />
                         </Link>
                       ))}
                     </div>
+                    {totalPages > 1 && (
+                      <div className="flex justify-center items-center gap-2 pt-8">
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() =>
+                            setCurrentPage((prev) => Math.max(prev - 1, 1))
+                          }
+                          disabled={currentPage === 1}
+                        >
+                          <ChevronLeft className="h-4 w-4" />
+                        </Button>
+                        {[...Array(totalPages)].map((_, index) => (
+                          <Button
+                            key={index + 1}
+                            variant={
+                              currentPage === index + 1 ? "default" : "outline"
+                            }
+                            size="sm"
+                            className={
+                              currentPage === index + 1
+                                ? "bg-[#FF8D76] hover:bg-orange-300"
+                                : ""
+                            }
+                            onClick={() => setCurrentPage(index + 1)}
+                          >
+                            {index + 1}
+                          </Button>
+                        ))}
+                        <Button
+                          variant="outline"
+                          size="icon"
+                          onClick={() =>
+                            setCurrentPage((prev) =>
+                              Math.min(prev + 1, totalPages)
+                            )
+                          }
+                          disabled={currentPage === totalPages}
+                        >
+                          <ChevronRight className="h-4 w-4" />
+                        </Button>
+                      </div>
+                    )}
                   </>
                 ) : (
                   <div className="text-center py-12 bg-white rounded-2xl">
                     <p className="text-gray-500">投稿が見つかりませんでした</p>
                   </div>
-                )}
+                )}{" "}
               </div>
             </div>
             <div className="space-y-6">
