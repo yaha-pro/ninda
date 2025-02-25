@@ -52,3 +52,21 @@ export interface CreatePostParams {
   typing_text: string;
   // tags: string[]; // タグ機能実装時に追加
 }
+
+// タイピング結果の型定義
+export interface TypingResult {
+  id: string
+  user_id: string
+  post_id: string
+  play_time: number
+  accuracy: number
+  mistake_count: number
+  created_at: string
+}
+
+export interface SaveTypingResultParams {
+  post_id: string
+  play_time: number
+  accuracy: number
+  mistake_count: number
+}
