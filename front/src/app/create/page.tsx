@@ -11,6 +11,12 @@ import Link from "next/link";
 import Image from "next/image";
 import create_post_title from "/public/create_post_title.png";
 import toast from "react-hot-toast";
+import {
+  SMALL_KANA_MAP,
+  BASIC_KANA_TO_ROMAN,
+  COMPOUND_KANA_TO_ROMAN,
+  SPLIT_PATTERNS,
+} from "@/constants/KanaMappings";
 
 export default function CreatePostPage() {
   const router = useRouter();
@@ -21,6 +27,24 @@ export default function CreatePostPage() {
   const [typingText, setTypingText] = useState("");
   // const [imageUrl, setImageUrl] = useState(""); // 画像投稿機能実装時に追加（以降関連項目についてコメントアウト）
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const validCharacters = new Set([
+    ...Object.keys(SMALL_KANA_MAP),
+    ...Object.keys(BASIC_KANA_TO_ROMAN),
+    ...Object.keys(COMPOUND_KANA_TO_ROMAN),
+    ...Object.keys(SPLIT_PATTERNS),
+    ..."abcdefghijklmnopqrstuvwxyz",
+    ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ",
+    ..."0123456789"
+  ]);
+
+  const validateInput = (input: string) => {
+    for (let char of input) {
+      if (!validCharacters.has(char)) {
+        return false;
+      }
+    }
+    return true;
+  };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -28,13 +52,16 @@ export default function CreatePostPage() {
     if (!title) {
       toast.error("タイトルを入力してください");
       return;
-    }
-    else if (!displayText) {
+    } else if (!displayText) {
       toast.error("問題の表示文を入力してください");
       return;
-    }
-    else if (!typingText) {
+    } else if (!typingText) {
       toast.error("問題のタイピングテキストを入力してください");
+      return;
+    }
+
+    if (!validateInput(typingText)) {
+      toast.error("タイピングテキストはひらがな、英数字を入力してください");
       return;
     }
 
@@ -48,7 +75,7 @@ export default function CreatePostPage() {
         typing_text: typingText,
         // tags: tags.split(",").map(tag => tag.trim()).filter(Boolean)
       });
-      
+
       toast.success("投稿を作成しました");
       router.push("/posts");
     } catch (error) {
@@ -144,7 +171,7 @@ export default function CreatePostPage() {
               <Textarea
                 value={displayText}
                 onChange={(e) => setDisplayText(e.target.value)}
-                maxLength={500}
+                maxLength={50}
                 placeholder="表示文を入力"
                 className="h-32"
               />
