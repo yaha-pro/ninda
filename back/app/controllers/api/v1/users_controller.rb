@@ -3,13 +3,9 @@ class Api::V1::UsersController < ApplicationController
 
   # ユーザー情報を取得
   def show
-    Rails.logger.info "current_api_v1_user: #{current_api_v1_user.inspect}"
-    user = User.find_by(id: params[:id])
-
-    if user
-      render json: user, status: :ok
-    else
-      render json: { errors: ["ユーザーが見つかりません"] }, status: :not_found
-    end
+    user = User.find(params[:id])
+    render json: user, status: :ok
+  rescue ActiveRecord::RecordNotFound
+    render json: { error: "ユーザーが見つかりません" }, status: :not_found
   end
 end

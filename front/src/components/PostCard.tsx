@@ -1,6 +1,7 @@
 "use client";
 
-import React from "react";
+import type React from "react";
+import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FiMoreVertical, FiEdit, FiTrash } from "react-icons/fi";
 import { Heart } from "lucide-react";
@@ -11,11 +12,12 @@ import {
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
-import { Post } from "@/lib/types";
+import type { Post, User } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
 import post_image_def from "/public/post_image_def.png";
 import { useDeletePost } from "@/hooks/useDeletePost";
+import { getUser } from "@/lib/axios";
 
 interface PostCardProps {
   post: Post;
@@ -25,11 +27,40 @@ interface PostCardProps {
 const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
   const { user } = useAuth(); // 現在のユーザー情報を取得
   const { handleDelete } = useDeletePost();
+  const [postUser, setPostUser] = useState<User | null>(null);
+
+ // 投稿者の取得
+  useEffect(() => {
+    if (!post?.user_id) return;
+
+    const fetchPostUser = async () => {
+      try {
+        const userData = await getUser(post.user_id);
+        setPostUser(userData);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    fetchPostUser();
+  }, [post?.user_id]);
 
   const handleDeleteClick = (event: React.MouseEvent) => {
     event.preventDefault(); // 親の Link の遷移を防ぐ
     event.stopPropagation(); // イベントの伝播を防ぐ
     handleDelete(post.id, post.title, setPosts);
+  };
+
+  // ユーザー名の表示用関数
+  const getUserInitial = () => {
+    if (postUser && postUser.name) {
+      return postUser.name.charAt(0).toUpperCase();
+    }
+    return post.user_id.toString().charAt(0).toUpperCase();
+  };
+
+  const getUserName = () => {
+    return postUser?.name;
   };
 
   return (
@@ -73,7 +104,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
       <div className="flex gap-3">
         <div className="w-40 h-40 shrink-0">
           <Image
-            src={post_image_def}
+            src={post_image_def || "/placeholder.svg"}
             alt={post.title}
             className="w-40 h-40 object-cover rounded-lg"
           />
@@ -89,10 +120,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
         <div className="flex items-center gap-2">
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-red-100 text-red-600 text-xs">
-              {post.user_id.toString().charAt(0).toUpperCase()}
+              {getUserInitial()}
             </AvatarFallback>
           </Avatar>
-          <span className="text-sm text-gray-500">ユーザー</span>
+          <span className="text-sm text-gray-500">{getUserName()}</span>
         </div>
         <button className="text-red-500 hover:text-red-600 transition-colors">
           <Heart className="w-5 h-5" />
