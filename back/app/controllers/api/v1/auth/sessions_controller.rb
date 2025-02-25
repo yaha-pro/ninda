@@ -1,5 +1,4 @@
 class Api::V1::Auth::SessionsController < DeviseTokenAuth::SessionsController
-  skip_before_action :set_user, only: [:create]
 
   def index
     if current_api_v1_user
