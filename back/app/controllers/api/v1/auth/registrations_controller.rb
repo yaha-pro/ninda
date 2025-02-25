@@ -1,5 +1,4 @@
 class Api::V1::Auth::RegistrationsController < DeviseTokenAuth::RegistrationsController
-  skip_before_action :set_user, only: [:create]
   private
 
   def sign_up_params

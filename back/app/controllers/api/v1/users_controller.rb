@@ -1,5 +1,4 @@
 class Api::V1::UsersController < ApplicationController
-  before_action :authenticate_api_v1_user! # ログインユーザーのみアクセス可能
 
   # ユーザー情報を取得
   def show

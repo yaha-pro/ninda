@@ -1,8 +1,16 @@
 class ApplicationController < ActionController::API
-  before_action :set_user
+  before_action :set_user_if_authenticated
   include DeviseTokenAuth::Concerns::SetUserByToken
 
   private
+
+  def set_user_if_authenticated
+    if current_api_v1_user
+      set_user
+    else
+      Rails.logger.info "ユーザーは認証されていません"
+    end
+  end
 
   def set_user
     @user = current_api_v1_user

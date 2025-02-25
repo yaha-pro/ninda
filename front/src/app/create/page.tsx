@@ -1,12 +1,13 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
 import { ImagePlus } from "lucide-react";
 import { createPost } from "@/lib/axios";
 import { useRouter } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
 import Link from "next/link";
 import Image from "next/image";
 import create_post_title from "/public/create_post_title.png";
@@ -27,6 +28,7 @@ export default function CreatePostPage() {
   const [typingText, setTypingText] = useState("");
   // const [imageUrl, setImageUrl] = useState(""); // 画像投稿機能実装時に追加（以降関連項目についてコメントアウト）
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const { isAuthenticated } = useAuth();
   const validCharacters = new Set([
     ...Object.keys(SMALL_KANA_MAP),
     ...Object.keys(BASIC_KANA_TO_ROMAN),
@@ -34,8 +36,15 @@ export default function CreatePostPage() {
     ...Object.keys(SPLIT_PATTERNS),
     ..."abcdefghijklmnopqrstuvwxyz",
     ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ",
-    ..."0123456789"
+    ..."0123456789",
   ]);
+
+  // 未ログインならエラーページへリダイレクト
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/error");
+    }
+  }, [isAuthenticated, router]);
 
   const validateInput = (input: string) => {
     for (const char of input) {

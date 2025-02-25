@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { ImagePlus } from "lucide-react";
 import { getPost, updatePost } from "@/lib/axios";
 import { useParams } from "next/navigation";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter } from "next/navigation";
 import {
   SMALL_KANA_MAP,
   BASIC_KANA_TO_ROMAN,
@@ -17,6 +19,7 @@ import Link from "next/link";
 import Image from "next/image";
 import edit_post_title from "/public/edit_post_title.png";
 import toast from "react-hot-toast";
+
 
 export default function EditPostPage() {
   const params = useParams(); // URLから投稿IDを取得
@@ -29,6 +32,8 @@ export default function EditPostPage() {
   // const [imageUrl, setImageUrl] = useState(""); // 画像投稿機能実装時に追加（以降関連項目についてコメントアウト）
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [loading, setLoading] = useState(true);
+  const { isAuthenticated } = useAuth();
+  const router = useRouter();
   const validCharacters = new Set([
     ...Object.keys(SMALL_KANA_MAP),
     ...Object.keys(BASIC_KANA_TO_ROMAN),
@@ -38,6 +43,13 @@ export default function EditPostPage() {
     ..."ABCDEFGHIJKLMNOPQRSTUVWXYZ",
     ..."0123456789"
   ]);
+
+  // 未ログインならエラーページへリダイレクト
+  useEffect(() => {
+    if (!isAuthenticated) {
+      router.push("/error");
+    }
+  }, [isAuthenticated, router]);
 
   const validateInput = (input: string) => {
     for (const char of input) {
