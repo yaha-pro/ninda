@@ -8,8 +8,8 @@ import { Heart } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 // import { Input } from "@/components/ui/input"
-import { getPost } from "@/lib/axios";
-import type { Post } from "@/lib/types";
+import { getPost, getUser } from "@/lib/axios";
+import type { Post, User } from "@/lib/types";
 import post_image_def from "/public/post_image_def.png";
 import toast from "react-hot-toast";
 import { useParams } from "next/navigation";
@@ -22,7 +22,9 @@ export default function PostDetailPage() {
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
   const [isPlaying, setIsPlaying] = useState(false);
+  const [postUser, setPostUser] = useState<User | null>(null);
 
+  // 投稿の取得
   useEffect(() => {
     if (!id) {
       toast.error("無効な投稿IDです");
@@ -45,6 +47,22 @@ export default function PostDetailPage() {
     fetchPost();
   }, [id]);
 
+  // 投稿者の取得
+  useEffect(() => {
+    if (!post?.user_id) return;
+
+    const fetchPostUser = async () => {
+      try {
+        const userData = await getUser(post.user_id);
+        setPostUser(userData);
+      } catch (error) {
+        console.error("Failed to fetch user data:", error);
+      }
+    };
+
+    fetchPostUser();
+  }, [post?.user_id]);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f5f7ef] p-4">
@@ -65,6 +83,18 @@ export default function PostDetailPage() {
       </div>
     );
   }
+
+  // ユーザー名の表示用関数
+  const getUserInitial = () => {
+    if (postUser && postUser.name) {
+      return postUser.name.charAt(0).toUpperCase();
+    }
+    return post.user_id.toString().charAt(0).toUpperCase();
+  };
+
+  const getUserName = () => {
+    return postUser?.name || "ユーザー";
+  };
 
   return (
     <main className="min-h-screen bg-[#f5f7ef] sm:px-16 py-12">
@@ -130,10 +160,10 @@ export default function PostDetailPage() {
           <div className="flex items-center gap-3">
             <Avatar>
               <AvatarFallback className="bg-red-100 text-red-600">
-                {post.user_id.toString().charAt(0).toUpperCase()}
+              {getUserInitial()}
               </AvatarFallback>
             </Avatar>
-            <span className="text-gray-600">ユーザー</span>
+            <span className="text-gray-600">{getUserName()}</span>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-500">

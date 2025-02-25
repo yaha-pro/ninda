@@ -116,3 +116,9 @@ export async function updatePost(id: string, params: Partial<CreatePostParams>):
 export async function deletePost(id: string): Promise<void> {
   await api.delete(`/posts/${id}`);
 }
+
+// ユーザー情報の取得
+export async function getUser(id: string): Promise<User> {
+  const response = await api.get(`/users/${id}`)
+  return response.data
+}
