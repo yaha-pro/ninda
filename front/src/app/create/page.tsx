@@ -38,7 +38,7 @@ export default function CreatePostPage() {
   ]);
 
   const validateInput = (input: string) => {
-    for (let char of input) {
+    for (const char of input) {
       if (!validCharacters.has(char)) {
         return false;
       }
