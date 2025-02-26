@@ -15,7 +15,11 @@ Rails.application.routes.draw do
 
       resources :users, only: [:show] # ユーザー情報取得のエンドポイント
       resources :posts, only: [:index, :show, :create, :update, :destroy]
-
+      resources :typing_games, only: [:index, :create] do
+        collection do
+          get 'user_results', to: 'typing_games#user_results'
+        end
+      end
     end
   end
 

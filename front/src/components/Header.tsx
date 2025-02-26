@@ -41,11 +41,13 @@ export function Header() {
                 <Link href="/create" passHref>
                   <Button>投稿する</Button>
                 </Link>
-                <Avatar className="h-12 w-12 border-white border-4 shadow-md">
-                  <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md">
-                    {user ? getInitials(user.name) : "U"}
-                  </AvatarFallback>
-                </Avatar>
+                <Link href="/mypage" passHref>
+                  <Avatar className="h-12 w-12 border-white border-4 shadow-md">
+                    <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md">
+                      {user ? getInitials(user.name) : "U"}
+                    </AvatarFallback>
+                  </Avatar>
+                </Link>
               </>
             ) : (
               <>

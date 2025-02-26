@@ -162,6 +162,6 @@ export async function saveTypingResult(
 
 // ユーザーのタイピング結果履歴の取得
 export async function getUserTypingResults(): Promise<TypingResult[]> {
-  const response = await api.get("/typing_games");
+  const response = await api.get("/typing_games/user_results");
   return response.data;
 }

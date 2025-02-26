@@ -50,9 +50,14 @@ export function HamburgerMenu() {
           <nav className="mt-4 space-y-4 text-gray-600">
             {isAuthenticated ? (
               <>
-                <a href="#" className="block px-4 py-2 text-lg hover:underline">
-                  マイページ
-                </a>
+                <Link href="/mypage" passHref className="block">
+                  <button
+                    onClick={() => setIsMenuOpen(false)}
+                    className="px-4 py-2 text-lg hover:underline"
+                  >
+                    マイページ
+                  </button>
+                </Link>
                 <button
                   onClick={handleLogout}
                   className="block w-full text-left px-4 py-2 text-lg hover:underline"

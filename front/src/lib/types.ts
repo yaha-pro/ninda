@@ -41,6 +41,7 @@ export interface Post {
   created_at: string;
   updated_at: string;
   // tags: string[]; // タグ機能実装時に追加
+  user?: User
 }
 
 // 投稿作成時のパラメータ
@@ -62,6 +63,7 @@ export interface TypingResult {
   accuracy: number
   mistake_count: number
   created_at: string
+  post?: Post
 }
 
 export interface SaveTypingResultParams {
