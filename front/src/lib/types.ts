@@ -41,6 +41,7 @@ export interface Post {
   created_at: string;
   updated_at: string;
   // tags: string[]; // タグ機能実装時に追加
+  user?: User
 }
 
 // 投稿作成時のパラメータ
@@ -51,4 +52,23 @@ export interface CreatePostParams {
   display_text: string;
   typing_text: string;
   // tags: string[]; // タグ機能実装時に追加
+}
+
+// タイピング結果の型定義
+export interface TypingResult {
+  id: string
+  user_id: string
+  post_id: string
+  play_time: number
+  accuracy: number
+  mistake_count: number
+  created_at: string
+  post?: Post
+}
+
+export interface SaveTypingResultParams {
+  post_id: string
+  play_time: number
+  accuracy: number
+  mistake_count: number
 }

@@ -1,5 +1,6 @@
 class Post < ApplicationRecord
   belongs_to :user
+  has_many :typing_games, dependent: :destroy
 
   validates :title, presence: true, length: { maximum: 40 }
   validates :description, length: { maximum: 500 }, allow_blank: true

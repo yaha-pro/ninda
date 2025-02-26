@@ -8,6 +8,7 @@ class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
   has_many :posts, dependent: :destroy # ユーザーが削除されたら、関連する投稿も削除
+  has_many :typing_games, dependent: :destroy # # ユーザーが削除されたら、タイピング成績も削除
 
   # バリデーション
   validates :name, presence: true, uniqueness: true

@@ -5,12 +5,15 @@ import TypingPlay from "./TypingPlay";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { saveTypingResult } from "@/lib/axios";
+import { useAuth } from "@/contexts/AuthContext";
 
 type GameState = "waiting" | "loading" | "countdown" | "playing" | "finished";
 
 interface TypingGameProps {
   displayText: string;
   typingText: string;
+  postId?: string; // タイピングするテキストの投稿ID
 }
 
 interface GameResult {
@@ -23,6 +26,7 @@ interface GameResult {
 export default function TypingGame({
   displayText,
   typingText,
+  postId,
 }: TypingGameProps) {
   const [gameState, setGameState] = useState<GameState>("waiting");
   const [gameResult, setGameResult] = useState<GameResult>({
@@ -32,10 +36,10 @@ export default function TypingGame({
     accuracy: 0,
   });
 
-  // カウントダウンの状態を管理
-  const [count, setCount] = useState(3);
+  const [count, setCount] = useState(3); // カウントダウンの状態を管理
+  const { isAuthenticated } = useAuth();
 
-  const handleGameEnd = (
+  const handleGameEnd = async (
     finalScore: number,
     finalTime: number,
     totalMistakes: number,
@@ -48,13 +52,27 @@ export default function TypingGame({
       accuracy: accuracy,
     });
     setGameState("finished");
+
+    // ログインしている場合のみ結果を保存
+    if (isAuthenticated && postId) {
+      try {
+        await saveTypingResult({
+          post_id: postId,
+          play_time: finalTime,
+          accuracy: accuracy,
+          mistake_count: totalMistakes,
+        });
+      } catch (error) {
+        console.error("タイピング結果の保存に失敗しました", error);
+      }
+    }
   };
 
   const handleCancel = () => {
-    setGameState("waiting")
-    setCount(3)
-    setGameResult({ score: 0, time: 0, mistakes: 0, accuracy: 0 })
-  }
+    setGameState("waiting");
+    setCount(3);
+    setGameResult({ score: 0, time: 0, mistakes: 0, accuracy: 0 });
+  };
 
   // スペースキーでゲーム開始
   useEffect(() => {

@@ -152,6 +152,7 @@ export default function PostDetailPage() {
             <TypingGame
               displayText={post.display_text}
               typingText={post.typing_text}
+              postId={post.id}
             />
           )}
         </div>
