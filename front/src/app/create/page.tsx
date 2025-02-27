@@ -4,7 +4,7 @@ import { useState, useEffect } from "react";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Button } from "@/components/ui/button";
-import { ImagePlus } from "lucide-react";
+// import { ImagePlus } from "lucide-react";
 import { createPost } from "@/lib/axios";
 import { useRouter } from "next/navigation";
 import { useAuth } from "@/contexts/AuthContext";

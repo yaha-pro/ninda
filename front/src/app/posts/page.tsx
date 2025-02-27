@@ -12,7 +12,7 @@ import {
 import PostCard from "@/components/PostCard";
 import { getPosts } from "@/lib/axios";
 import { Post } from "@/lib/types";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
