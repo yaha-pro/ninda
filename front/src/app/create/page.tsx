@@ -172,7 +172,7 @@ export default function CreatePostPage() {
             <div className="space-y-2">
               <div className="flex items-center gap-2">
                 <label className="block text-lg font-bold">問題文</label>
-                <span className="text-xs text-gray-500">(500文字以内)</span>
+                <span className="text-xs text-gray-500">(50文字以内)</span>
               </div>
               <div className="flex items-center gap-2 text-gray-500 pt-2">
                 <label className="block text-sm font-medium">・表示文</label>
