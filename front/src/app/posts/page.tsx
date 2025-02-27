@@ -12,7 +12,7 @@ import {
 import PostCard from "@/components/PostCard";
 import { getPosts } from "@/lib/axios";
 import { Post } from "@/lib/types";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+// import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,62 +20,62 @@ import posts_title from "/public/posts_title.png";
 import toast from "react-hot-toast";
 
 /** ランキング機能実装時に追加 **/
-function RankingSection() {
-  return (
-    <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
-      <div className="flex justify-between items-center mb-6 gap-12">
-        <h2 className="font-bold text-lg">総合ランキング</h2>
-        <Link
-          href="#"
-          className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
-        >
-          ユーザー一覧 <ChevronRight className="w-4 h-4" />
-        </Link>
-      </div>
-      <div className="space-y-4">
-        {[1, 2, 3, 4, 5].map((rank) => (
-          <div key={rank} className="flex items-center gap-3">
-            <span className="font-bold text-lg w-6">{rank}</span>
-            <Avatar className="h-8 w-8">
-              <AvatarFallback className="bg-red-100 text-red-600">
-                U
-              </AvatarFallback>
-            </Avatar>
-            <span className="text-sm">ユーザー</span>
-          </div>
-        ))}
-      </div>
-    </div>
-  );
-}
+// function RankingSection() {
+//   return (
+//     <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
+//       <div className="flex justify-between items-center mb-6 gap-12">
+//         <h2 className="font-bold text-lg">総合ランキング</h2>
+//         <Link
+//           href="#"
+//           className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
+//         >
+//           ユーザー一覧 <ChevronRight className="w-4 h-4" />
+//         </Link>
+//       </div>
+//       <div className="space-y-4">
+//         {[1, 2, 3, 4, 5].map((rank) => (
+//           <div key={rank} className="flex items-center gap-3">
+//             <span className="font-bold text-lg w-6">{rank}</span>
+//             <Avatar className="h-8 w-8">
+//               <AvatarFallback className="bg-red-100 text-red-600">
+//                 U
+//               </AvatarFallback>
+//             </Avatar>
+//             <span className="text-sm">ユーザー</span>
+//           </div>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
 
 /** タグ機能実装時に追加 **/
-function TagsSection() {
-  return (
-    <div className="bg-white rounded-2xl p-6 shadow-sm">
-      <div className="flex justify-between items-center mb-6">
-        <h2 className="font-bold text-lg">おすすめタグ</h2>
-        <Link
-          href="#"
-          className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
-        >
-          タグ一覧 <ChevronRight className="w-4 h-4" />
-        </Link>
-      </div>
-      <div className="space-y-4">
-        {["タグ", "タグ", "タグ", "タグ", "タグ", "タグ"].map((tag, index) => (
-          <Link
-            key={index}
-            href={`/posts?tag=${tag}`}
-            className="block text-sm hover:text-red-600 transition-colors"
-          >
-            #{tag}
-          </Link>
-        ))}
-      </div>
-    </div>
-  );
-}
+// function TagsSection() {
+//   return (
+//     <div className="bg-white rounded-2xl p-6 shadow-sm">
+//       <div className="flex justify-between items-center mb-6">
+//         <h2 className="font-bold text-lg">おすすめタグ</h2>
+//         <Link
+//           href="#"
+//           className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
+//         >
+//           タグ一覧 <ChevronRight className="w-4 h-4" />
+//         </Link>
+//       </div>
+//       <div className="space-y-4">
+//         {["タグ", "タグ", "タグ", "タグ", "タグ", "タグ"].map((tag, index) => (
+//           <Link
+//             key={index}
+//             href={`/posts?tag=${tag}`}
+//             className="block text-sm hover:text-red-600 transition-colors"
+//           >
+//             #{tag}
+//           </Link>
+//         ))}
+//       </div>
+//     </div>
+//   );
+// }
 
 export default function PostsPage() {
   const [posts, setPosts] = useState<Post[]>([]);
@@ -248,10 +248,10 @@ export default function PostsPage() {
                 )}{" "}
               </div>
             </div>
-            <div className="space-y-6">
+            {/* <div className="space-y-6">
               <RankingSection />
               <TagsSection />
-            </div>
+            </div> */}
           </div>
         </div>
       </main>

@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
-import { Heart } from "lucide-react";
+// import { Heart } from "lucide-react";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 // import { Input } from "@/components/ui/input"
@@ -87,9 +87,9 @@ export default function PostDetailPage() {
   // ユーザー名の表示用関数
   const getUserInitial = () => {
     if (postUser && postUser.name) {
-      return postUser.name.charAt(0).toUpperCase();
+      return postUser.name.substring(0, 2).toUpperCase();
     }
-    return post.user_id.toString().charAt(0).toUpperCase();
+    return post.user_id.toString().substring(0, 2).toUpperCase();
   };
 
   const getUserName = () => {
@@ -171,13 +171,13 @@ export default function PostDetailPage() {
               公開日：{new Date(post.created_at).toLocaleDateString()}
             </div>
             {/* <div className="text-sm text-gray-500">プレイ回数：{post.play_count || 0}</div> */}
-            <Button
+            {/* <Button
               variant="ghost"
               size="icon"
               className="border border-[#FF8D76]"
             >
               <Heart className="w-5 h-5" />
-            </Button>
+            </Button> */}
           </div>
         </div>
 

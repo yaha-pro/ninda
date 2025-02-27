@@ -16,7 +16,7 @@ export function Header() {
 
   // ユーザーのイニシャルを取得する関数
   const getInitials = (name: string) => {
-    return name.charAt(0).toUpperCase();
+    return name.substring(0, 2).toUpperCase();
   };
 
   return (
@@ -44,7 +44,7 @@ export function Header() {
                 <Link href="/mypage" passHref>
                   <Avatar className="h-12 w-12 border-white border-4 shadow-md">
                     <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md">
-                      {user ? getInitials(user.name) : "U"}
+                      {user ? getInitials(user.name) : "ND"}
                     </AvatarFallback>
                   </Avatar>
                 </Link>
