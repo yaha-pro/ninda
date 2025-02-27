@@ -6,6 +6,8 @@ import { getUserTypingResults } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import type { TypingResult } from "@/lib/types";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+
 import ResultsTable from "./results-table";
 // import UserProfile from "./user-profile" // プロフィール編集機能実装時に追加
 import PostsList from "./posts-list";
@@ -41,15 +43,21 @@ export default function MyPage() {
     }
   }, [user]);
 
+  // ユーザーのイニシャルを取得する関数
+  const getInitials = (name: string) => {
+    return name.substring(0, 2).toUpperCase();
+  };
+
   return (
     <div className="bg-[#f5f2ed]">
       <div className="container max-w-4xl mx-auto px-4 py-8">
         {/* ユーザー情報表示エリア */}
-        <div className="flex flex-col items-center text-center mb-8">
-          <div className="w-24 h-24 bg-gray-200 rounded-full flex items-center justify-center">
-            {/* プロフィール画像（実装予定） */}
-            <span className="text-gray-500">画像</span>
-          </div>
+        <div className="flex flex-col items-center text-center justify-center mb-8">
+          <Avatar className="h-32 w-32 border-white border-4 shadow-md">
+            <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md text-4xl">
+              {user ? getInitials(user.name) : "ND"}
+            </AvatarFallback>
+          </Avatar>
           <h2 className="text-2xl font-bold mt-4">{user?.name}</h2>
           <p className="mt-2 text-sm text-muted-foreground max-w-md">
             {user?.bio || "自己紹介がありません"}
@@ -75,16 +83,20 @@ export default function MyPage() {
         {/* タブナビゲーション */}
         <Tabs defaultValue="posts" className="mt-8">
           <TabsList className="w-full justify-start">
+            <TabsTrigger value="results" className="flex-1">
+              成績
+            </TabsTrigger>
             <TabsTrigger value="posts" className="flex-1">
               投稿一覧
             </TabsTrigger>
             <TabsTrigger value="likes" className="flex-1">
               いいね一覧
             </TabsTrigger>
-            <TabsTrigger value="results" className="flex-1">
-              成績
-            </TabsTrigger>
           </TabsList>
+
+          <TabsContent value="results" className="mt-6">
+            <ResultsTable results={results} isLoading={isLoading} />
+          </TabsContent>
 
           <TabsContent value="posts" className="mt-6">
             <PostsList />
@@ -92,10 +104,6 @@ export default function MyPage() {
 
           <TabsContent value="likes" className="mt-6">
             <LikesList />
-          </TabsContent>
-
-          <TabsContent value="results" className="mt-6">
-            <ResultsTable results={results} isLoading={isLoading} />
           </TabsContent>
         </Tabs>
       </div>

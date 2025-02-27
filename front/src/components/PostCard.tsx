@@ -4,7 +4,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FiMoreVertical, FiEdit, FiTrash } from "react-icons/fi";
-import { Heart } from "lucide-react";
+// import { Heart } from "lucide-react";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -125,9 +125,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
           </Avatar>
           <span className="text-sm text-gray-500">{getUserName()}</span>
         </div>
-        <button className="text-red-500 hover:text-red-600 transition-colors">
+        {/* <button className="text-red-500 hover:text-red-600 transition-colors">
           <Heart className="w-5 h-5" />
-        </button>
+        </button> */}
       </div>
     </div>
   );

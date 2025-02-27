@@ -115,10 +115,10 @@ export default function CreatePostPage() {
             />
           </div>
           <form onSubmit={handleSubmit} className="space-y-8">
-            <div className="space-y-2">
+            {/* <div className="space-y-2">
               <label className="block text-lg font-bold">サムネイル</label>
               <div className="w-32 h-32 bg-gray-100 border-black border-2 rounded flex items-center justify-center cursor-pointer hover:bg-gray-200 transition-colors">
-                {/* {imageUrl ? (
+                {imageUrl ? (
                   <img
                     src={imageUrl}
                     alt="サムネイル"
@@ -129,13 +129,13 @@ export default function CreatePostPage() {
                     <ImagePlus className="w-8 h-8 mb-2" />
                     <span className="text-xs">画像を選択する</span>
                   </div>
-                )} */}
+                )}
                 <div className="flex flex-col items-center text-gray-500">
                   <ImagePlus className="w-8 h-8 mb-2" />
                   <span className="text-xs">画像を選択する</span>
                 </div>
               </div>
-            </div>
+            </div> */}
 
             <div className="space-y-2">
               <label className="block text-lg font-bold">タイトル</label>
