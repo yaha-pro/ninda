@@ -126,7 +126,7 @@ export default function ResultsTable({ results, isLoading }: ResultsTableProps) 
                   variant="ghost"
                   size="sm"
                   onClick={() => handleSort("play_time")}
-                  className="flex items-center gap-1 hover:bg-transparent"
+                  className="flex items-center gap-1 hover:bg-transparent border-none shadow-none"
                 >
                   タイム
                   {getSortIcon("play_time")}
@@ -138,7 +138,7 @@ export default function ResultsTable({ results, isLoading }: ResultsTableProps) 
                   variant="ghost"
                   size="sm"
                   onClick={() => handleSort("accuracy")}
-                  className="flex items-center gap-1 hover:bg-transparent"
+                  className="flex items-center gap-1 hover:bg-transparent border-none shadow-none"
                 >
                   正確率
                   {getSortIcon("accuracy")}
@@ -149,7 +149,7 @@ export default function ResultsTable({ results, isLoading }: ResultsTableProps) 
                   variant="ghost"
                   size="sm"
                   onClick={() => handleSort("created_at")}
-                  className="flex items-center gap-1 hover:bg-transparent"
+                  className="flex items-center gap-1 hover:bg-transparent border-none shadow-none"
                 >
                   日付
                   {getSortIcon("created_at")}

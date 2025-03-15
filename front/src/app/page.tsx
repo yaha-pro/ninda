@@ -9,10 +9,10 @@ export default function Home() {
         src={hero_bg_image}
         alt="背景画像"
         layout="fill"
-        className="-z-10"
+        className="z-0"
         priority
       />
-      <div className="text-center mb-16">
+      <div className="text-center mb-16 relative z-10">
         <div className="inline-block rounded-full mb-8">
           <Image
             src={ninda_hero_logo}

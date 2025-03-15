@@ -17,16 +17,16 @@ export default function RootLayout({
   return (
     <html lang="ja">
       <body>
-          <div className="w-full min-h-screen max-w-8xl mx-auto flex flex-col mt-16">
-            <AuthProvider>
-              <Header />
-              <main className="flex-1">
-                {children}
-              </main>
-              <Footer />
-              <Toaster />
-            </AuthProvider>
-          </div>
+        <div className="w-full min-h-screen max-w-8xl mx-auto flex flex-col mt-16">
+          <AuthProvider>
+            <Header />
+            <main className="flex-1 bg-[#f5f2ed]">
+              {children}
+            </main>
+            <Footer />
+            <Toaster />
+          </AuthProvider>
+        </div>
       </body>
     </html>
   );

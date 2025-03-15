@@ -7,6 +7,9 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import type { TypingResult } from "@/lib/types";
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Button } from "@/components/ui/button";
+import { ProfileEditModal } from "@/components/ProfileEditModal";
+import Link from "next/link";
 
 import ResultsTable from "./results-table";
 // import UserProfile from "./user-profile" // プロフィール編集機能実装時に追加
@@ -15,6 +18,7 @@ import LikesList from "./likes-list";
 
 export default function MyPage() {
   const { user, isAuthenticated } = useAuth();
+  const [isProfileEditModalOpen, setIsProfileEditModalOpen] = useState(false);
   const [results, setResults] = useState<TypingResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const router = useRouter();
@@ -50,7 +54,27 @@ export default function MyPage() {
 
   return (
     <div className="bg-[#f5f2ed]">
-      <div className="container max-w-4xl mx-auto px-4 py-8">
+      <div className="container max-w-4xl mx-auto px-4 py-10">
+        {/* Breadcrumb */}
+        <div className="flex justify-between">
+          <div className="flex items-center gap-2 text-sm">
+            <Link href="/" className="text-blue-500 hover:underline">
+              TOP
+            </Link>
+            <span className="text-gray-500">&gt;</span>
+            <span className="text-gray-500">マイページ</span>
+          </div>
+          <div className="flex">
+            <Button
+              variant="outline"
+              size="sm"
+              className="w-full max-w-xs text-md"
+              onClick={() => setIsProfileEditModalOpen(true)}
+            >
+              プロフィール編集
+            </Button>
+          </div>
+        </div>
         {/* ユーザー情報表示エリア */}
         <div className="flex flex-col items-center text-center justify-center mb-8">
           <Avatar className="h-32 w-32 border-white border-4 shadow-md">
@@ -58,7 +82,7 @@ export default function MyPage() {
               {user ? getInitials(user.name) : "ND"}
             </AvatarFallback>
           </Avatar>
-          <h2 className="text-2xl font-bold mt-4">{user?.name}</h2>
+          <h2 className="text-3xl font-bold mt-4">{user?.name}</h2>
           <p className="mt-2 text-sm text-muted-foreground max-w-md">
             {user?.bio || "自己紹介がありません"}
           </p>
@@ -107,6 +131,10 @@ export default function MyPage() {
           </TabsContent>
         </Tabs>
       </div>
+      <ProfileEditModal
+        isOpen={isProfileEditModalOpen}
+        onClose={() => setIsProfileEditModalOpen(false)}
+      />
     </div>
   );
 }
