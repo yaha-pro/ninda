@@ -41,7 +41,7 @@ export function ProfileEditModal({ isOpen, onClose }: ProfileEditModalProps) {
       setUser((prev) => (prev ? { ...prev, name, bio } : null));
       toast.success("プロフィールを更新しました");
       onClose();
-    } catch (error) {
+    } catch {
       toast.error("プロフィールの更新に失敗しました");
     } finally {
       setIsLoading(false);
