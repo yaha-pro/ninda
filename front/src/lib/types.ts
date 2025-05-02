@@ -9,10 +9,6 @@ export interface User {
   posts_count: number;
 }
 
-  export interface UserListResponse {
-    data: User[];
-  }
-
   export interface LoginResponse {
     data: User;
   }

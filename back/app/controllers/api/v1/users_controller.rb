@@ -9,7 +9,7 @@ class Api::V1::UsersController < ApplicationController
   end
 
   def index
-    users = User.select(:id, :name, :profile_image, :total_play_count, :posts_count, :created_at).order(created_at: :desc)
+    users = User.select(:id, :name, :profile_image, :bio, :total_play_count, :posts_count, :created_at).order(created_at: :desc)
 
     render json: users, status: :ok
   end

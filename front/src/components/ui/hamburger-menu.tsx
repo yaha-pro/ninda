@@ -94,9 +94,14 @@ export function HamburgerMenu() {
                 投稿一覧
               </button>
             </Link>
-            <a href="#" className="block px-4 py-2 text-lg hover:underline">
-              ユーザー一覧
-            </a>
+            <Link href="/users" passHref className="block">
+              <button
+                onClick={() => setIsMenuOpen(false)}
+                className="px-4 py-2 text-lg hover:underline"
+              >
+                ユーザー一覧
+              </button>
+            </Link>
             <a href="#" className="block px-4 py-2 text-lg hover:underline">
               タグ一覧
             </a>

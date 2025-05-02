@@ -2,7 +2,6 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import {
   User,
-  UserListResponse,
   LoginResponse,
   RegisterParams,
   UpdateProfileParams,
@@ -147,8 +146,9 @@ export async function getUser(id: string): Promise<User> {
 }
 
 // ユーザー一覧取得
-export async function getUsers(): Promise<UserListResponse> {
+export async function getUsers(): Promise<User[]> {
   const response = await api.get("/users");
+  console.log("users:", response.data); // 状態更新後の `users` を確認
   return response.data;
 }
 

@@ -12,7 +12,7 @@ import {
 import UserCard from "@/components/UserCard";
 import { getUsers } from "@/lib/axios";
 import { User } from "@/lib/types";
-// import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import Link from "next/link";
 import Image from "next/image";
@@ -20,34 +20,34 @@ import users_title from "/public/users_title.png";
 import toast from "react-hot-toast";
 
 /** ランキング機能実装時に追加 **/
-// function RankingSection() {
-//   return (
-//     <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
-//       <div className="flex justify-between items-center mb-6 gap-12">
-//         <h2 className="font-bold text-lg">総合ランキング</h2>
-//         <Link
-//           href="#"
-//           className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
-//         >
-//           ユーザー一覧 <ChevronRight className="w-4 h-4" />
-//         </Link>
-//       </div>
-//       <div className="space-y-4">
-//         {[1, 2, 3, 4, 5].map((rank) => (
-//           <div key={rank} className="flex items-center gap-3">
-//             <span className="font-bold text-lg w-6">{rank}</span>
-//             <Avatar className="h-8 w-8">
-//               <AvatarFallback className="bg-red-100 text-red-600">
-//                 U
-//               </AvatarFallback>
-//             </Avatar>
-//             <span className="text-sm">ユーザー</span>
-//           </div>
-//         ))}
-//       </div>
-//     </div>
-//   );
-// }
+function RankingSection() {
+  return (
+    <div className="bg-white rounded-2xl p-6 mb-6 shadow-sm">
+      <div className="flex justify-between items-center mb-6 gap-12">
+        <h2 className="font-bold text-lg">総合ランキング</h2>
+        <Link
+          href="#"
+          className="text-sm text-gray-500 hover:text-gray-700 flex items-center"
+        >
+          ユーザー一覧 <ChevronRight className="w-4 h-4" />
+        </Link>
+      </div>
+      <div className="space-y-4">
+        {[1, 2, 3, 4, 5].map((rank) => (
+          <div key={rank} className="flex items-center gap-3">
+            <span className="font-bold text-lg w-6">{rank}</span>
+            <Avatar className="h-8 w-8">
+              <AvatarFallback className="bg-red-100 text-red-600">
+                U
+              </AvatarFallback>
+            </Avatar>
+            <span className="text-sm">ユーザー</span>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+}
 
 /** タグ機能実装時に追加 **/
 // function TagsSection() {
@@ -88,8 +88,8 @@ export default function UsersPage() {
   useEffect(() => {
     const fetchUsers = async () => {
       try {
-        const response = await getUsers()
-        setUsers(response.data)
+        const data = await getUsers();
+        setUsers(data);
       } catch (error) {
         console.error("Error fetching users:", error);
         toast.error("ユーザー情報の取得に失敗しました");
@@ -101,29 +101,28 @@ export default function UsersPage() {
     fetchUsers();
   }, []);
 
+  console.log("Current users state:", users); // 状態更新後の `users` を確認
+
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.bio?.toLowerCase().includes(searchQuery.toLowerCase())
-    // user.tags?.some((tag) =>
-    //   tag.toLowerCase().includes(searchQuery.toLowerCase())
-    // )
+      user.bio?.toLowerCase().includes(searchQuery.toLowerCase()),
   );
 
   /** ソート機能実装時に追加 **/
   const sortedUsers = [...filteredUsers].sort((a, b) => {
     if (sortBy === "recent") {
       // ここでは仮にIDの降順でソート（新しいユーザーほどIDが大きいと仮定）
-      return b.id.localeCompare(a.id)
+      return String(b.id).localeCompare(String(a.id));
     } else if (sortBy === "popular") {
       // 総プレイ回数の多い順
-      return b.total_play_count - a.total_play_count
+      return b.total_play_count - a.total_play_count;
     } else if (sortBy === "posts") {
       // 投稿数の多い順
-      return b.posts_count - a.posts_count
+      return b.posts_count - a.posts_count;
     }
-    return 0
-  })
+    return 0;
+  });
 
   /** ページネーション実装時に追加 **/
   const indexOfLastUser = currentPage * usersPerPage;
@@ -197,7 +196,7 @@ export default function UsersPage() {
                           key={user.id}
                           className="block"
                         >
-                          <UserCard user={user} setUsers={setUsers} />
+                          <UserCard user={user} />
                         </Link>
                       ))}
                     </div>
@@ -247,15 +246,17 @@ export default function UsersPage() {
                   </>
                 ) : (
                   <div className="text-center py-12 bg-white rounded-2xl">
-                    <p className="text-gray-500">ユーザーが見つかりませんでした</p>
+                    <p className="text-gray-500">
+                      ユーザーが見つかりませんでした
+                    </p>
                   </div>
                 )}{" "}
               </div>
             </div>
-            {/* <div className="space-y-6">
+            <div className="space-y-6">
               <RankingSection />
-              <TagsSection />
-            </div> */}
+              {/* <TagsSection /> */}
+            </div>
           </div>
         </div>
       </main>
