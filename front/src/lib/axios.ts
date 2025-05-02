@@ -2,6 +2,7 @@ import axios from "axios";
 import Cookies from "js-cookie";
 import {
   User,
+  UserListResponse,
   LoginResponse,
   RegisterParams,
   UpdateProfileParams,
@@ -142,6 +143,12 @@ export async function deletePost(id: string): Promise<void> {
 // ユーザー情報の取得
 export async function getUser(id: string): Promise<User> {
   const response = await api.get(`/users/${id}`);
+  return response.data;
+}
+
+// ユーザー一覧取得
+export async function getUsers(): Promise<UserListResponse> {
+  const response = await api.get("/users");
   return response.data;
 }
 
