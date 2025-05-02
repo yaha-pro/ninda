@@ -13,7 +13,7 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :users, only: [:show] # ユーザー情報取得のエンドポイント
+      resources :users, only: [:show, :index] # ユーザー情報取得のエンドポイント
       resources :posts, only: [:index, :show, :create, :update, :destroy]
       resources :typing_games, only: [:index, :create] do
         collection do

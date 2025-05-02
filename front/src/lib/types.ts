@@ -1,10 +1,13 @@
 // ユーザー情報の型定義
 export interface User {
-    id: string;
-    email: string;
-    name: string;
-    bio?: string;
-  }
+  id: string;
+  email: string;
+  name: string;
+  bio?: string;
+  profile_image?: string;
+  total_play_count: number;
+  posts_count: number;
+}
 
   export interface LoginResponse {
     data: User;

@@ -145,6 +145,13 @@ export async function getUser(id: string): Promise<User> {
   return response.data;
 }
 
+// ユーザー一覧取得
+export async function getUsers(): Promise<User[]> {
+  const response = await api.get("/users");
+  console.log("users:", response.data); // 状態更新後の `users` を確認
+  return response.data;
+}
+
 // タイピング結果の保存
 export async function saveTypingResult(
   params: SaveTypingResultParams
