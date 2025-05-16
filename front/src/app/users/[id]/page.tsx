@@ -1,58 +1,58 @@
-"use client"
+"use client";
 
-import { useEffect, useState } from "react"
+import { useEffect, useState } from "react";
 // import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getUser } from "@/lib/axios"
-import type { User } from "@/lib/types"
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar"
-import Link from "next/link"
-import { useParams } from "next/navigation"
+import { getUser } from "@/lib/axios";
+import type { User } from "@/lib/types";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
+import Link from "next/link";
+import { useParams } from "next/navigation";
 // import ResultsTable from "@/components/results-table"
 // import PostsList from "@/components/posts-list"
 // import LikesList from "@/components/likes-list"
 
 export default function UserPage() {
-  const params = useParams()
-  const userId: string = params.id as string
+  const params = useParams();
+  const userId: string = params.id as string;
 
-  const [profileUser, setProfileUser] = useState<User | null>(null)
-//   const [results, setResults] = useState<TypingResult[]>([])
-  const [isLoading, setIsLoading] = useState(true)
+  const [profileUser, setProfileUser] = useState<User | null>(null);
+  //   const [results, setResults] = useState<TypingResult[]>([])
+  const [isLoading, setIsLoading] = useState(true);
 
   // ユーザー情報の取得
   useEffect(() => {
     const fetchUserData = async () => {
       try {
-        setIsLoading(true)
-        const userData = await getUser(userId)
-        setProfileUser(userData)
+        setIsLoading(true);
+        const userData = await getUser(userId);
+        setProfileUser(userData);
 
         // // ユーザーのタイピング結果を取得
         // const resultsData = await getUserTypingResults(userId);
         // setResults(resultsData)
       } catch (error) {
-        console.error("Failed to fetch user data:", error)
+        console.error("Failed to fetch user data:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
-    }
+    };
 
     if (userId) {
-      fetchUserData()
+      fetchUserData();
     }
-  }, [userId])
+  }, [userId]);
 
   // ユーザーのイニシャルを取得する関数
   const getInitials = (name: string) => {
-    return name?.substring(0, 2).toUpperCase() || "U"
-  }
+    return name?.substring(0, 2).toUpperCase() || "U";
+  };
 
   if (isLoading) {
     return (
       <div className="bg-[#f5f2ed] min-h-screen flex items-center justify-center">
         <div className="animate-pulse text-xl">ユーザー情報を読み込み中...</div>
       </div>
-    )
+    );
   }
 
   if (!profileUser) {
@@ -60,7 +60,7 @@ export default function UserPage() {
       <div className="bg-[#f5f2ed] min-h-screen flex items-center justify-center">
         <div className="text-xl">ユーザーが見つかりませんでした</div>
       </div>
-    )
+    );
   }
 
   return (
@@ -83,7 +83,10 @@ export default function UserPage() {
         <div className="flex flex-col items-center text-center justify-center mb-8">
           <Avatar className="h-32 w-32 border-white border-4 shadow-md">
             {profileUser.profile_image ? (
-              <AvatarImage src={profileUser.profile_image || "/placeholder.svg"} alt={profileUser.name} />
+              <AvatarImage
+                src={profileUser.profile_image || "/placeholder.svg"}
+                alt={profileUser.name}
+              />
             ) : (
               <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md text-4xl">
                 {getInitials(profileUser.name)}
@@ -91,7 +94,9 @@ export default function UserPage() {
             )}
           </Avatar>
           <h2 className="text-3xl font-bold mt-4">{profileUser.name}</h2>
-          <p className="mt-2 text-sm text-muted-foreground max-w-md">{profileUser.bio || "自己紹介がありません"}</p>
+          <p className="mt-2 text-sm text-muted-foreground max-w-md">
+            {profileUser.bio || "自己紹介がありません"}
+          </p>
 
           {/* ユーザーステータス情報 */}
           {/* <div className="flex justify-center gap-8 mt-6">
@@ -138,5 +143,5 @@ export default function UserPage() {
         </Tabs> */}
       </div>
     </div>
-  )
+  );
 }
