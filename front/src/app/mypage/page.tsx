@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getUserTypingResults } from "@/lib/axios";
+import { getCurrentUserTypingResults } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import type { TypingResult } from "@/lib/types";
@@ -33,7 +33,7 @@ export default function MyPage() {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const data = await getUserTypingResults();
+        const data = await getCurrentUserTypingResults();
         setResults(data);
       } catch (error) {
         console.error("Failed to fetch typing results:", error);
@@ -107,20 +107,16 @@ export default function MyPage() {
         {/* タブナビゲーション */}
         <Tabs defaultValue="posts" className="mt-8">
           <TabsList className="w-full justify-start">
-            <TabsTrigger value="results" className="flex-1">
-              成績
-            </TabsTrigger>
             <TabsTrigger value="posts" className="flex-1">
               投稿一覧
             </TabsTrigger>
             <TabsTrigger value="likes" className="flex-1">
               いいね一覧
             </TabsTrigger>
+            <TabsTrigger value="results" className="flex-1">
+              成績
+            </TabsTrigger>
           </TabsList>
-
-          <TabsContent value="results" className="mt-6">
-            <ResultsTable results={results} isLoading={isLoading} />
-          </TabsContent>
 
           <TabsContent value="posts" className="mt-6">
             <PostsList />
@@ -128,6 +124,10 @@ export default function MyPage() {
 
           <TabsContent value="likes" className="mt-6">
             <LikesList />
+          </TabsContent>
+
+          <TabsContent value="results" className="mt-6">
+            <ResultsTable results={results} isLoading={isLoading} />
           </TabsContent>
         </Tabs>
       </div>

@@ -18,6 +18,7 @@ Rails.application.routes.draw do
       resources :typing_games, only: [:index, :create] do
         collection do
           get 'user_results', to: 'typing_games#user_results'
+          get 'typing_results', to: 'typing_games#typing_results'
         end
       end
     end
