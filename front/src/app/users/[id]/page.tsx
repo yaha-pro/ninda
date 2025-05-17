@@ -1,22 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-// import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
-import { getUser } from "@/lib/axios";
-import type { User } from "@/lib/types";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { getUserTypingResults, getUser } from "@/lib/axios";
+import type { TypingResult, User } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-// import ResultsTable from "@/components/results-table"
-// import PostsList from "@/components/posts-list"
-// import LikesList from "@/components/likes-list"
+import ResultsTable from "@/components/results-table"
+import PostsList from "./posts-list"
+import LikesList from "./likes-list"
 
 export default function UserPage() {
   const params = useParams();
   const userId: string = params.id as string;
-
   const [profileUser, setProfileUser] = useState<User | null>(null);
-  //   const [results, setResults] = useState<TypingResult[]>([])
+  const [results, setResults] = useState<TypingResult[]>([])
   const [isLoading, setIsLoading] = useState(true);
 
   // ユーザー情報の取得
@@ -27,9 +26,10 @@ export default function UserPage() {
         const userData = await getUser(userId);
         setProfileUser(userData);
 
-        // // ユーザーのタイピング結果を取得
-        // const resultsData = await getUserTypingResults(userId);
-        // setResults(resultsData)
+        // ユーザーのタイピング結果を取得
+        const resultsData = await getUserTypingResults(userId);
+        setResults(resultsData)
+        console.log("リザルト結果", resultsData);
       } catch (error) {
         console.error("Failed to fetch user data:", error);
       } finally {
@@ -116,7 +116,7 @@ export default function UserPage() {
         </div>
 
         {/* タブナビゲーション */}
-        {/* <Tabs defaultValue="posts" className="mt-8">
+        <Tabs defaultValue="posts" className="mt-8">
           <TabsList className="w-full justify-start">
             <TabsTrigger value="posts" className="flex-1">
               投稿一覧
@@ -140,7 +140,7 @@ export default function UserPage() {
           <TabsContent value="results" className="mt-6">
             <ResultsTable results={results} isLoading={isLoading} />
           </TabsContent>
-        </Tabs> */}
+        </Tabs>
       </div>
     </div>
   );
