@@ -8,8 +8,8 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import ResultsTable from "@/components/results-table"
-import PostsList from "./posts-list"
-import LikesList from "./likes-list"
+// import PostsList from "./posts-list"
+// import LikesList from "./likes-list"
 
 export default function UserPage() {
   const params = useParams();
@@ -129,13 +129,13 @@ export default function UserPage() {
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="posts" className="mt-6">
+          {/* <TabsContent value="posts" className="mt-6">
             <PostsList userId={userId} />
-          </TabsContent>
+          </TabsContent> */}
 
-          <TabsContent value="likes" className="mt-6">
+          {/* <TabsContent value="likes" className="mt-6">
             <LikesList userId={userId} />
-          </TabsContent>
+          </TabsContent> */}
 
           <TabsContent value="results" className="mt-6">
             <ResultsTable results={results} isLoading={isLoading} />
