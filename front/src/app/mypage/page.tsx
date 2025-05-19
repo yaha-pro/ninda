@@ -11,7 +11,7 @@ import { Button } from "@/components/ui/button";
 import { ProfileEditModal } from "@/components/ProfileEditModal";
 import Link from "next/link";
 
-import ResultsTable from "./results-table";
+import ResultsTable from "@/components/results-table";
 // import UserProfile from "./user-profile" // プロフィール編集機能実装時に追加
 import PostsList from "./posts-list";
 import LikesList from "./likes-list";
