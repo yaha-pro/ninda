@@ -174,7 +174,15 @@ export async function getCurrentUserTypingResults(): Promise<TypingResult[]> {
 }
 
 // ユーザーのタイピング結果履歴の取得
-export async function getUserTypingResults(id: string): Promise<TypingResult[]> {
+export async function getUserTypingResults(
+  id: string
+): Promise<TypingResult[]> {
   const response = await api.get(`/typing_games/users/${id}/typing_results`);
+  return response.data;
+}
+
+// ユーザーの投稿を取得
+export async function getUserPosts(id: string): Promise<Post[]> {
+  const response = await api.get(`/users/${id}/posts`);
   return response.data;
 }

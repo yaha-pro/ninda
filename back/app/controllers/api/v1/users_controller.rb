@@ -13,4 +13,16 @@ class Api::V1::UsersController < ApplicationController
 
     render json: users, status: :ok
   end
+
+  def posts
+    puts "Requested User ID: #{params[:id]}" # ログ確認
+    user = User.find_by(id: params[:id])
+
+    if user
+      posts = user.posts.order(created_at: :desc) # 最新の投稿を先に表示
+      render json: posts, status: :ok
+    else
+      render json: { error: "User not found" }, status: :not_found
+    end
+  end
 end

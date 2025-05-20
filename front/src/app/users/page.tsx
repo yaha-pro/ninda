@@ -106,7 +106,7 @@ export default function UsersPage() {
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.bio?.toLowerCase().includes(searchQuery.toLowerCase()),
+      user.bio?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   /** ソート機能実装時に追加 **/

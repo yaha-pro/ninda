@@ -1,21 +1,21 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getUserTypingResults, getUser } from "@/lib/axios";
 import type { TypingResult, User } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import ResultsTable from "@/components/results-table"
-// import PostsList from "./posts-list"
+import ResultsTable from "@/components/results-table";
+import PostsList from "./posts-list";
 // import LikesList from "./likes-list"
 
 export default function UserPage() {
   const params = useParams();
   const userId: string = params.id as string;
   const [profileUser, setProfileUser] = useState<User | null>(null);
-  const [results, setResults] = useState<TypingResult[]>([])
+  const [results, setResults] = useState<TypingResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
 
   // ユーザー情報の取得
@@ -28,7 +28,7 @@ export default function UserPage() {
 
         // ユーザーのタイピング結果を取得
         const resultsData = await getUserTypingResults(userId);
-        setResults(resultsData)
+        setResults(resultsData);
         console.log("リザルト結果", resultsData);
       } catch (error) {
         console.error("Failed to fetch user data:", error);
@@ -65,7 +65,7 @@ export default function UserPage() {
 
   return (
     <div className="bg-[#f5f2ed]">
-      <div className="container max-w-4xl mx-auto px-4 py-10">
+      <div className="container max-w-5xl mx-auto px-4 py-10">
         {/* Breadcrumb */}
         <div className="flex items-center gap-2 text-sm mb-8">
           <Link href="/" className="text-blue-500 hover:underline">
@@ -129,9 +129,9 @@ export default function UserPage() {
             </TabsTrigger>
           </TabsList>
 
-          {/* <TabsContent value="posts" className="mt-6">
+          <TabsContent value="posts" className="mt-6">
             <PostsList userId={userId} />
-          </TabsContent> */}
+          </TabsContent>
 
           {/* <TabsContent value="likes" className="mt-6">
             <LikesList userId={userId} />
