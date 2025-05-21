@@ -12,12 +12,13 @@ import { getPost, getUser } from "@/lib/axios";
 import type { Post, User } from "@/lib/types";
 import post_image_def from "/public/post_image_def.png";
 import toast from "react-hot-toast";
-import { useParams } from "next/navigation";
+import { useParams, useRouter } from "next/navigation";
 import TypingGame from "@/components/TypingGame";
 
 export default function PostDetailPage() {
   const { user } = useAuth(); // 現在のユーザー情報を取得
   const params = useParams(); // URLから投稿IDを取得
+  const router = useRouter(); // ルーター取得
   const id: string = params.id as string; // 明示的に `string` 型に変換
   const [post, setPost] = useState<Post | null>(null);
   const [loading, setLoading] = useState(true);
@@ -96,6 +97,17 @@ export default function PostDetailPage() {
     return postUser?.name || "ユーザー";
   };
 
+  // ユーザープロフィールへの遷移処理
+  const handleUserProfileClick = () => {
+    if (user && post.user_id === user.id) {
+      // 投稿者が現在のログインユーザーと同じ場合はマイページへ
+      router.push("/mypage");
+    } else {
+      // それ以外は通常のユーザーページへ
+      router.push(`/users/${post.user_id}`);
+    }
+  };
+
   return (
     <main className="min-h-screen bg-[#f5f7ef] sm:px-16 py-12">
       {/* Breadcrumb */}
@@ -158,10 +170,13 @@ export default function PostDetailPage() {
         </div>
         {/* User Info */}
         <div className="flex items-center justify-between mt-2">
-          <div className="flex items-center gap-3">
+          <div
+            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+            onClick={handleUserProfileClick}
+          >
             <Avatar>
               <AvatarFallback className="bg-red-100 text-red-600">
-              {getUserInitial()}
+                {getUserInitial()}
               </AvatarFallback>
             </Avatar>
             <span className="text-gray-600">{getUserName()}</span>
