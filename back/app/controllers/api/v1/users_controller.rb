@@ -25,4 +25,15 @@ class Api::V1::UsersController < ApplicationController
       render json: { error: "User not found" }, status: :not_found
     end
   end
+
+  def user_typing_results
+    user = User.find_by(id: params[:id])
+
+    if user
+      typing_results = user.typing_games
+      render json: typing_results, status: :ok
+    else
+      render json: { error: "User not found" }, status: :not_found
+    end
+  end
 end

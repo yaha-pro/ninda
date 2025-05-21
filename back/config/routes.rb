@@ -13,17 +13,19 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :users, only: [:show, :index] do # ユーザー情報取得のエンドポイント
+      # get 'mypage/posts', to: 'mypage#posts'
+      get 'mypage/typing_results', to: 'mypage#typing_results'
+
+       # ユーザー情報取得のエンドポイント
+      resources :users, only: [:show, :index] do
         member do
           get 'posts', to: 'users#posts'
-        end      end
-      resources :posts, only: [:index, :show, :create, :update, :destroy]
-      resources :typing_games, only: [:index, :create] do
-        collection do
-          get 'user_results', to: 'typing_games#user_results'
-          get 'users/:id/typing_results', to: 'typing_games#typing_results'
+          get 'user_typing_results', to: 'users#user_typing_results'
         end
       end
+
+      resources :posts, only: [:index, :show, :create, :update, :destroy]
+      resources :typing_games, only: [:index, :create]
     end
   end
 

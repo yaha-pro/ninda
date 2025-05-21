@@ -17,22 +17,6 @@ class Api::V1::TypingGamesController < ApplicationController
     end
   end
 
-  def user_results
-    @typing_games = current_api_v1_user.typing_games
-    render json: @typing_games
-  end
-
-  def typing_results
-    user = User.find_by(id: params[:id])
-
-    if user
-      typing_results = user.typing_games
-      render json: typing_results, status: :ok
-    else
-      render json: { error: "User not found" }, status: :not_found
-    end
-  end
-
   private
 
   def typing_game_params
