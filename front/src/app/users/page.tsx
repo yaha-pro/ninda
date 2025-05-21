@@ -18,6 +18,7 @@ import Link from "next/link";
 import Image from "next/image";
 import users_title from "/public/users_title.png";
 import toast from "react-hot-toast";
+import { useAuth } from "@/contexts/AuthContext"; // AuthContextをインポート
 
 /** ランキング機能実装時に追加 **/
 function RankingSection() {
@@ -84,6 +85,7 @@ export default function UsersPage() {
   const [sortBy, setSortBy] = useState("recent");
   const [currentPage, setCurrentPage] = useState(1);
   const usersPerPage = 8;
+  const { user: currentUser } = useAuth(); // 現在ログインしているユーザー情報を取得
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -106,7 +108,7 @@ export default function UsersPage() {
   const filteredUsers = users.filter(
     (user) =>
       user.name.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      user.bio?.toLowerCase().includes(searchQuery.toLowerCase()),
+      user.bio?.toLowerCase().includes(searchQuery.toLowerCase())
   );
 
   /** ソート機能実装時に追加 **/
@@ -129,6 +131,16 @@ export default function UsersPage() {
   const indexOfFirstUser = indexOfLastUser - usersPerPage;
   const currentUsers = sortedUsers.slice(indexOfFirstUser, indexOfLastUser);
   const totalPages = Math.ceil(sortedUsers.length / usersPerPage);
+
+  // ユーザーのリンク先を決定する関数
+  const getUserLink = (user: User) => {
+    // 現在のユーザーとリスト内のユーザーが同じ場合はマイページへ
+    if (currentUser && user.id === currentUser.id) {
+      return "/mypage";
+    }
+    // それ以外は通常のユーザーページへ
+    return `/users/${user.id}`;
+  };
 
   return (
     <>
@@ -192,7 +204,7 @@ export default function UsersPage() {
                     <div className="grid grid-col sm:grid-cols-1 lg:grid-cols-2 gap-4">
                       {currentUsers.map((user) => (
                         <Link
-                          href={`/users/${user.id}`}
+                          href={getUserLink(user)}
                           key={user.id}
                           className="block"
                         >

@@ -29,7 +29,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
   const { handleDelete } = useDeletePost();
   const [postUser, setPostUser] = useState<User | null>(null);
 
- // 投稿者の取得
+  // 投稿者の取得
   useEffect(() => {
     if (!post?.user_id) return;
 
@@ -61,6 +61,23 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
 
   const getUserName = () => {
     return postUser?.name;
+  };
+
+  // ユーザーのリンク先を決定する関数
+  const getUserProfileLink = () => {
+    // 投稿者が現在のログインユーザーと同じ場合はマイページへ
+    if (user && post.user_id === user.id) {
+      return "/mypage";
+    }
+    // それ以外は通常のユーザーページへ
+    return `/users/${post.user_id}`;
+  };
+
+  // ユーザープロフィール部分をクリックした時のハンドラ
+  const handleUserProfileClick = (event: React.MouseEvent) => {
+    event.preventDefault(); // 親のLinkの遷移を防ぐ
+    event.stopPropagation(); // イベントの伝播を防ぐ
+    window.location.href = getUserProfileLink(); // 直接URLを変更
   };
 
   return (
@@ -117,7 +134,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
         </div>
       </div>
       <div className="flex items-center justify-between">
-        <div className="flex items-center gap-2">
+        <div
+          className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
+          onClick={handleUserProfileClick}
+        >
           <Avatar className="h-8 w-8">
             <AvatarFallback className="bg-red-100 text-red-600 text-xs">
               {getUserInitial()}
