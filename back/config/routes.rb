@@ -13,7 +13,7 @@ Rails.application.routes.draw do
         end
       end
 
-      # get 'mypage/posts', to: 'mypage#posts'
+      get 'mypage/posts', to: 'mypage#posts'
       get 'mypage/typing_results', to: 'mypage#typing_results'
 
        # ユーザー情報取得のエンドポイント

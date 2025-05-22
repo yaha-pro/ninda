@@ -5,4 +5,9 @@ class Api::V1::MypageController < ApplicationController
     @typing_games = current_api_v1_user.typing_games
     render json: @typing_games
   end
+
+  def posts
+    @posts = current_api_v1_user.posts.order(created_at: :desc)
+    render json: @posts
+  end
 end

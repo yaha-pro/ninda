@@ -13,7 +13,7 @@ import Link from "next/link";
 
 import ResultsTable from "@/components/results-table";
 // import UserProfile from "./user-profile" // プロフィール編集機能実装時に追加
-import PostsList from "./posts-list";
+import PostsList from "@/components/posts-list";
 import LikesList from "./likes-list";
 
 export default function MyPage() {
@@ -54,7 +54,7 @@ export default function MyPage() {
 
   return (
     <div className="bg-[#f5f2ed]">
-      <div className="container max-w-4xl mx-auto px-4 py-10">
+      <div className="container max-w-5xl mx-auto px-4 py-10">
         {/* Breadcrumb */}
         <div className="flex justify-between">
           <div className="flex items-center gap-2 text-sm">
@@ -119,7 +119,7 @@ export default function MyPage() {
           </TabsList>
 
           <TabsContent value="posts" className="mt-6">
-            <PostsList />
+            {user && <PostsList userId={user.id} />}
           </TabsContent>
 
           <TabsContent value="likes" className="mt-6">

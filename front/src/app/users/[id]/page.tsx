@@ -8,7 +8,7 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useParams } from "next/navigation";
 import ResultsTable from "@/components/results-table";
-import PostsList from "./posts-list";
+import PostsList from "@/components/posts-list";
 // import LikesList from "./likes-list"
 
 export default function UserPage() {

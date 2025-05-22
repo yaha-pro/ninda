@@ -173,6 +173,12 @@ export async function getCurrentUserTypingResults(): Promise<TypingResult[]> {
   return response.data;
 }
 
+// カレントユーザーの投稿を取得
+export async function getCurrentUserPosts(): Promise<Post[]> {
+  const response = await api.get("/mypage/posts");
+  return response.data;
+}
+
 // ユーザーのタイピング結果履歴の取得
 export async function getUserTypingResults(
   id: string
