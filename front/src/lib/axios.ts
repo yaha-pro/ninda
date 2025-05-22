@@ -169,7 +169,13 @@ export async function saveTypingResult(
 
 // カレントユーザーのタイピング結果履歴の取得
 export async function getCurrentUserTypingResults(): Promise<TypingResult[]> {
-  const response = await api.get("/typing_games/user_results");
+  const response = await api.get("/mypage/typing_results");
+  return response.data;
+}
+
+// カレントユーザーの投稿を取得
+export async function getCurrentUserPosts(): Promise<Post[]> {
+  const response = await api.get("/mypage/posts");
   return response.data;
 }
 
@@ -177,7 +183,7 @@ export async function getCurrentUserTypingResults(): Promise<TypingResult[]> {
 export async function getUserTypingResults(
   id: string
 ): Promise<TypingResult[]> {
-  const response = await api.get(`/typing_games/users/${id}/typing_results`);
+  const response = await api.get(`/users/${id}/user_typing_results`);
   return response.data;
 }
 
