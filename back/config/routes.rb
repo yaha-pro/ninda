@@ -25,7 +25,11 @@ Rails.application.routes.draw do
       end
 
       resources :posts, only: [:index, :show, :create, :update, :destroy]
-      resources :typing_games, only: [:index, :create]
+      resources :typing_games, only: [:index, :create] do
+        collection do
+          get 'ranking', to: 'typing_games#ranking'
+        end
+      end
     end
   end
 
