@@ -192,3 +192,11 @@ export async function getUserPosts(id: string): Promise<Post[]> {
   const response = await api.get(`/users/${id}/posts`);
   return response.data;
 }
+
+// ランキングの取得
+export async function getRanking(postId: number): Promise<TypingResult[]> {
+  const response = await api.get("/typing_games/ranking", {
+    params: { post_id: postId },
+  });
+  return response.data;
+}

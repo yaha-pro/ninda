@@ -67,6 +67,8 @@ export interface TypingResult {
   mistake_count: number
   created_at: string
   post?: Post
+  rank?: number;
+  user_name?: string;
 }
 
 export interface SaveTypingResultParams {
