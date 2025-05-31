@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCurrentUserTypingResults } from "@/lib/axios";
+import { getCurrentUserTypingResults, getRanking } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import type { TypingResult } from "@/lib/types";
@@ -11,9 +11,9 @@ import { Button } from "@/components/ui/button";
 import { ProfileEditModal } from "@/components/ProfileEditModal";
 import Link from "next/link";
 
-import ResultsTable from "@/components/results-table";
+import ResultsTable from "@/components/Results-table";
 // import UserProfile from "./user-profile" // プロフィール編集機能実装時に追加
-import PostsList from "@/components/posts-list";
+import PostsList from "@/components/Posts-list";
 import LikesList from "./likes-list";
 
 export default function MyPage() {
@@ -33,10 +33,31 @@ export default function MyPage() {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const data = await getCurrentUserTypingResults();
-        setResults(data);
+        const typingResults = await getCurrentUserTypingResults(); // 自分のタイピング結果を取得
+        // 各投稿のランキングを取得し、結果をマージ
+        const resultsWithRank: TypingResult[] = await Promise.all(
+          typingResults.map(async (result) => {
+            try {
+              const ranking = await getRanking(Number(result.post_id)); // 各投稿の全体ランキングを取得
+              const myResult = ranking.findIndex((r) => r.user_id === result.user_id) + 1; // 自分の順位を取得
+              console.log("自分のランキング", myResult);
+              return {
+                ...result,
+                rank: myResult ?? undefined, // 全体ランキングの順位を反映
+              };
+            } catch (error) {
+              console.error(
+                `Failed to fetch ranking for post ${result.post_id}:`,
+                error
+              );
+              return { ...result, rank: undefined };
+            }
+          })
+        );
+        setResults(resultsWithRank);
+        console.log("自分のタイピング結果", resultsWithRank);
       } catch (error) {
-        console.error("Failed to fetch typing results:", error);
+        console.error("Failed to fetch typing results or ranking:", error);
       } finally {
         setIsLoading(false);
       }

@@ -7,8 +7,8 @@ import type { TypingResult, User } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import { useParams } from "next/navigation";
-import ResultsTable from "@/components/results-table";
-import PostsList from "@/components/posts-list";
+import ResultsTable from "@/components/Results-table";
+import PostsList from "@/components/Posts-list";
 // import LikesList from "./likes-list"
 
 export default function UserPage() {
