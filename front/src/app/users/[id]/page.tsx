@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getUserTypingResults, getUser } from "@/lib/axios";
+import { getUserTypingResults, getUser, getRanking } from "@/lib/axios";
 import type { TypingResult, User } from "@/lib/types";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
@@ -27,9 +27,26 @@ export default function UserPage() {
         setProfileUser(userData);
 
         // ユーザーのタイピング結果を取得
-        const resultsData = await getUserTypingResults(userId);
-        setResults(resultsData);
-        console.log("リザルト結果", resultsData);
+        const typingResults = await getUserTypingResults(userId);
+        const resultsWithRank: TypingResult[] = await Promise.all(
+          typingResults.map(async (result) => {
+            try {
+              const ranking = await getRanking(Number(result.post_id)); // 各投稿の全体ランキングを取得
+              const userResult = ranking.findIndex((r) => r.user_id === result.user_id) + 1; // ユーザーのランキング
+              return {
+                ...result,
+                rank: userResult ?? undefined, // 全体ランキングの順位を反映
+              };
+            } catch (error) {
+              console.error(
+                `Failed to fetch ranking for post ${result.post_id}:`,
+                error
+              );
+              return { ...result, rank: undefined };
+            }
+          })
+        );
+        setResults(resultsWithRank);
       } catch (error) {
         console.error("Failed to fetch user data:", error);
       } finally {
