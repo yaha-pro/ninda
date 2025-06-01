@@ -55,7 +55,6 @@ export default function MyPage() {
           })
         );
         setResults(resultsWithRank);
-        console.log("自分のタイピング結果", resultsWithRank);
       } catch (error) {
         console.error("Failed to fetch typing results or ranking:", error);
       } finally {

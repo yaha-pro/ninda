@@ -17,6 +17,7 @@ import Image from "next/image";
 import ranking_1_image from "/public/ranking_1_image.png";
 import ranking_2_image from "/public/ranking_2_image.png";
 import ranking_3_image from "/public/ranking_3_image.png";
+import { useRouter } from "next/navigation";
 
 interface ResultsTableProps {
   results: TypingResult[];
@@ -30,6 +31,7 @@ export default function ResultsTable({
   results,
   isLoading,
 }: ResultsTableProps) {
+  const router = useRouter();
   const [sortField, setSortField] = useState<SortField>("created_at");
   const [sortOrder, setSortOrder] = useState<SortOrder>("desc");
   const [currentPage, setCurrentPage] = useState(1);
@@ -223,7 +225,11 @@ export default function ResultsTable({
             {displayResults.length > 0 ? (
               displayResults.map((result) => {
                 return (
-                  <TableRow key={result.id} className="hover:bg-gray-50">
+                  <TableRow
+                    key={result.id}
+                    className="hover:bg-gray-50 cursor-pointer" // クリック可能に
+                    onClick={() => router.push(`/posts/${result.post_id}`)} // 詳細ページへ遷移
+                  >
                     <TableCell className="font-medium text-left">
                       {postTitles[result.post_id] || "読み込み中..."}
                     </TableCell>
