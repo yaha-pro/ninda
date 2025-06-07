@@ -24,23 +24,28 @@ class Api::V1::TypingGamesController < ApplicationController
     end
 
     ranking_sql = <<-SQL
-      SELECT *
+      SELECT
+        ranked.post_id,
+        ranked.user_id,
+        ranked.user_name,
+        ranked.accuracy,
+        ranked.play_time,
+        RANK() OVER (
+          ORDER BY ranked.accuracy DESC, ranked.play_time ASC
+        ) AS rank
       FROM (
-        SELECT
-          typing_games.post_id,
-          typing_games.user_id,
-          users.name AS user_name,
-          typing_games.accuracy,
-          typing_games.play_time,
-          RANK() OVER (
-            PARTITION BY typing_games.post_id
-            ORDER BY typing_games.accuracy DESC, typing_games.play_time ASC
-          ) AS rank
-        FROM typing_games
-        INNER JOIN users ON users.id = typing_games.user_id
-        WHERE typing_games.post_id = #{ActiveRecord::Base.sanitize_sql(params[:post_id])}
+        SELECT DISTINCT ON (tg.user_id)
+          tg.post_id,
+          tg.user_id,
+          u.name AS user_name,
+          tg.accuracy,
+          tg.play_time
+        FROM typing_games tg
+        INNER JOIN users u ON u.id = tg.user_id
+        WHERE tg.post_id = #{ActiveRecord::Base.sanitize_sql(params[:post_id])}
+        ORDER BY tg.user_id, tg.accuracy DESC, tg.play_time ASC
       ) AS ranked
-      WHERE rank <= 100
+      LIMIT 100
     SQL
 
     records = ActiveRecord::Base.connection.exec_query(ranking_sql)

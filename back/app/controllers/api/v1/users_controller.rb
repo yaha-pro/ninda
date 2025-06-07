@@ -30,7 +30,11 @@ class Api::V1::UsersController < ApplicationController
     user = User.find_by(id: params[:id])
 
     if user
-      typing_results = user.typing_games
+      typing_results = TypingGame
+        .select('DISTINCT ON (post_id) *')
+        .where(user_id: user.id)
+        .order('post_id, accuracy DESC, play_time ASC')
+
       render json: typing_results, status: :ok
     else
       render json: { error: "User not found" }, status: :not_found
