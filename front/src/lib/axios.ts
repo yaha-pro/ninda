@@ -200,3 +200,11 @@ export async function getRanking(postId: number): Promise<TypingResult[]> {
   });
   return response.data;
 }
+
+// プレイ後のランキングの取得
+export async function getMyRank(typingGameId: string): Promise<TypingResult> {
+  const response = await api.get("/typing_games/my_rank", {
+    params: { typing_game_id: typingGameId },
+  });
+  return response.data;
+}

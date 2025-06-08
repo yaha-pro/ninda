@@ -5,7 +5,7 @@ import TypingPlay from "./TypingPlay";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { saveTypingResult } from "@/lib/axios";
+import { saveTypingResult, getMyRank } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
 
 type GameState = "waiting" | "loading" | "countdown" | "playing" | "finished";
@@ -38,6 +38,10 @@ export default function TypingGame({
 
   const [count, setCount] = useState(3); // カウントダウンの状態を管理
   const { isAuthenticated } = useAuth();
+  const [ranking, setRanking] = useState<{
+    rank: number;
+    total: number;
+  } | null>(null);
 
   const handleGameEnd = async (
     finalScore: number,
@@ -56,11 +60,19 @@ export default function TypingGame({
     // ログインしている場合のみ結果を保存
     if (isAuthenticated && postId) {
       try {
-        await saveTypingResult({
+        // タイピング結果を保存
+        const result = await saveTypingResult({
           post_id: postId,
           play_time: finalTime,
           accuracy: accuracy,
           mistake_count: totalMistakes,
+        });
+
+        // ランキング取得（saveTypingResultの戻り値に typing_game_id が必要）
+        const myRanking = await getMyRank(result.id);
+        setRanking({
+          rank: myRanking.rank ?? 0,
+          total: myRanking.total_players ?? 0,
         });
       } catch (error) {
         console.error("タイピング結果の保存に失敗しました", error);
@@ -185,12 +197,20 @@ export default function TypingGame({
               <div>正確率: {gameResult.accuracy.toFixed(1)}%</div>
               <div>ミスタイプ: {gameResult.mistakes}回</div>
             </div>
+
+            {ranking && (
+              <div className="mt-4 text-lg text-primary">
+                あなたの順位: <strong>{ranking.rank}</strong> 位 /{" "}
+                {ranking.total} 人中
+              </div>
+            )}
           </div>
           <Button
             onClick={() => {
               setGameState("waiting");
-              setCount(3); // カウントをリセット
+              setCount(3); // カウントリセット
               setGameResult({ score: 0, time: 0, mistakes: 0, accuracy: 0 });
+              setRanking(null); // ランキングリセット
             }}
             size="lg"
           >

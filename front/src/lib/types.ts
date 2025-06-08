@@ -69,6 +69,7 @@ export interface TypingResult {
   post?: Post
   rank?: number;
   user_name?: string;
+  total_players?: number;
 }
 
 export interface SaveTypingResultParams {
