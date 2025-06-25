@@ -7,13 +7,24 @@ class Api::V1::TypingGamesController < ApplicationController
   end
 
   def create
-    @typing_game = TypingGame.new(typing_game_params)
-    @typing_game.user = current_api_v1_user
+    # user_id, post_id の組み合わせで1件だけ持つ
+    @typing_game = TypingGame.find_or_initialize_by(
+      user: current_api_v1_user,
+      post_id: typing_game_params[:post_id]
+    )
 
-    if @typing_game.save
-      render json: @typing_game, status: :created
+    # 新しいスコアが既存より優れていれば更新
+    if better_than?(@typing_game, typing_game_params)
+      @typing_game.assign_attributes(typing_game_params)
+
+      if @typing_game.save
+        render json: @typing_game, status: :created
+      else
+        render json: @typing_game.errors, status: :unprocessable_entity
+      end
     else
-      render json: @typing_game.errors, status: :unprocessable_entity
+      # 既存のスコアが上回っている → そのスコアの情報を返す
+      render json: @typing_game, status: :ok
     end
   end
 
@@ -53,63 +64,55 @@ class Api::V1::TypingGamesController < ApplicationController
   end
 
   # プレイ後のランキング／プレイトータル人数を取得
-  def my_rank
-    typing_game_id = params[:typing_game_id]
-    unless typing_game_id.present?
-      render json: { error: "typing_game_id is required" }, status: :bad_request and return
+  def pseudo_rank
+    post_id = params[:post_id]
+    accuracy = params[:accuracy].to_f
+    play_time = params[:play_time].to_f
+
+    unless post_id.present?
+      render json: { error: "post_id is required" }, status: :bad_request and return
     end
 
-    game = TypingGame.find_by(id: typing_game_id)
-    unless game
-      render json: { error: "Typing game not found" }, status: :not_found and return
-    end
-
-    post_id = game.post_id
-    user_id = game.user_id
-
-    ranking_sql = <<-SQL
-      WITH ranked AS (
-        SELECT
-          tg.user_id,
-          tg.post_id,
-          MAX(tg.accuracy) AS accuracy,
-          MIN(tg.play_time) AS play_time
-        FROM typing_games tg
-        WHERE tg.post_id = $1
-        GROUP BY tg.user_id, tg.post_id
-      ),
-      ranked_with_order AS (
-        SELECT
-          *,
-          RANK() OVER (ORDER BY accuracy DESC, play_time ASC) AS rank
-        FROM ranked
-      )
-      SELECT
-        r.rank,
-        r.accuracy,
-        r.play_time,
-        (SELECT COUNT(*) FROM ranked) AS total_players
-      FROM ranked_with_order r
-      WHERE r.user_id = $2
-      LIMIT 1
+    # ランキングに使うデータ取得（各ユーザーのベストスコア）
+    base_sql = <<-SQL
+      SELECT DISTINCT ON (user_id)
+        user_id,
+        accuracy,
+        play_time
+      FROM typing_games
+      WHERE post_id = ?
+      ORDER BY user_id, accuracy DESC, play_time ASC
     SQL
 
-    records = ActiveRecord::Base.connection.exec_query(
-      ranking_sql,
-      "SQL for my_rank",
-      [[nil, post_id], [nil, user_id]]
+    base_scores = ActiveRecord::Base.connection.exec_query(
+      ActiveRecord::Base.send(:sanitize_sql_array, [base_sql, post_id])
     )
 
-    record = records.first
+    # 今回のプレイ結果を含めて仮ランキングを作る
+    scores = base_scores.to_a
+    scores << { 'user_id' => nil, 'accuracy' => accuracy, 'play_time' => play_time }
 
-    if record
-      render json: record, status: :ok
-    else
-      render json: { error: "Ranking not found" }, status: :not_found
-    end
+    # ランキング計算
+    sorted = scores.sort_by { |s| [-s['accuracy'].to_f, s['play_time'].to_f] }
+    rank = sorted.index { |s| s['user_id'].nil? } + 1
+
+    render json: { rank: rank, total_players: scores.size }, status: :ok
   end
 
   private
+
+  def better_than?(existing_game, new_params)
+    return true if existing_game.new_record? # まだ保存されていないならOK
+
+    new_accuracy = new_params[:accuracy].to_f
+    new_time = new_params[:play_time].to_f
+    old_accuracy = existing_game.accuracy
+    old_time = existing_game.play_time
+
+    # より高い正確率、または同じ正確率でより早ければ上書き
+    new_accuracy > old_accuracy ||
+    (new_accuracy == old_accuracy && new_time < old_time)
+  end
 
   def typing_game_params
     params.require(:typing_game).permit(:post_id, :play_time, :accuracy, :mistake_count, :score)

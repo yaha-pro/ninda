@@ -5,7 +5,7 @@ import TypingPlay from "./TypingPlay";
 import { Button } from "@/components/ui/button";
 import { Loader2 } from "lucide-react";
 import { cn } from "@/lib/utils";
-import { saveTypingResult, getMyRank } from "@/lib/axios";
+import { saveTypingResult, getPseudoRank } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
 
 type GameState = "waiting" | "loading" | "countdown" | "playing" | "finished";
@@ -58,24 +58,31 @@ export default function TypingGame({
     setGameState("finished");
 
     // ログインしている場合のみ結果を保存
-    if (isAuthenticated && postId) {
+    if (postId) {
       try {
-        // タイピング結果を保存
-        const result = await saveTypingResult({
+        if (isAuthenticated) {
+          // タイピング結果を保存
+          const result = await saveTypingResult({
+            post_id: postId,
+            play_time: finalTime,
+            accuracy: accuracy,
+            mistake_count: totalMistakes,
+          });
+        }
+
+        // 保存せずに今回の成績からランキングを取得
+        const pseudoRank = await getPseudoRank({
           post_id: postId,
           play_time: finalTime,
           accuracy: accuracy,
-          mistake_count: totalMistakes,
         });
 
-        // ランキング取得（saveTypingResultの戻り値に typing_game_id が必要）
-        const myRanking = await getMyRank(result.id);
         setRanking({
-          rank: myRanking.rank ?? 0,
-          total: myRanking.total_players ?? 0,
+          rank: pseudoRank.rank,
+          total: pseudoRank.total_players,
         });
       } catch (error) {
-        console.error("タイピング結果の保存に失敗しました", error);
+        console.error("ランキング取得に失敗しました", error);
       }
     }
   };
@@ -202,6 +209,12 @@ export default function TypingGame({
               <div className="mt-4 text-lg text-primary">
                 あなたの順位: <strong>{ranking.rank}</strong> 位 /{" "}
                 {ranking.total} 人中
+              </div>
+            )}
+
+            {!isAuthenticated && (
+              <div className="text-center text-sm text-muted-foreground mt-4">
+                会員登録するとランキングに参加できるよ！
               </div>
             )}
           </div>

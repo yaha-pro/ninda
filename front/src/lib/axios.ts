@@ -9,6 +9,8 @@ import {
   Post,
   SaveTypingResultParams,
   TypingResult,
+  GetPseudoRankParams,
+  PseudoRankResult,
 } from "./types";
 
 const api = axios.create({
@@ -202,9 +204,15 @@ export async function getRanking(postId: number): Promise<TypingResult[]> {
 }
 
 // プレイ後のランキングの取得
-export async function getMyRank(typingGameId: string): Promise<TypingResult> {
-  const response = await api.get("/typing_games/my_rank", {
-    params: { typing_game_id: typingGameId },
+export async function getPseudoRank(
+  params: GetPseudoRankParams
+): Promise<PseudoRankResult> {
+  const response = await api.get("/typing_games/pseudo_rank", {
+    params: {
+      post_id: params.post_id,
+      play_time: params.play_time,
+      accuracy: params.accuracy,
+    },
   });
   return response.data;
 }
