@@ -12,7 +12,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { LuMail, LuLock } from "react-icons/lu";
 import { login, register, updateProfile } from "@/lib/axios";
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from "@/contexts/AuthContext";
 import toast from "react-hot-toast";
 
 interface LoginModalProps {
@@ -212,7 +212,14 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
         </DialogHeader>
         <div className="space-y-6">
           {isLogin ? (
-            <>
+            <form
+              autoComplete="on"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleLogin();
+              }}
+              className="space-y-6"
+            >
               {/* ログイン画面 */}
               <div className="space-y-1">
                 <label className="text-sm font-medium">メールアドレス</label>
@@ -220,6 +227,8 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   <LuMail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
                   <Input
                     type="email"
+                    name="email"
+                    autoComplete="email"
                     placeholder="ninda@example.com"
                     className="pl-10"
                     value={email}
@@ -241,6 +250,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 </div>
               </div>
               <Button
+                type="submit"
                 className="w-full bg-[#FF8D76] text-white hover:bg-red-500"
                 onClick={handleLogin}
                 disabled={isLoading}
@@ -280,66 +290,74 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   新規登録はこちらから
                 </a>
               </div>
-            </>
+            </form>
           ) : (
-            <>
-              <>
-                {/* 新規登録画面 */}
-                <div className="space-y-1">
-                  <label className="text-sm font-medium">メールアドレス</label>
-                  <div className="relative">
-                    <LuMail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                    <Input
-                      type="email"
-                      placeholder="ninda@example.com"
-                      className="pl-10"
-                      value={email}
-                      onChange={(e) => setEmail(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm font-medium">パスワード</label>
-                  <div className="relative">
-                    <LuLock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                    <Input
-                      type="password"
-                      placeholder="半角英数字"
-                      className="pl-10"
-                      value={password}
-                      onChange={(e) => setPassword(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <div className="space-y-1">
-                  <label className="text-sm font-medium">パスワード確認</label>
-                  <div className="relative">
-                    <LuLock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
-                    <Input
-                      type="password"
-                      placeholder="半角英数字"
-                      className="pl-10"
-                      value={passwordConfirmation}
-                      onChange={(e) => setPasswordConfirmation(e.target.value)}
-                    />
-                  </div>
-                </div>
-                <Button
-                  className="w-full bg-[#FF8D76] text-white hover:bg-red-500"
-                  onClick={handleRegister}
-                  disabled={isLoading}
-                >
-                  {isLoading ? "処理中..." : "登録する"}
-                </Button>
+            <form
+              autoComplete="on"
+              onSubmit={(e) => {
+                e.preventDefault();
+                handleRegister();
+              }}
+              className="space-y-6"
+            >
+              {" "}
+              {/* 新規登録画面 */}
+              <div className="space-y-1">
+                <label className="text-sm font-medium">メールアドレス</label>
                 <div className="relative">
-                  <div className="absolute inset-0 flex items-center">
-                    <span className="w-full border-t" />
-                  </div>
-                  <div className="relative flex justify-center text-xs uppercase">
-                    <span className="bg-white px-2 text-gray-500">または</span>
-                  </div>
+                  <LuMail className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    type="email"
+                    placeholder="ninda@example.com"
+                    className="pl-10"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                  />
                 </div>
-                {/* <Button
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">パスワード</label>
+                <div className="relative">
+                  <LuLock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    type="password"
+                    placeholder="半角英数字"
+                    className="pl-10"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                  />
+                </div>
+              </div>
+              <div className="space-y-1">
+                <label className="text-sm font-medium">パスワード確認</label>
+                <div className="relative">
+                  <LuLock className="absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-gray-400" />
+                  <Input
+                    type="password"
+                    placeholder="半角英数字"
+                    className="pl-10"
+                    value={passwordConfirmation}
+                    onChange={(e) => setPasswordConfirmation(e.target.value)}
+                  />
+                </div>
+              </div>
+              <Button
+                type="submit"
+                className="w-full bg-[#FF8D76] text-white hover:bg-red-500"
+                onClick={handleRegister}
+                disabled={isLoading}
+              >
+                {isLoading ? "処理中..." : "登録する"}
+              </Button>
+              <div className="relative">
+                <div className="absolute inset-0 flex items-center">
+                  <span className="w-full border-t" />
+                </div>
+                <div className="relative flex justify-center text-xs uppercase">
+                  <span className="bg-white px-2 text-gray-500">または</span>
+                </div>
+              </div>
+              {/* <Button
                     variant="outline"
                     className="w-full border-2"
                   >
@@ -350,17 +368,16 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                     />
                     Googleで登録
                   </Button> */}
-                <div className="text-center">
-                  <a
-                    href="#"
-                    className="text-sm text-blue-500 hover:underline"
-                    onClick={() => setIsLogin(true)} // ログイン画面に戻る
-                  >
-                    ログイン画面に戻る
-                  </a>
-                </div>
-              </>
-            </>
+              <div className="text-center">
+                <a
+                  href="#"
+                  className="text-sm text-blue-500 hover:underline"
+                  onClick={() => setIsLogin(true)} // ログイン画面に戻る
+                >
+                  ログイン画面に戻る
+                </a>
+              </div>
+            </form>
           )}
         </div>
       </DialogContent>
