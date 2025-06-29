@@ -70,7 +70,7 @@ export default function TypingGame({
       try {
         if (isAuthenticated) {
           // タイピング結果を保存
-          const result = await saveTypingResult({
+          await saveTypingResult({
             post_id: postId,
             play_time: finalTime,
             accuracy: accuracy,
