@@ -28,6 +28,7 @@ Rails.application.routes.draw do
       resources :typing_games, only: [:index, :create] do
         collection do
           get 'ranking', to: 'typing_games#ranking'
+          get 'pseudo_rank', to: 'typing_games#pseudo_rank'
         end
       end
     end

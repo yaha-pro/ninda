@@ -69,11 +69,26 @@ export interface TypingResult {
   post?: Post
   rank?: number;
   user_name?: string;
+  total_players?: number;
 }
 
+// タイピング結果を保存するためのパラメータ
 export interface SaveTypingResultParams {
   post_id: string
   play_time: number
   accuracy: number
   mistake_count: number
+}
+
+// 擬似ランキングを取得するためのパラメータ
+export interface GetPseudoRankParams {
+  post_id: string
+  play_time: number
+  accuracy: number
+}
+
+// 擬似ランキングの型定義
+export interface PseudoRankResult {
+  rank: number;
+  total_players: number;
 }

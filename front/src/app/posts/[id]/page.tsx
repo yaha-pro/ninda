@@ -91,16 +91,16 @@ export default function PostDetailPage() {
   }, [post?.user_id]);
 
   // ゲーム終了後にランキングを再取得する関数
-  // const refreshRanking = async () => {
-  //   if (!post_id) return;
+  const refreshRanking = async () => {
+    if (!post_id) return;
 
-  //   try {
-  //     const rankingData = await getRanking(Number(post_id));
-  //     setRanking(rankingData);
-  //   } catch (error) {
-  //     console.error("Error refreshing ranking:", error);
-  //   }
-  // };
+    try {
+      const rankingData = await getRanking(Number(post_id));
+      setRanking(rankingData);
+    } catch (error) {
+      console.error("Error refreshing ranking:", error);
+    }
+  };
 
   if (loading) {
     return (
@@ -254,7 +254,8 @@ export default function PostDetailPage() {
               displayText={post.display_text}
               typingText={post.typing_text}
               postId={post.id}
-              // onGameEnd={refreshRanking}
+              postTitle={post.title}
+              onGameEnd={refreshRanking}
             />
           )}
         </div>
