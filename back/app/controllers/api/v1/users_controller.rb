@@ -1,5 +1,4 @@
 class Api::V1::UsersController < ApplicationController
-
   # ユーザー情報を取得
   def show
     user = User.find(params[:id])
@@ -31,9 +30,9 @@ class Api::V1::UsersController < ApplicationController
 
     if user
       typing_results = TypingGame
-        .select('DISTINCT ON (post_id) *')
+        .select("DISTINCT ON (post_id) *")
         .where(user_id: user.id)
-        .order('post_id, accuracy DESC, play_time ASC')
+        .order("post_id, accuracy DESC, play_time ASC")
 
       render json: typing_results, status: :ok
     else

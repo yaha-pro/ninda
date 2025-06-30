@@ -1,5 +1,5 @@
 class Api::V1::TypingGamesController < ApplicationController
-  before_action :authenticate_api_v1_user!, only: [:create]
+  before_action :authenticate_api_v1_user!, only: [ :create ]
 
   def index
     @typing_games = TypingGame.all
@@ -34,7 +34,7 @@ class Api::V1::TypingGamesController < ApplicationController
       render json: { error: "post_id is required" }, status: :bad_request and return
     end
 
-    ranking_sql = ActiveRecord::Base.send(:sanitize_sql_array, [<<-SQL, post_id])
+    ranking_sql = ActiveRecord::Base.send(:sanitize_sql_array, [ <<-SQL, post_id ])
       SELECT
         ranked.post_id,
         ranked.user_id,
@@ -85,11 +85,11 @@ class Api::V1::TypingGamesController < ApplicationController
     SQL
 
     base_scores = ActiveRecord::Base.connection.exec_query(
-      ActiveRecord::Base.send(:sanitize_sql_array, [base_sql, post_id])
+      ActiveRecord::Base.send(:sanitize_sql_array, [ base_sql, post_id ])
     ).to_a
 
     # 仮スコア作成
-    temp_score = { 'user_id' => current_api_v1_user&.id, 'accuracy' => accuracy, 'play_time' => play_time }
+    temp_score = { "user_id" => current_api_v1_user&.id, "accuracy" => accuracy, "play_time" => play_time }
 
     # 現在のログインユーザーのベストスコア
     current_best = nil
@@ -103,8 +103,8 @@ class Api::V1::TypingGamesController < ApplicationController
     if current_api_v1_user
       # 今回の成績がベストより良ければ、自分の既存スコアを削除して仮スコア追加
       if current_best.nil? ||
-          accuracy > current_best['accuracy'].to_f ||
-          (accuracy == current_best['accuracy'].to_f && play_time < current_best['play_time'].to_f)
+          accuracy > current_best["accuracy"].to_f ||
+          (accuracy == current_best["accuracy"].to_f && play_time < current_best["play_time"].to_f)
         scores.reject! { |s| s["user_id"] == current_api_v1_user.id }
         scores << temp_score
       else
@@ -117,14 +117,14 @@ class Api::V1::TypingGamesController < ApplicationController
     end
 
     # ランキングを計算
-    sorted = scores.sort_by { |s| [-s['accuracy'].to_f, s['play_time'].to_f] }
+    sorted = scores.sort_by { |s| [ -s["accuracy"].to_f, s["play_time"].to_f ] }
     rank = sorted.index(temp_score) + 1
 
     # トータル人数（仮スコアがランキングに追加されたかどうかでカウント）
     total_players = base_scores.size
     if current_api_v1_user.nil? || (current_best && (
-      accuracy < current_best['accuracy'].to_f ||
-      (accuracy == current_best['accuracy'].to_f && play_time > current_best['play_time'].to_f)
+      accuracy < current_best["accuracy"].to_f ||
+      (accuracy == current_best["accuracy"].to_f && play_time > current_best["play_time"].to_f)
     ))
       total_players += 1
     elsif current_best.nil?

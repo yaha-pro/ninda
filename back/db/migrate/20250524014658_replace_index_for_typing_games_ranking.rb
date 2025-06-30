@@ -5,7 +5,7 @@ class ReplaceIndexForTypingGamesRanking < ActiveRecord::Migration[7.2]
 
     # 新しい複合インデックスを追加
     add_index :typing_games,
-              [:post_id, :accuracy, :play_time],
+              [ :post_id, :accuracy, :play_time ],
               order: { post_id: :asc, accuracy: :desc, play_time: :asc },
               name: "index_typing_games_on_post_and_accuracy_and_time"
   end
