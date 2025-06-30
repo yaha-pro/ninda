@@ -1,5 +1,5 @@
 class Api::V1::PostsController < ApplicationController
-  before_action :authenticate_api_v1_user!, only: [:create, :update, :destroy]
+  before_action :authenticate_api_v1_user!, only: [ :create, :update, :destroy ]
 
   # 全投稿の取得
   def index
@@ -18,7 +18,7 @@ class Api::V1::PostsController < ApplicationController
     post = @user.posts.new(post_params)
 
     if post.save
-      render json: { message: 'Post created successfully', post: post }, status: :created
+      render json: { message: "Post created successfully", post: post }, status: :created
     else
       render json: { errors: post.errors.full_messages }, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class Api::V1::PostsController < ApplicationController
     post = @user.posts.find(params[:id])
 
     if post.update(post_params)
-      render json: { message: 'Post updated successfully', post: post }, status: :ok
+      render json: { message: "Post updated successfully", post: post }, status: :ok
     else
       render json: { errors: post.errors.full_messages }, status: :unprocessable_entity
     end

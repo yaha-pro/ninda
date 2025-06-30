@@ -289,6 +289,7 @@ DEPENDENCIES
   rack-cors
   rails (~> 7.2.2, >= 7.2.2.1)
   rails_same_site_cookie
+  rubocop
   rubocop-rails-omakase
   tzinfo-data
 

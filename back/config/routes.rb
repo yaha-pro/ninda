@@ -2,9 +2,9 @@ Rails.application.routes.draw do
   get "health/show"
   namespace :api do
     namespace :v1 do
-      mount_devise_token_auth_for 'User', at: 'auth', controllers: {
-        registrations: 'api/v1/auth/registrations',
-        sessions: 'api/v1/auth/sessions'
+      mount_devise_token_auth_for "User", at: "auth", controllers: {
+        registrations: "api/v1/auth/registrations",
+        sessions: "api/v1/auth/sessions"
       }
 
       devise_scope :api_v1_user do
@@ -13,22 +13,22 @@ Rails.application.routes.draw do
         end
       end
 
-      get 'mypage/posts', to: 'mypage#posts'
-      get 'mypage/typing_results', to: 'mypage#typing_results'
+      get "mypage/posts", to: "mypage#posts"
+      get "mypage/typing_results", to: "mypage#typing_results"
 
-       # ユーザー情報取得のエンドポイント
-      resources :users, only: [:show, :index] do
+      # ユーザー情報取得のエンドポイント
+      resources :users, only: [ :show, :index ] do
         member do
-          get 'posts', to: 'users#posts'
-          get 'user_typing_results', to: 'users#user_typing_results'
+          get "posts", to: "users#posts"
+          get "user_typing_results", to: "users#user_typing_results"
         end
       end
 
-      resources :posts, only: [:index, :show, :create, :update, :destroy]
-      resources :typing_games, only: [:index, :create] do
+      resources :posts, only: [ :index, :show, :create, :update, :destroy ]
+      resources :typing_games, only: [ :index, :create ] do
         collection do
-          get 'ranking', to: 'typing_games#ranking'
-          get 'pseudo_rank', to: 'typing_games#pseudo_rank'
+          get "ranking", to: "typing_games#ranking"
+          get "pseudo_rank", to: "typing_games#pseudo_rank"
         end
       end
     end
