@@ -22,9 +22,10 @@ import { getUser } from "@/lib/axios";
 interface PostCardProps {
   post: Post;
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
+  isMyPage?: boolean;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
   const { user } = useAuth(); // 現在のユーザー情報を取得
   const { handleDelete } = useDeletePost();
   const [postUser, setPostUser] = useState<User | null>(null);
@@ -48,7 +49,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts }) => {
   const handleDeleteClick = (event: React.MouseEvent) => {
     event.preventDefault(); // 親の Link の遷移を防ぐ
     event.stopPropagation(); // イベントの伝播を防ぐ
-    handleDelete(post.id, post.title, setPosts);
+    handleDelete(post.id, post.title, setPosts, isMyPage);
   };
 
   // ユーザー名の表示用関数

@@ -1,6 +1,6 @@
 import { useRouter, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
-import { deletePost, getPosts } from "@/lib/axios";
+import { deletePost, getPosts, getCurrentUserPosts } from "@/lib/axios";
 import { Post } from "@/lib/types";
 
 export const useDeletePost = () => {
@@ -10,7 +10,8 @@ export const useDeletePost = () => {
   const handleDelete = async (
     postId: string,
     postTitle: string,
-    setPosts: React.Dispatch<React.SetStateAction<Post[]>>
+    setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
+    isMyPage: boolean = false
   ) => {
     if (window.confirm("" + postTitle + "を削除しますか？")) {
       try {
@@ -19,7 +20,9 @@ export const useDeletePost = () => {
         toast.success("" + postTitle + "が削除されました");
 
         // 投稿情報を再取得
-        const updatedPosts = await getPosts();
+        const updatedPosts = isMyPage
+          ? await getCurrentUserPosts()
+          : await getPosts();
         setPosts(updatedPosts);
 
         // カレントページにリダイレクト

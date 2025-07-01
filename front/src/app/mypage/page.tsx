@@ -39,7 +39,8 @@ export default function MyPage() {
           typingResults.map(async (result) => {
             try {
               const ranking = await getRanking(Number(result.post_id)); // 各投稿の全体ランキングを取得
-              const myResult = ranking.findIndex((r) => r.user_id === result.user_id) + 1; // 自分の順位を取得
+              const myResult =
+                ranking.findIndex((r) => r.user_id === result.user_id) + 1; // 自分の順位を取得
               console.log("自分のランキング", myResult);
               return {
                 ...result,
@@ -139,7 +140,7 @@ export default function MyPage() {
           </TabsList>
 
           <TabsContent value="posts" className="mt-6">
-            {user && <PostsList userId={user.id} />}
+            <PostsList isMyPage />
           </TabsContent>
 
           <TabsContent value="likes" className="mt-6">

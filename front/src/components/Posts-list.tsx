@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { getUserPosts } from "@/lib/axios";
+import { getCurrentUserPosts, getUserPosts } from "@/lib/axios";
 import type { Post } from "@/lib/types";
 import Link from "next/link";
 import PostCard from "@/components/PostCard";
@@ -9,10 +9,14 @@ import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface PostsListProps {
-  userId: string;
+  userId?: string;
+  isMyPage?: boolean;
 }
 
-export default function PostsList({ userId }: PostsListProps) {
+export default function PostsList({
+  userId,
+  isMyPage = false,
+}: PostsListProps) {
   const [posts, setPosts] = useState<Post[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -22,7 +26,9 @@ export default function PostsList({ userId }: PostsListProps) {
     const fetchPosts = async () => {
       try {
         setIsLoading(true);
-        const data = await getUserPosts(userId);
+        const data = isMyPage
+          ? await getCurrentUserPosts() // マイページでは自分の投稿取得
+          : await getUserPosts(userId!); // ユーザーページでは指定ユーザーの投稿取得
         setPosts(data);
       } catch (error) {
         console.error("Failed to fetch user posts:", error);
@@ -32,7 +38,7 @@ export default function PostsList({ userId }: PostsListProps) {
     };
 
     fetchPosts();
-  }, [userId]);
+  }, [userId, isMyPage]);
 
   // ページネーション用の計算
   const indexOfLastPost = currentPage * postsPerPage;
@@ -66,7 +72,7 @@ export default function PostsList({ userId }: PostsListProps) {
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         {currentPosts.map((post) => (
           <Link href={`/posts/${post.id}`} key={post.id} className="block">
-            <PostCard post={post} setPosts={setPosts} />
+            <PostCard post={post} setPosts={setPosts} isMyPage={isMyPage} />
           </Link>
         ))}
       </div>
