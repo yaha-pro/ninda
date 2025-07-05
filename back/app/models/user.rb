@@ -10,6 +10,9 @@ class User < ActiveRecord::Base
   has_many :posts, dependent: :destroy # ユーザーが削除されたら、関連する投稿も削除
   has_many :typing_games, dependent: :destroy # # ユーザーが削除されたら、タイピング成績も削除
 
+  # プロフィール画像のアップローダー
+  mount_uploader :profile_image, ProfileImageUploader
+
   # バリデーション
   validates :name, presence: true, uniqueness: true
   validates :email, presence: true, uniqueness: true
