@@ -57,3 +57,8 @@ gem "devise-i18n"
 gem "dotenv-rails", "3.1.7"
 gem "dockerfile-rails", ">= 1.6", group: :development
 gem "dotenv", "3.1.7"
+
+# 画像関連
+gem "carrierwave", "~> 3.0" # 画像のアップロード
+gem "mini_magick" # 画像のリサイズ
+gem "fog-aws" # AWS S3へのアップロード(carrierwave単体ではS3にアップロードできないため)
