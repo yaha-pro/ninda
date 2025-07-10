@@ -1,26 +1,36 @@
 "use client";
 
+import type React from "react";
+
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { getCurrentUserTypingResults, getRanking } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import type { TypingResult } from "@/lib/types";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ProfileEditModal } from "@/components/ProfileEditModal";
 import Link from "next/link";
-
 import ResultsTable from "@/components/Results-table";
-// import UserProfile from "./user-profile" // プロフィール編集機能実装時に追加
 import PostsList from "@/components/Posts-list";
 import LikesList from "./likes-list";
+import { Pencil, Camera, ImageIcon, FolderOpen } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import toast from "react-hot-toast";
 
 export default function MyPage() {
   const { user, isAuthenticated } = useAuth();
   const [isProfileEditModalOpen, setIsProfileEditModalOpen] = useState(false);
   const [results, setResults] = useState<TypingResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
   const router = useRouter();
 
   // 未ログインならエラーページへリダイレクト
@@ -51,7 +61,10 @@ export default function MyPage() {
                 `Failed to fetch ranking for post ${result.post_id}:`,
                 error
               );
-              return { ...result, rank: undefined };
+              return {
+                ...result,
+                rank: undefined,
+              };
             }
           })
         );
@@ -73,6 +86,66 @@ export default function MyPage() {
     return name.substring(0, 2).toUpperCase();
   };
 
+  // 画像ファイルの処理
+  const handleImageSelect = (file: File) => {
+    if (file) {
+      // ファイルサイズチェック（5MB制限）
+      if (file.size > 5 * 1024 * 1024) {
+        toast({
+          title: "エラー",
+          description: "ファイルサイズは5MB以下にしてください。",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      // ファイル形式チェック
+      if (!file.type.startsWith("image/")) {
+        toast({
+          title: "エラー",
+          description: "画像ファイルを選択してください。",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setProfileImage(result);
+
+        // ここで実際のアップロード処理を行う
+        // uploadProfileImage(file);
+
+        toast({
+          title: "成功",
+          description: "プロフィール画像を更新しました。",
+        });
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
+  // ファイル選択（通常）
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImageSelect(file);
+    }
+    // input要素をリセット
+    event.target.value = "";
+  };
+
+  // カメラ撮影
+  const handleCameraCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImageSelect(file);
+    }
+    // input要素をリセット
+    event.target.value = "";
+  };
+
   return (
     <div className="bg-[#f5f2ed]">
       <div className="container max-w-5xl mx-auto px-4 py-10">
@@ -89,7 +162,7 @@ export default function MyPage() {
             <Button
               variant="outline"
               size="sm"
-              className="w-full max-w-xs text-md"
+              className="w-full max-w-xs text-md bg-transparent"
               onClick={() => setIsProfileEditModalOpen(true)}
             >
               プロフィール編集
@@ -98,11 +171,97 @@ export default function MyPage() {
         </div>
         {/* ユーザー情報表示エリア */}
         <div className="flex flex-col items-center text-center justify-center mb-8">
-          <Avatar className="h-32 w-32 border-white border-4 shadow-md">
-            <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md text-4xl">
-              {user ? getInitials(user.name) : "ND"}
-            </AvatarFallback>
-          </Avatar>
+          <div
+            className="relative group cursor-pointer"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <Avatar
+              className={`h-32 w-32 border-white border-4 shadow-md transition-all duration-300 ${
+                isHovered ? "scale-105 shadow-lg" : ""
+              }`}
+            >
+              {profileImage ? (
+                <AvatarImage
+                  src={profileImage || "/placeholder.svg"}
+                  alt="プロフィール画像"
+                />
+              ) : null}
+              <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md text-4xl">
+                {user ? getInitials(user.name) : "ND"}
+              </AvatarFallback>
+            </Avatar>
+
+            {/* 編集オーバーレイ */}
+            <div
+              className={`absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center transition-opacity duration-300 ${
+                isHovered ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {/* デスクトップ用 */}
+              <div className="hidden sm:block">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  id="desktop-file-input"
+                />
+                <Pencil className="w-8 h-8 text-white" />
+              </div>
+
+              {/* モバイル用 */}
+              <div className="sm:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild>
+                    <div className="flex items-center justify-center">
+                      <Pencil className="w-8 h-8 text-white" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <label className="flex items-center gap-2 cursor-pointer w-full">
+                        <ImageIcon className="w-4 h-4" />
+                        写真ライブラリ
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                        />
+                      </label>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <label className="flex items-center gap-2 cursor-pointer w-full">
+                        <Camera className="w-4 h-4" />
+                        写真を撮る
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={handleCameraCapture}
+                          className="hidden"
+                        />
+                      </label>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <label className="flex items-center gap-2 cursor-pointer w-full">
+                        <FolderOpen className="w-4 h-4" />
+                        ファイルを選択
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                        />
+                      </label>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
+
           <h2 className="text-3xl font-bold mt-4">{user?.name}</h2>
           <p className="mt-2 text-sm text-muted-foreground max-w-md">
             {user?.bio || "自己紹介がありません"}
