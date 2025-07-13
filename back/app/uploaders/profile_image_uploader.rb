@@ -52,6 +52,6 @@ class ProfileImageUploader < CarrierWave::Uploader::Base
 
   # S3に保存する際にACLの指定を外す
   def fog_attributes
-    { 'x-amz-acl' => nil }
+    { "x-amz-acl" => nil }
   end
 end

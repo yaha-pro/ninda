@@ -4,8 +4,8 @@ import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
-// import { Heart } from "lucide-react";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+// import { Heart } from 'lucide-react';
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 // import { Input } from "@/components/ui/input"
 import { getPost, getUser, getRanking } from "@/lib/axios";
@@ -30,6 +30,7 @@ export default function PostDetailPage() {
   const [ranking, setRanking] = useState<TypingResult[]>([]);
   const [rankingLoading, setRankingLoading] = useState(true);
   const [showMoreRanking, setShowMoreRanking] = useState(false);
+  const [rankingUsers, setRankingUsers] = useState<{ [key: string]: User }>({}); // ランキングユーザー情報をキャッシュ
 
   // 投稿の取得
   useEffect(() => {
@@ -63,6 +64,30 @@ export default function PostDetailPage() {
         setRankingLoading(true);
         const rankingData = await getRanking(Number(post_id));
         setRanking(rankingData);
+
+        // ランキングユーザーの情報を取得
+        const userPromises = rankingData.map(async (result) => {
+          if (result.user_id && !rankingUsers[result.user_id]) {
+            try {
+              const userData = await getUser(result.user_id);
+              return { [result.user_id]: userData };
+            } catch (error) {
+              console.error(`Failed to fetch user ${result.user_id}:`, error);
+              return null;
+            }
+          }
+          return null;
+        });
+
+        const userResults = await Promise.all(userPromises);
+        const newUsers = userResults.reduce((acc, userObj) => {
+          if (userObj) {
+            return { ...acc, ...userObj };
+          }
+          return acc;
+        }, {});
+
+        setRankingUsers((prev) => ({ ...prev, ...newUsers }));
       } catch (error) {
         console.error("Error fetching ranking:", error);
         toast.error("ランキングの取得に失敗しました");
@@ -93,7 +118,6 @@ export default function PostDetailPage() {
   // ゲーム終了後にランキングを再取得する関数
   const refreshRanking = async () => {
     if (!post_id) return;
-
     try {
       const rankingData = await getRanking(Number(post_id));
       setRanking(rankingData);
@@ -135,6 +159,16 @@ export default function PostDetailPage() {
     return postUser?.name || "ユーザー";
   };
 
+  // 投稿者のプロフィール画像URL取得
+  const getPostUserProfileImageUrl = () => {
+    if (postUser?.profile_image) {
+      return typeof postUser.profile_image === "string"
+        ? postUser.profile_image
+        : postUser.profile_image.url;
+    }
+    return null;
+  };
+
   // ユーザープロフィールへの遷移処理
   const handleUserProfileClick = () => {
     if (user && post.user_id === user.id) {
@@ -147,11 +181,23 @@ export default function PostDetailPage() {
   };
 
   // ランキング用のユーザー名取得関数
-  const getRankingUserInitial = (userName?: string) => {
+  const getRankingUserInitial = (userId?: string, userName?: string) => {
     if (userName) {
       return userName.substring(0, 2).toUpperCase();
     }
+    if (userId && rankingUsers[userId]) {
+      return rankingUsers[userId].name.substring(0, 2).toUpperCase();
+    }
     return "U";
+  };
+
+  // ランキングユーザーのプロフィール画像URL取得
+  const getRankingUserProfileImageUrl = (userId?: string) => {
+    if (userId && rankingUsers[userId]?.profile_image) {
+      const profileImage = rankingUsers[userId].profile_image;
+      return typeof profileImage === "string" ? profileImage : profileImage.url;
+    }
+    return null;
   };
 
   // 順位アイコンを取得する関数
@@ -192,10 +238,23 @@ export default function PostDetailPage() {
     return <span className="text-lg font-bold">{rank}</span>;
   };
 
+  const postUserProfileImageUrl = getPostUserProfileImageUrl();
+
   // プレイ時間を秒に変換して表示する関数
   // const formatPlayTime = (playTime: number) => {
   //   return (playTime / 1000).toFixed(1) + "秒";
   // };
+
+  // ランキングユーザープロフィールへの遷移処理
+  const handleRankingUserProfileClick = (userId: string) => {
+    if (user && userId === user.id) {
+      // クリックしたユーザーが現在のログインユーザーと同じ場合はマイページへ
+      router.push("/mypage");
+    } else {
+      // それ以外は通常のユーザーページへ
+      router.push(`/users/${userId}`);
+    }
+  };
 
   return (
     <main className="min-h-screen bg-[#f5f7ef] sm:px-16 py-12">
@@ -218,7 +277,7 @@ export default function PostDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full max-w-xs text-md"
+                className="w-full max-w-xs text-md bg-transparent"
               >
                 編集する
               </Button>
@@ -226,13 +285,14 @@ export default function PostDetailPage() {
           ) : null}
         </div>
       </div>
+
       {/* Main Content */}
       <div className="max-w-4xl mx-auto">
         <div className="bg-white rounded-xl p-6 shadow-md border-8 border-[#FF8D76] h-[450px]">
           {!isPlaying ? (
             <div className="max-w-2xl mx-auto text-center space-y-6">
               <Image
-                src={post_image_def || "/placeholder.svg"}
+                src={post_image_def}
                 alt="Post image"
                 width={200}
                 height={200}
@@ -259,6 +319,7 @@ export default function PostDetailPage() {
             />
           )}
         </div>
+
         {/* User Info */}
         <div className="flex items-center justify-between mt-2">
           <div
@@ -266,9 +327,16 @@ export default function PostDetailPage() {
             onClick={handleUserProfileClick}
           >
             <Avatar>
-              <AvatarFallback className="bg-red-100 text-red-600">
-                {getUserInitial()}
-              </AvatarFallback>
+              {postUserProfileImageUrl ? (
+                <AvatarImage
+                  src={String(postUserProfileImageUrl)}
+                  alt={getUserName() || "投稿者画像"}
+                />
+              ) : (
+                <AvatarFallback className="bg-red-100 text-red-600">
+                  {getUserInitial()}
+                </AvatarFallback>
+              )}
             </Avatar>
             <span className="text-gray-600">{getUserName()}</span>
           </div>
@@ -294,13 +362,14 @@ export default function PostDetailPage() {
                 {tag}
               </Button>
             ))}
-          </div>
- */}
+          </div> */}
+
         {/* Description */}
         <div className="mt-6 text-gray-700">
           <p>{post.description}</p>
         </div>
       </div>
+
       {/* Comments and Ranking */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Comments */}
@@ -337,7 +406,6 @@ export default function PostDetailPage() {
           <h2 className="text-center text-xl font-bold mb-6 text-[#FF8D76]">
             タイピングのランキング
           </h2>
-
           {rankingLoading ? (
             <div className="space-y-4">
               {[1, 2, 3, 4, 5].map((index) => (
@@ -376,11 +444,16 @@ export default function PostDetailPage() {
                   .slice(0, showMoreRanking ? 100 : 5)
                   .map((result, index) => {
                     const rank = index + 1;
-
+                    const rankingUserProfileImageUrl =
+                      getRankingUserProfileImageUrl(result.user_id);
                     return (
                       <div
                         key={result.id ?? index}
-                        className="grid grid-cols-12 gap-2 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors"
+                        className="grid grid-cols-12 gap-2 py-4 border-b border-gray-100 hover:bg-gray-50 transition-colors cursor-pointer"
+                        onClick={() =>
+                          result.user_id &&
+                          handleRankingUserProfileClick(result.user_id)
+                        }
                       >
                         {/* 順位 */}
                         <div className="col-span-2 flex items-center justify-center">
@@ -390,9 +463,21 @@ export default function PostDetailPage() {
                         {/* ユーザー */}
                         <div className="col-span-4 flex items-center gap-2 pl-4">
                           <Avatar className="h-10 w-10">
-                            <AvatarFallback className="bg-red-100 text-red-600 text-sm">
-                              {getRankingUserInitial(result.user_name)}
-                            </AvatarFallback>
+                            {rankingUserProfileImageUrl ? (
+                              <AvatarImage
+                                src={String(rankingUserProfileImageUrl)}
+                                alt={
+                                  result.user_name || "ランキングユーザー画像"
+                                }
+                              />
+                            ) : (
+                              <AvatarFallback className="bg-red-100 text-red-600 text-sm">
+                                {getRankingUserInitial(
+                                  result.user_id,
+                                  result.user_name
+                                )}
+                              </AvatarFallback>
+                            )}
                           </Avatar>
                           <span className="text-sm font-medium truncate">
                             {result.user_name || "ユーザー"}

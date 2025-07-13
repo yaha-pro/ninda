@@ -57,6 +57,7 @@ export function ProfileEditModal({ isOpen, onClose }: ProfileEditModalProps) {
           </DialogTitle>
         </DialogHeader>
         <div className="space-y-6">
+          
           <div className="space-y-1">
             <label className="text-sm font-medium">表示名</label>
             <Input

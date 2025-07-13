@@ -17,6 +17,7 @@ export default function UserPage() {
   const [profileUser, setProfileUser] = useState<User | null>(null);
   const [results, setResults] = useState<TypingResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
 
   // ユーザー情報の取得
   useEffect(() => {
@@ -26,13 +27,24 @@ export default function UserPage() {
         const userData = await getUser(userId);
         setProfileUser(userData);
 
+        // プロフィール画像の設定
+        if (userData.profile_image) {
+          const image =
+            typeof userData.profile_image === "string"
+              ? userData.profile_image
+              : userData.profile_image.url;
+          console.log("ユーザープロフィール画像", image);
+          setProfileImage(image);
+        }
+
         // ユーザーのタイピング結果を取得
         const typingResults = await getUserTypingResults(userId);
         const resultsWithRank: TypingResult[] = await Promise.all(
           typingResults.map(async (result) => {
             try {
               const ranking = await getRanking(Number(result.post_id)); // 各投稿の全体ランキングを取得
-              const userResult = ranking.findIndex((r) => r.user_id === result.user_id) + 1; // ユーザーのランキング
+              const userResult =
+                ranking.findIndex((r) => r.user_id === result.user_id) + 1; // ユーザーのランキング
               return {
                 ...result,
                 rank: userResult ?? undefined, // 全体ランキングの順位を反映
@@ -99,11 +111,8 @@ export default function UserPage() {
         {/* ユーザー情報表示エリア */}
         <div className="flex flex-col items-center text-center justify-center mb-8">
           <Avatar className="h-32 w-32 border-white border-4 shadow-md">
-            {profileUser.profile_image ? (
-              <AvatarImage
-                src={profileUser.profile_image || "/placeholder.svg"}
-                alt={profileUser.name}
-              />
+            {profileImage ? (
+              <AvatarImage src={String(profileImage)} alt={profileUser.name} />
             ) : (
               <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md text-4xl">
                 {getInitials(profileUser.name)}
@@ -114,7 +123,6 @@ export default function UserPage() {
           <p className="mt-2 text-sm text-muted-foreground max-w-md">
             {profileUser.bio || "自己紹介がありません"}
           </p>
-
           {/* ユーザーステータス情報 */}
           {/* <div className="flex justify-center gap-8 mt-6">
             <div className="text-center">
