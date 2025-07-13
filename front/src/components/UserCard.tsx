@@ -17,18 +17,30 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
     return "ND";
   };
 
+  // プロフィール画像のURLを取得する関数
+  const getProfileImageUrl = () => {
+    if (user.profile_image) {
+      return typeof user.profile_image === "string"
+        ? user.profile_image
+        : user.profile_image.url;
+    }
+    return null;
+  };
+
+  const profileImageUrl = getProfileImageUrl();
+
   return (
-    <div className="bg-white rounded-3xl shadow-md hover:shadow-lg transition-shadow p-6 flex items-center gap-6">
+    <div className="bg-white rounded-3xl shadow-sm transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-md p-6 flex items-center gap-6">
       {/* プロフィール画像 */}
       <div className="shrink-0">
         <Avatar className="h-24 w-24 border-2 border-white shadow-md">
-          {user.profile_image ? (
+          {profileImageUrl ? (
             <AvatarImage
-              src={user.profile_image || "/placeholder.svg"}
+              src={String(profileImageUrl)}
               alt={user.name}
             />
           ) : (
-            <AvatarFallback className="bg-[#FFD0C9] text-white text-2xl">
+            <AvatarFallback className="bg-[#FF8D76] text-white text-2xl">
               {getUserInitial()}
             </AvatarFallback>
           )}
@@ -38,7 +50,6 @@ const UserCard: React.FC<UserCardProps> = ({ user }) => {
       {/* ユーザー情報 */}
       <div className="flex-1">
         <h3 className="font-bold text-xl mb-4">{user.name}</h3>
-
         <div className="space-y-2">
           {/* プレイ回数 */}
           <div className="flex items-center">

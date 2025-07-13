@@ -4,14 +4,14 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FiMoreVertical, FiEdit, FiTrash } from "react-icons/fi";
-// import { Heart } from "lucide-react";
+// import { Heart } from 'lucide-react';
 import {
   DropdownMenu,
   DropdownMenuTrigger,
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import type { Post, User } from "@/lib/types";
 import Image from "next/image";
 import Link from "next/link";
@@ -64,6 +64,16 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
     return postUser?.name;
   };
 
+  // プロフィール画像のURLを取得する関数
+  const getPostUserProfileImageUrl = () => {
+    if (postUser?.profile_image) {
+      return typeof postUser.profile_image === "string"
+        ? postUser.profile_image
+        : postUser.profile_image.url;
+    }
+    return null;
+  };
+
   // ユーザーのリンク先を決定する関数
   const getUserProfileLink = () => {
     // 投稿者が現在のログインユーザーと同じ場合はマイページへ
@@ -81,9 +91,11 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
     window.location.href = getUserProfileLink(); // 直接URLを変更
   };
 
+  const postUserProfileImageUrl = getPostUserProfileImageUrl();
+
   return (
     <div
-      className="bg-white rounded-2xl shadow-sm overflow-hidden hover:shadow-md transition-shadow p-6"
+      className="bg-white rounded-2xl shadow-sm overflow-hidden transition-transform duration-300 ease-in-out hover:-translate-y-1 hover:shadow-md p-6"
       onClick={(event) => {
         if (event.target instanceof HTMLButtonElement) {
           event.stopPropagation(); // ボタンをクリックしたときのみ遷移を防ぐ
@@ -119,6 +131,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
           <div className="w-6 h-6" /> // 空のdivで幅を確保
         )}
       </div>
+
       <div className="flex gap-3">
         <div className="w-40 h-40 shrink-0">
           <Image
@@ -134,15 +147,23 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
           </p>
         </div>
       </div>
+
       <div className="flex items-center justify-between">
         <div
           className="flex items-center gap-2 cursor-pointer hover:opacity-80 transition-opacity"
           onClick={handleUserProfileClick}
         >
           <Avatar className="h-8 w-8">
-            <AvatarFallback className="bg-red-100 text-red-600 text-xs">
-              {getUserInitial()}
-            </AvatarFallback>
+            {postUserProfileImageUrl ? (
+              <AvatarImage
+                src={String(postUserProfileImageUrl)}
+                alt={getUserName() || "ユーザー画像"}
+              />
+            ) : (
+              <AvatarFallback className="bg-red-100 text-red-600 text-xs">
+                {getUserInitial()}
+              </AvatarFallback>
+            )}
           </Avatar>
           <span className="text-sm text-gray-500">{getUserName()}</span>
         </div>

@@ -13,8 +13,10 @@ Rails.application.routes.draw do
         end
       end
 
+      # マイページのエンドポイント
       get "mypage/posts", to: "mypage#posts"
       get "mypage/typing_results", to: "mypage#typing_results"
+      put "mypage/profile_image", to: "mypage#update_profile_image"
 
       # ユーザー情報取得のエンドポイント
       resources :users, only: [ :show, :index ] do

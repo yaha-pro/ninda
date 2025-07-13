@@ -5,7 +5,7 @@ import { LoginModal } from "./LoginModal";
 import { useAuth } from "@/contexts/AuthContext";
 import { Button } from "./ui/button";
 import { HamburgerMenu } from "@/components/ui/hamburger-menu";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import Link from "next/link";
 import Image from "next/image";
 import ninda_header_Logo from "/public/ninda_logo.png";
@@ -18,6 +18,18 @@ export function Header() {
   const getInitials = (name: string) => {
     return name.substring(0, 2).toUpperCase();
   };
+
+  // プロフィール画像のURLを取得する関数
+  const getProfileImageUrl = () => {
+    if (user?.profile_image) {
+      return typeof user.profile_image === "string"
+        ? user.profile_image
+        : user.profile_image.url;
+    }
+    return null;
+  };
+
+  const profileImageUrl = getProfileImageUrl();
 
   return (
     <header className="fixed top-0 left-0 w-full shadow-sm bg-[#faf7ef] z-50">
@@ -42,10 +54,17 @@ export function Header() {
                   <Button>投稿する</Button>
                 </Link>
                 <Link href="/mypage" passHref>
-                  <Avatar className="h-12 w-12 border-white border-4 shadow-md">
-                    <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md">
-                      {user ? getInitials(user.name) : "ND"}
-                    </AvatarFallback>
+                  <Avatar className="h-12 w-12 border-white border-4 shadow-md transition-transform duration-300 ease-in-out hover:scale-110">
+                    {profileImageUrl ? (
+                      <AvatarImage
+                        src={String(profileImageUrl)}
+                        alt={user?.name || "プロフィール画像"}
+                      />
+                    ) : (
+                      <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md">
+                        {user ? getInitials(user.name) : "ND"}
+                      </AvatarFallback>
+                    )}
                   </Avatar>
                 </Link>
               </>

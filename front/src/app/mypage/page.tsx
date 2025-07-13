@@ -1,26 +1,43 @@
 "use client";
 
+import type React from "react";
+
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCurrentUserTypingResults, getRanking } from "@/lib/axios";
+import {
+  getCurrentUserTypingResults,
+  getRanking,
+  updateProfileImage,
+  checkSession,
+} from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import type { TypingResult } from "@/lib/types";
-import { Avatar, AvatarFallback } from "@/components/ui/avatar";
+import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { ProfileEditModal } from "@/components/ProfileEditModal";
 import Link from "next/link";
-
 import ResultsTable from "@/components/Results-table";
-// import UserProfile from "./user-profile" // プロフィール編集機能実装時に追加
 import PostsList from "@/components/Posts-list";
 import LikesList from "./likes-list";
+import { Pencil, Camera, ImageIcon, FolderOpen, Loader2 } from "lucide-react";
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuTrigger,
+} from "@/components/ui/dropdown-menu";
+import toast from "react-hot-toast";
 
 export default function MyPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, setUser } = useAuth();
   const [isProfileEditModalOpen, setIsProfileEditModalOpen] = useState(false);
   const [results, setResults] = useState<TypingResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
+  const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [isHovered, setIsHovered] = useState(false);
+  const [isUploading, setIsUploading] = useState(false);
+  const [activeTab, setActiveTab] = useState("posts");
   const router = useRouter();
 
   // 未ログインならエラーページへリダイレクト
@@ -33,7 +50,7 @@ export default function MyPage() {
   useEffect(() => {
     const fetchResults = async () => {
       try {
-        const typingResults = await getCurrentUserTypingResults(); // 自分のタイピング結果を取得
+        const typingResults = await getCurrentUserTypingResults(); // 自分のタイピング結果を取得
         // 各投稿のランキングを取得し、結果をマージ
         const resultsWithRank: TypingResult[] = await Promise.all(
           typingResults.map(async (result) => {
@@ -51,7 +68,10 @@ export default function MyPage() {
                 `Failed to fetch ranking for post ${result.post_id}:`,
                 error
               );
-              return { ...result, rank: undefined };
+              return {
+                ...result,
+                rank: undefined,
+              };
             }
           })
         );
@@ -65,6 +85,14 @@ export default function MyPage() {
 
     if (user) {
       fetchResults();
+      if (user.profile_image) {
+        const image =
+          typeof user.profile_image === "string"
+            ? user.profile_image
+            : user.profile_image.url;
+        console.log("プロフィール画像", image);
+        setProfileImage(image);
+      }
     }
   }, [user]);
 
@@ -73,8 +101,87 @@ export default function MyPage() {
     return name.substring(0, 2).toUpperCase();
   };
 
+  // 画像ファイルの処理
+  const handleImageSelect = async (file: File) => {
+    if (file) {
+      // ファイルサイズチェック（5MB制限）
+      if (file.size > 5 * 1024 * 1024) {
+        toast.error("ファイルサイズは5MB以下にしてください。");
+        return;
+      }
+
+      // ファイル形式チェック
+      if (!file.type.startsWith("image/")) {
+        toast.error("画像ファイルを選択してください。");
+        return;
+      }
+
+      // アップロード開始
+      setIsUploading(true);
+
+      // ローカルプレビュー表示
+      const reader = new FileReader();
+      reader.onload = (e) => {
+        const result = e.target?.result as string;
+        setProfileImage(result); // 画像プレビュー
+      };
+      reader.readAsDataURL(file);
+
+      // 画像アップロード処理
+      try {
+        const uploadedUrl = await updateProfileImage(file);
+        setProfileImage(uploadedUrl); // S3のURLで上書き
+        console.log("画像アップロード成功:", uploadedUrl);
+
+        // サーバー側の状態で最新のuserを取得してContextを更新
+        const updatedUser = await checkSession();
+        setUser(updatedUser);
+        toast.success("プロフィール画像を更新しました！");
+      } catch (error) {
+        console.error("画像アップロードエラー:", error);
+        toast.error("プロフィール画像のアップロードに失敗しました。");
+      } finally {
+        // アップロード完了
+        setIsUploading(false);
+      }
+    }
+  };
+
+  // ファイル選択（通常）
+  const handleFileSelect = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImageSelect(file);
+    }
+    // input要素をリセット
+    event.target.value = "";
+  };
+
+  // カメラ撮影
+  const handleCameraCapture = (event: React.ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    if (file) {
+      handleImageSelect(file);
+    }
+    // input要素をリセット
+    event.target.value = "";
+  };
+
   return (
-    <div className="bg-[#f5f2ed]">
+    <div className="bg-[#f5f2ed] relative">
+      {/* フルスクリーンローディングオーバーレイ */}
+      {isUploading && (
+        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+          <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-xl">
+            <Loader2 className="w-12 h-12 animate-spin text-[#FF8D76]" />
+            <p className="text-lg font-semibold text-gray-700">
+              プロフィール画像をアップロード中...
+            </p>
+            <p className="text-sm text-gray-500">しばらくお待ちください</p>
+          </div>
+        </div>
+      )}
+
       <div className="container max-w-5xl mx-auto px-4 py-10">
         {/* Breadcrumb */}
         <div className="flex justify-between">
@@ -89,8 +196,9 @@ export default function MyPage() {
             <Button
               variant="outline"
               size="sm"
-              className="w-full max-w-xs text-md"
+              className="w-full max-w-xs text-md bg-transparent"
               onClick={() => setIsProfileEditModalOpen(true)}
+              disabled={isUploading} // アップロード中は無効化
             >
               プロフィール編集
             </Button>
@@ -98,16 +206,107 @@ export default function MyPage() {
         </div>
         {/* ユーザー情報表示エリア */}
         <div className="flex flex-col items-center text-center justify-center mb-8">
-          <Avatar className="h-32 w-32 border-white border-4 shadow-md">
-            <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md text-4xl">
-              {user ? getInitials(user.name) : "ND"}
-            </AvatarFallback>
-          </Avatar>
+          <div
+            className="relative group cursor-pointer"
+            onMouseEnter={() => setIsHovered(true)}
+            onMouseLeave={() => setIsHovered(false)}
+          >
+            <Avatar
+              className={`h-32 w-32 border-white border-4 shadow-md transition-all duration-300 ${
+                isHovered ? "scale-105 shadow-lg" : ""
+              } ${isUploading ? "opacity-50" : ""}`} // アップロード中は透明度を下げる
+            >
+              {profileImage ? (
+                <AvatarImage
+                  src={String(profileImage)}
+                  alt="プロフィール画像"
+                />
+              ) : (
+                <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md text-4xl">
+                  {user ? getInitials(user.name) : "ND"}
+                </AvatarFallback>
+              )}{" "}
+            </Avatar>
+
+            {/* 編集オーバーレイ */}
+            <div
+              className={`absolute inset-0 bg-black bg-opacity-50 rounded-full flex items-center justify-center transition-opacity duration-300 ${
+                isHovered && !isUploading ? "opacity-100" : "opacity-0"
+              }`} // アップロード中は非表示
+            >
+              {/* デスクトップ用 */}
+              <div className="hidden sm:block">
+                <input
+                  type="file"
+                  accept="image/*"
+                  onChange={handleFileSelect}
+                  className="absolute inset-0 w-full h-full opacity-0 cursor-pointer"
+                  id="desktop-file-input"
+                  disabled={isUploading} // アップロード中は無効化
+                  title=""
+                />
+                <Pencil className="w-8 h-8 text-white" />
+              </div>
+
+              {/* モバイル用 */}
+              <div className="sm:hidden">
+                <DropdownMenu>
+                  <DropdownMenuTrigger asChild disabled={isUploading}>
+                    <div className="flex items-center justify-center">
+                      <Pencil className="w-8 h-8 text-white" />
+                    </div>
+                  </DropdownMenuTrigger>
+                  <DropdownMenuContent align="center" className="w-48">
+                    <DropdownMenuItem asChild>
+                      <label className="flex items-center gap-2 cursor-pointer w-full">
+                        <ImageIcon className="w-4 h-4" />
+                        写真ライブラリ
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                          disabled={isUploading}
+                        />
+                      </label>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <label className="flex items-center gap-2 cursor-pointer w-full">
+                        <Camera className="w-4 h-4" />
+                        写真を撮る
+                        <input
+                          type="file"
+                          accept="image/*"
+                          capture="environment"
+                          onChange={handleCameraCapture}
+                          className="hidden"
+                          disabled={isUploading}
+                        />
+                      </label>
+                    </DropdownMenuItem>
+                    <DropdownMenuItem asChild>
+                      <label className="flex items-center gap-2 cursor-pointer w-full">
+                        <FolderOpen className="w-4 h-4" />
+                        ファイルを選択
+                        <input
+                          type="file"
+                          accept="image/*"
+                          onChange={handleFileSelect}
+                          className="hidden"
+                          disabled={isUploading}
+                        />
+                      </label>
+                    </DropdownMenuItem>
+                  </DropdownMenuContent>
+                </DropdownMenu>
+              </div>
+            </div>
+          </div>
+
           <h2 className="text-3xl font-bold mt-4">{user?.name}</h2>
           <p className="mt-2 text-sm text-muted-foreground max-w-md">
             {user?.bio || "自己紹介がありません"}
           </p>
-
           {/* ユーザーステータス情報 */}
           {/* <div className="flex justify-center gap-4 mt-4">
           <div className="text-center">
@@ -124,36 +323,80 @@ export default function MyPage() {
           </div>
         </div> */}
         </div>
-
         {/* タブナビゲーション */}
-        <Tabs defaultValue="posts" className="mt-8">
-          <TabsList className="w-full justify-start">
-            <TabsTrigger value="posts" className="flex-1">
-              投稿一覧
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
+          <TabsList className="w-full justify-start bg-white/80 backdrop-blur-sm shadow-md rounded-xl p-1">
+            <TabsTrigger
+              value="posts"
+              className="flex-1 relative overflow-hidden transition-all duration-500 ease-out hover:shadow-md"
+              disabled={isUploading}
+            >
+              <span className="relative z-10 font-bold">投稿一覧</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF8D76]/20 to-[#FF6B5A]/20 opacity-0 transition-opacity duration-300 hover:opacity-100" />
             </TabsTrigger>
-            <TabsTrigger value="likes" className="flex-1">
-              いいね一覧
+            <TabsTrigger
+              value="likes"
+              className="flex-1 relative overflow-hidden transition-all duration-500 ease-out hover:shadow-md"
+              disabled={isUploading}
+            >
+              <span className="relative z-10 font-bold">いいね一覧</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF8D76]/20 to-[#FF6B5A]/20 opacity-0 transition-opacity duration-300 hover:opacity-100" />
             </TabsTrigger>
-            <TabsTrigger value="results" className="flex-1">
-              成績
+            <TabsTrigger
+              value="results"
+              className="flex-1 relative overflow-hidden transition-all duration-500 ease-out hover:shadow-md"
+              disabled={isUploading}
+            >
+              <span className="relative z-10 font-bold">成績</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF8D76]/20 to-[#FF6B5A]/20 opacity-0 transition-opacity duration-300 hover:opacity-100" />
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="posts" className="mt-6">
-            <PostsList isMyPage />
-          </TabsContent>
+          <div className="relative mt-6 min-h-[400px]">
+            <TabsContent
+              value="posts"
+              className={`absolute inset-0 transition-all duration-700 ease-out ${
+                activeTab === "posts"
+                  ? "opacity-100 translate-x-0 scale-100"
+                  : "opacity-0 translate-x-8 scale-95 pointer-events-none"
+              }`}
+            >
+              <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
+                <PostsList isMyPage />
+              </div>
+            </TabsContent>
 
-          <TabsContent value="likes" className="mt-6">
-            <LikesList />
-          </TabsContent>
+            <TabsContent
+              value="likes"
+              className={`absolute inset-0 transition-all duration-700 ease-out ${
+                activeTab === "likes"
+                  ? "opacity-100 translate-x-0 scale-100"
+                  : "opacity-0 translate-x-8 scale-95 pointer-events-none"
+              }`}
+            >
+              <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
+                <LikesList />
+              </div>
+            </TabsContent>
 
-          <TabsContent value="results" className="mt-6">
-            <ResultsTable results={results} isLoading={isLoading} />
-          </TabsContent>
-        </Tabs>
+            <TabsContent
+              value="results"
+              className={`absolute inset-0 transition-all duration-700 ease-out ${
+                activeTab === "results"
+                  ? "opacity-100 translate-x-0 scale-100"
+                  : "opacity-0 translate-x-8 scale-95 pointer-events-none"
+              }`}
+            >
+              <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
+                <ResultsTable results={results} isLoading={isLoading} />
+              </div>
+            </TabsContent>
+          </div>
+        </Tabs>{" "}
       </div>
+
       <ProfileEditModal
-        isOpen={isProfileEditModalOpen}
+        isOpen={isProfileEditModalOpen && !isUploading} // アップロード中はモーダルを閉じる
         onClose={() => setIsProfileEditModalOpen(false)}
       />
     </div>
