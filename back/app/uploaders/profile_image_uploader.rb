@@ -10,7 +10,7 @@ class ProfileImageUploader < CarrierWave::Uploader::Base
   process resize_to_limit: [ 800, 800 ]
 
   # 画像のEXIF情報など不要なメタデータを削除
-  process :strip
+  # process :strip
 
   # すべての画像をJPEG形式に統一（容量削減、互換性向上）
   # process convert: 'jpg'
@@ -48,5 +48,10 @@ class ProfileImageUploader < CarrierWave::Uploader::Base
   # 保存時のファイル名を固定
   def filename
     "profile.jpg" if original_filename
+  end
+
+  # S3に保存する際にACLの指定を外す
+  def fog_attributes
+    { 'x-amz-acl' => nil }
   end
 end

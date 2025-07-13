@@ -10,7 +10,7 @@ class PostThumbnailUploader < CarrierWave::Uploader::Base
   process resize_to_limit: [ 1280, 720 ]
 
   # 画像のEXIF情報など不要なメタデータを削除
-  process :strip
+  # process :strip
 
   # すべての画像をJPEG形式に統一（容量削減、互換性向上）
   # process convert: 'jpg'

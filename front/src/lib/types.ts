@@ -4,7 +4,7 @@ export interface User {
   email: string;
   name: string;
   bio?: string;
-  profile_image?: string;
+  profile_image?: string | { url: string; thumb: any };
   total_play_count: number;
   posts_count: number;
 }

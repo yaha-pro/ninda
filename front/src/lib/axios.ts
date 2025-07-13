@@ -216,3 +216,17 @@ export async function getPseudoRank(
   });
   return response.data;
 }
+
+// プロフィール画像の更新
+export async function updateProfileImage(file: File): Promise<string> {
+  const formData = new FormData();
+  formData.append("user[profile_image]", file);
+
+  const response = await api.put("/mypage/profile_image", formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data.profile_image_url; // サーバーが返すURLを使う
+}

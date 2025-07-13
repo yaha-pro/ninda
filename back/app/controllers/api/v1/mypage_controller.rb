@@ -13,4 +13,17 @@ class Api::V1::MypageController < ApplicationController
     @posts = current_api_v1_user.posts.order(created_at: :desc)
     render json: @posts
   end
+  def update_profile_image
+    if current_api_v1_user.update(profile_image_params)
+      render json: { profile_image_url: current_api_v1_user.profile_image.url }, status: :ok
+    else
+      render json: { errors: current_api_v1_user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
+  private
+
+  def profile_image_params
+    params.require(:user).permit(:profile_image)
+  end
 end

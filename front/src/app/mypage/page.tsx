@@ -4,7 +4,12 @@ import type React from "react";
 
 import { useEffect, useState } from "react";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { getCurrentUserTypingResults, getRanking } from "@/lib/axios";
+import {
+  getCurrentUserTypingResults,
+  getRanking,
+  updateProfileImage,
+  checkSession,
+} from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import type { TypingResult } from "@/lib/types";
@@ -25,7 +30,7 @@ import {
 import toast from "react-hot-toast";
 
 export default function MyPage() {
-  const { user, isAuthenticated } = useAuth();
+  const { user, isAuthenticated, setUser } = useAuth();
   const [isProfileEditModalOpen, setIsProfileEditModalOpen] = useState(false);
   const [results, setResults] = useState<TypingResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -78,6 +83,15 @@ export default function MyPage() {
 
     if (user) {
       fetchResults();
+
+      if (user.profile_image) {
+        const image =
+          typeof user.profile_image === "string"
+            ? user.profile_image
+            : user.profile_image.url;
+        console.log("プロフィール画像", image);
+        setProfileImage(image);
+      }
     }
   }, [user]);
 
@@ -87,7 +101,7 @@ export default function MyPage() {
   };
 
   // 画像ファイルの処理
-  const handleImageSelect = (file: File) => {
+  const handleImageSelect = async (file: File) => {
     if (file) {
       // ファイルサイズチェック（5MB制限）
       if (file.size > 5 * 1024 * 1024) {
@@ -109,20 +123,29 @@ export default function MyPage() {
         return;
       }
 
+      // ローカルプレビュー表示
       const reader = new FileReader();
       reader.onload = (e) => {
         const result = e.target?.result as string;
-        setProfileImage(result);
-
-        // ここで実際のアップロード処理を行う
-        // uploadProfileImage(file);
-
-        toast({
-          title: "成功",
-          description: "プロフィール画像を更新しました。",
-        });
+        setProfileImage(result); // 画像プレビュー
       };
       reader.readAsDataURL(file);
+
+      // 画像アップロード処理
+      try {
+        const uploadedUrl = await updateProfileImage(file);
+        setProfileImage(uploadedUrl); // S3のURLで上書き
+
+        console.log("画像アップロード成功:", uploadedUrl);
+        // サーバー側の状態で最新のuserを取得してContextを更新
+        const updatedUser = await checkSession();
+        setUser(updatedUser);
+
+        toast.success("プロフィール画像を更新しました！");
+      } catch (error) {
+        console.error("画像アップロードエラー:", error);
+        toast.error("プロフィール画像のアップロードに失敗しました。");
+      }
     }
   };
 
@@ -183,13 +206,14 @@ export default function MyPage() {
             >
               {profileImage ? (
                 <AvatarImage
-                  src={profileImage || "/placeholder.svg"}
+                  src={String(profileImage)}
                   alt="プロフィール画像"
                 />
-              ) : null}
-              <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md text-4xl">
-                {user ? getInitials(user.name) : "ND"}
-              </AvatarFallback>
+              ) : (
+                <AvatarFallback className="bg-[#FF8D76] text-white font-semibold shadow-md text-4xl">
+                  {user ? getInitials(user.name) : "ND"}
+                </AvatarFallback>
+              )}{" "}
             </Avatar>
 
             {/* 編集オーバーレイ */}
