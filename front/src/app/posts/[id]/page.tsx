@@ -159,6 +159,16 @@ export default function PostDetailPage() {
     return postUser?.name || "ユーザー";
   };
 
+  // サムネイル画像のURLを取得する関数
+  const getThumbnailImageUrl = () => {
+    if (post.thumbnail_image) {
+      return typeof post.thumbnail_image === "string"
+        ? post.thumbnail_image
+        : post.thumbnail_image.url;
+    }
+    return null;
+  };
+
   // 投稿者のプロフィール画像URL取得
   const getPostUserProfileImageUrl = () => {
     if (postUser?.profile_image) {
@@ -292,7 +302,7 @@ export default function PostDetailPage() {
           {!isPlaying ? (
             <div className="max-w-2xl mx-auto text-center space-y-6">
               <Image
-                src={post_image_def}
+                src={getThumbnailImageUrl() || post_image_def}
                 alt="Post image"
                 width={200}
                 height={200}

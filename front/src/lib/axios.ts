@@ -111,8 +111,10 @@ export async function logout(): Promise<void> {
 
 // 投稿の作成
 export async function createPost(params: CreatePostParams): Promise<Post> {
+  console.log(params);
   const response = await api.post("/posts", params);
-  return response.data;
+  console.log(response.data);
+  return response.data.post;
 }
 
 // 投稿一覧の取得
@@ -229,4 +231,21 @@ export async function updateProfileImage(file: File): Promise<string> {
   });
 
   return response.data.profile_image_url; // サーバーが返すURLを使う
+}
+
+// サムネイル画像のアップロード
+export async function uploadThumbnailImage(
+  id: string,
+  file: File
+): Promise<string> {
+  const formData = new FormData();
+  formData.append("thumbnail_image", file);
+
+  const response = await api.post(`/posts/${id}/upload_thumbnail`, formData, {
+    headers: {
+      "Content-Type": "multipart/form-data",
+    },
+  });
+
+  return response.data;
 }

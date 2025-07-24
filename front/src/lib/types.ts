@@ -38,7 +38,7 @@ export interface Post {
   user_id: string;
   title: string;
   description: string | null;
-  // image_url: string | null; // 画像投稿機能実装時に追加
+  thumbnail_image?: string | { url: string };
   display_text: string;
   typing_text: string;
   created_at: string;
@@ -51,7 +51,6 @@ export interface Post {
 export interface CreatePostParams {
   title: string;
   description: string;
-  // image_url: string | null; // 画像投稿機能実装時に追加
   display_text: string;
   typing_text: string;
   // tags: string[]; // タグ機能実装時に追加

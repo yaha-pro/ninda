@@ -64,6 +64,18 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
     return postUser?.name;
   };
 
+  // サムネイル画像のURLを取得する関数
+  const getThumbnailImageUrl = () => {
+    console.log("サムネイル画像", post.thumbnail_image);
+    if (post.thumbnail_image) {
+      return typeof post.thumbnail_image === "string"
+        ? post.thumbnail_image
+        : post.thumbnail_image.url;
+    }
+    console.log(post.thumbnail_image);
+    return null;
+  };
+
   // プロフィール画像のURLを取得する関数
   const getPostUserProfileImageUrl = () => {
     if (postUser?.profile_image) {
@@ -135,9 +147,11 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
       <div className="flex gap-3">
         <div className="w-40 h-40 shrink-0">
           <Image
-            src={post_image_def || "/placeholder.svg"}
+            src={getThumbnailImageUrl() || post_image_def}
             alt={post.title}
-            className="w-40 h-40 object-cover rounded-lg"
+            width={160}
+            height={160}
+            className="object-cover rounded-lg"
           />
         </div>
         <div className="flex-1 min-w-0">
