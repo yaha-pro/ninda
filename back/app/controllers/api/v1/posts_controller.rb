@@ -15,7 +15,7 @@ class Api::V1::PostsController < ApplicationController
 
   # 新規投稿の作成
   def create
-    post = @user.posts.new(post_params)
+    post = current_api_v1_user.posts.new(post_params)
 
     if post.save
       render json: { message: "Post created successfully", post: post }, status: :created
@@ -26,7 +26,7 @@ class Api::V1::PostsController < ApplicationController
 
   # 投稿の更新
   def update
-    post = @user.posts.find(params[:id])
+    post = current_api_v1_user.posts.find(params[:id])
 
     if post.update(post_params)
       render json: { message: "Post updated successfully", post: post }, status: :ok
@@ -37,7 +37,7 @@ class Api::V1::PostsController < ApplicationController
 
   # 投稿の削除
   def destroy
-    post = @user.posts.find(params[:id])
+    post = current_api_v1_user.posts.find(params[:id])
 
     if post
       post.destroy
@@ -47,9 +47,19 @@ class Api::V1::PostsController < ApplicationController
     end
   end
 
+  def upload_thumbnail
+    post = current_api_v1_user.posts.find(params[:id])
+
+    if post.update(thumbnail_image: params[:thumbnail_image])
+      render json: { thumbnail_url: post.thumbnail_image.url }, status: :ok
+    else
+      render json: { error: "画像のアップロードに失敗しました" }, status: :unprocessable_entity
+    end
+  end
+
   private
 
   def post_params
-    params.require(:post).permit(:title, :description, :display_text, :typing_text, :thumbnail_image)
+    params.require(:post).permit(:title, :description, :display_text, :typing_text, :thumbnail_image, :remote_thumbnail_image_url)
   end
 end

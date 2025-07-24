@@ -6,34 +6,8 @@ class PostThumbnailUploader < CarrierWave::Uploader::Base
     "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
   end
 
-  # アップロード時の画像加工
-  process resize_to_limit: [ 1280, 720 ]
-
-  # 画像のEXIF情報など不要なメタデータを削除
-  # process :strip
-
-  # すべての画像をJPEG形式に統一（容量削減、互換性向上）
-  # process convert: 'jpg'
-
-  # Provide a default URL as a default if there hasn't been a file uploaded:
-  # def default_url(*args)
-  #   # For Rails 3.1+ asset pipeline compatibility:
-  #   # ActionController::Base.helpers.asset_path("fallback/" + [version_name, "default.png"].compact.join('_'))
-  #
-  #   "/images/fallback/" + [version_name, "default.png"].compact.join('_')
-  # end
-
-  # Process files as they are uploaded:
-  # process scale: [200, 300]
-  #
-  # def scale(width, height)
-  #   # do something
-  # end
-
-  # 一覧表示用の軽量サムネイル版
-  version :thumb do
-    process resize_to_fill: [ 320, 180 ]
-  end
+  # webpに変換することで軽量化
+  process convert: "webp"
 
   # アップロード可能なファイル拡張子を制限
   def extension_allowlist
@@ -45,8 +19,21 @@ class PostThumbnailUploader < CarrierWave::Uploader::Base
     1.byte..2.megabytes
   end
 
+  def move_to_store
+    true
+  end
+
+  def move_to_cache
+    true
+  end
+
   # 保存時のファイル名を固定
   def filename
-    "profile.jpg" if original_filename
+    "thumbnail_#{model.id || SecureRandom.uuid}.webp"
+  end
+
+  # S3に保存する際にACLの指定を外す
+  def fog_attributes
+    { "x-amz-acl" => nil }
   end
 end

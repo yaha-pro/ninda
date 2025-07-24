@@ -26,7 +26,14 @@ Rails.application.routes.draw do
         end
       end
 
-      resources :posts, only: [ :index, :show, :create, :update, :destroy ]
+      # 投稿のエンドポイント
+      resources :posts, only: [ :index, :show, :create, :update, :destroy ] do
+        member do
+          post "upload_thumbnail", to: "posts#upload_thumbnail"
+        end
+      end
+
+      # タイピングゲームのエンドポイント
       resources :typing_games, only: [ :index, :create ] do
         collection do
           get "ranking", to: "typing_games#ranking"

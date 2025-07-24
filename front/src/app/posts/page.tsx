@@ -90,6 +90,7 @@ export default function PostsPage() {
       try {
         const data = await getPosts();
         setPosts(data);
+        console.log("Fetched posts:", data);
       } catch (error) {
         console.error("Error fetching posts:", error);
         toast.error("投稿の取得に失敗しました");

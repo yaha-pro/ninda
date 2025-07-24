@@ -6,34 +6,8 @@ class ProfileImageUploader < CarrierWave::Uploader::Base
     "uploads/#{model.class.to_s.underscore}/#{mounted_as}/#{model.id}"
   end
 
-  # アップロード時の画像加工
-  process resize_to_limit: [ 800, 800 ]
-
-  # 画像のEXIF情報など不要なメタデータを削除
-  # process :strip
-
-  # すべての画像をJPEG形式に統一（容量削減、互換性向上）
-  # process convert: 'jpg'
-
-  # Provide a default URL as a default if there hasn't been a file uploaded:
-  # def default_url(*args)
-  #   # For Rails 3.1+ asset pipeline compatibility:
-  #   # ActionController::Base.helpers.asset_path("fallback/" + [version_name, "default.png"].compact.join('_'))
-  #
-  #   "/images/fallback/" + [version_name, "default.png"].compact.join('_')
-  # end
-
-  # Process files as they are uploaded:
-  # process scale: [200, 300]
-  #
-  # def scale(width, height)
-  #   # do something
-  # end
-
-  # サムネイルバージョン（正方形160px）を作成
-  version :thumb do
-    process resize_to_fit: [ 160, 160 ]
-  end
+  # webpに変換することで軽量化
+  process convert: "webp"
 
   # アップロード可能なファイル拡張子を制限
   def extension_allowlist
@@ -47,7 +21,7 @@ class ProfileImageUploader < CarrierWave::Uploader::Base
 
   # 保存時のファイル名を固定
   def filename
-    "profile.jpg" if original_filename
+    "profile.webp" if original_filename
   end
 
   # S3に保存する際にACLの指定を外す
