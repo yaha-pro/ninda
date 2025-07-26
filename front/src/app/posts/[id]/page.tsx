@@ -121,6 +121,30 @@ export default function PostDetailPage() {
     try {
       const rankingData = await getRanking(Number(post_id));
       setRanking(rankingData);
+
+      // ランキングユーザーの情報を再取得
+      const userPromises = rankingData.map(async (result) => {
+        if (result.user_id && !rankingUsers[result.user_id]) {
+          try {
+            const userData = await getUser(result.user_id);
+            return { [result.user_id]: userData };
+          } catch (error) {
+            console.error(`Failed to fetch user ${result.user_id}:`, error);
+            return null;
+          }
+        }
+        return null;
+      });
+
+      const userResults = await Promise.all(userPromises);
+      const newUsers = userResults.reduce((acc, userObj) => {
+        if (userObj) {
+          return { ...acc, ...userObj };
+        }
+        return acc;
+      }, {});
+
+      setRankingUsers((prev) => ({ ...prev, ...newUsers }));
     } catch (error) {
       console.error("Error refreshing ranking:", error);
     }
