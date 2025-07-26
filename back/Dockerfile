@@ -59,6 +59,7 @@ RUN apt-get update -qq && \
         curl \
         postgresql-client \
         fonts-noto-cjk \
+        imagemagick \
     && apt-get clean && \
     rm -rf /var/lib/apt/lists/* /var/cache/apt/archives
 
