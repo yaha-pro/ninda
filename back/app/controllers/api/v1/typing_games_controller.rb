@@ -89,7 +89,7 @@ class Api::V1::TypingGamesController < ApplicationController
     ).to_a
 
     # 仮スコア作成
-    temp_score = { "user_id" => current_api_v1_user&.id, "accuracy" => accuracy, "play_time" => play_time }
+    temp_score = { "user_id" => current_api_v1_user&.id, "accuracy" => accuracy, "play_time" => play_time, "__temp" => true }
 
     # 現在のログインユーザーのベストスコア
     current_best = nil
@@ -101,35 +101,32 @@ class Api::V1::TypingGamesController < ApplicationController
     scores = base_scores.dup
 
     if current_api_v1_user
-      # 今回の成績がベストより良ければ、自分の既存スコアを削除して仮スコア追加
-      if current_best.nil? ||
-          accuracy > current_best["accuracy"].to_f ||
-          (accuracy == current_best["accuracy"].to_f && play_time < current_best["play_time"].to_f)
-        scores.reject! { |s| s["user_id"] == current_api_v1_user.id }
+      if current_best.nil?
+        # 初スコア → 仮スコアを追加
+        scores << temp_score
+      elsif accuracy > current_best["accuracy"].to_f ||
+            (accuracy == current_best["accuracy"].to_f && play_time < current_best["play_time"].to_f)
+        # ベスト更新 → 既存スコア削除して仮スコアを追加
+        scores.reject! { |s| s["user_id"].to_i == current_api_v1_user.id }
         scores << temp_score
       else
-        # 成績がベストより劣る → 仮スコアを比較用に追加するがトータル人数には含める
+        # ベスト更新されない → 仮スコアは順位判定用だけに追加
         scores << temp_score
       end
     else
-      # ゲスト → 仮スコアだけ追加
+      # ゲストユーザー → 仮スコアだけ追加
       scores << temp_score
     end
 
     # ランキングを計算
-    sorted = scores.sort_by { |s| [ -s["accuracy"].to_f, s["play_time"].to_f ] }
-    rank = sorted.index(temp_score) + 1
+    sorted = scores.sort_by { |s| [ -s["accuracy"].to_f, s["play_time"].to_f, s.equal?(temp_score) ? -1 : 0 ] }
+    rank = sorted.find_index { |s| s["__temp"] }&.+(1)
 
-    # トータル人数（仮スコアがランキングに追加されたかどうかでカウント）
-    total_players = base_scores.size
-    if current_api_v1_user.nil? || (current_best && (
-      accuracy < current_best["accuracy"].to_f ||
-      (accuracy == current_best["accuracy"].to_f && play_time > current_best["play_time"].to_f)
-    ))
-      total_players += 1
-    elsif current_best.nil?
-      total_players += 1
-    end
+
+    # トータル人数を算出
+    user_ids = scores.map { |s| s["user_id"] }.compact.map(&:to_i).uniq
+    guest_user_count = sorted.any? { |s| s["user_id"].nil? } ? 1 : 0
+    total_players = user_ids.size + guest_user_count
 
     render json: { rank: rank, total_players: total_players }, status: :ok
   end

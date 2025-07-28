@@ -120,7 +120,6 @@ export default function PostDetailPage() {
     if (!post_id) return;
     try {
       const rankingData = await getRanking(Number(post_id));
-      setRanking(rankingData);
 
       // ランキングユーザーの情報を再取得
       const userPromises = rankingData.map(async (result) => {
@@ -145,6 +144,7 @@ export default function PostDetailPage() {
       }, {});
 
       setRankingUsers((prev) => ({ ...prev, ...newUsers }));
+      setRanking(rankingData);
     } catch (error) {
       console.error("Error refreshing ranking:", error);
     }
@@ -216,10 +216,10 @@ export default function PostDetailPage() {
 
   // ランキング用のユーザー名取得関数
   const getRankingUserInitial = (userId?: string, userName?: string) => {
-    if (userName) {
+    if (userName && userName.length > 0) {
       return userName.substring(0, 2).toUpperCase();
     }
-    if (userId && rankingUsers[userId]) {
+    if (userId && rankingUsers[userId]?.name) {
       return rankingUsers[userId].name.substring(0, 2).toUpperCase();
     }
     return "U";
@@ -509,7 +509,7 @@ export default function PostDetailPage() {
                                 {getRankingUserInitial(
                                   result.user_id,
                                   result.user_name
-                                )}
+                                ) || "U"}
                               </AvatarFallback>
                             )}
                           </Avatar>

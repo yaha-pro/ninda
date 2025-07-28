@@ -68,6 +68,13 @@ export default function TypingGame({
     // ログインしている場合のみ結果を保存
     if (postId) {
       try {
+        // 保存せずに今回の成績からランキングを取得
+        const pseudoRank = await getPseudoRank({
+          post_id: postId,
+          play_time: finalTime,
+          accuracy: accuracy,
+        });
+
         if (isAuthenticated) {
           // タイピング結果を保存
           await saveTypingResult({
@@ -77,13 +84,6 @@ export default function TypingGame({
             mistake_count: totalMistakes,
           });
         }
-
-        // 保存せずに今回の成績からランキングを取得
-        const pseudoRank = await getPseudoRank({
-          post_id: postId,
-          play_time: finalTime,
-          accuracy: accuracy,
-        });
 
         setRanking({
           rank: pseudoRank.rank,
