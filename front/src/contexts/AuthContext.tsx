@@ -1,9 +1,16 @@
 "use client";
 
-import { createContext, useContext, useState, ReactNode, useEffect } from 'react';
-import { User, AuthContextType } from '@/lib/types';
-import { checkSession } from '@/lib/axios';
-import Cookies from 'js-cookie';
+import {
+  createContext,
+  useContext,
+  useState,
+  ReactNode,
+  useEffect,
+} from "react";
+import { User, AuthContextType } from "@/lib/types";
+import { checkSession } from "@/lib/axios";
+import Cookies from "js-cookie";
+import { useRef } from "react";
 
 // 認証コンテキストの作成
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -12,6 +19,7 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<User | null>(null);
   const [loading, setLoading] = useState(true);
+  const isLoggingOutRef = useRef(false);
 
   console.log("認証コンテキストプロバイダーコンポーネントチェック");
 
@@ -21,7 +29,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const validateSession = async () => {
       try {
         // authCookieが存在する場合のみセッションを確認
-        const authCookie = Cookies.get('auth');
+        const authCookie = Cookies.get("auth");
         console.log(authCookie);
         if (authCookie) {
           console.log("セッション確認開始");
@@ -29,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUser(userData);
         }
       } catch (error) {
-        console.error('Session validation failed:', error);
+        console.error("Session validation failed:", error);
         console.log("セッション確認失敗");
       } finally {
         setLoading(false);
@@ -46,11 +54,14 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }
 
   return (
-    <AuthContext.Provider value={{
-      user,
-      setUser,
-      isAuthenticated: !!user,
-    }}>
+    <AuthContext.Provider
+      value={{
+        user,
+        setUser,
+        isAuthenticated: !!user,
+        isLoggingOutRef,
+      }}
+    >
       {children}
     </AuthContext.Provider>
   );
@@ -60,7 +71,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 export function useAuth() {
   const context = useContext(AuthContext);
   if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
+    throw new Error("useAuth must be used within an AuthProvider");
   }
   return context;
 }

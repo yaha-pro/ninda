@@ -28,9 +28,10 @@ import {
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
 import toast from "react-hot-toast";
+import { usePathname } from "next/navigation";
 
 export default function MyPage() {
-  const { user, isAuthenticated, setUser } = useAuth();
+  const { user, isAuthenticated, setUser, isLoggingOutRef } = useAuth();
   const [isProfileEditModalOpen, setIsProfileEditModalOpen] = useState(false);
   const [results, setResults] = useState<TypingResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,13 +40,18 @@ export default function MyPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("posts");
   const router = useRouter();
+  const pathname = usePathname();
 
   // 未ログインならエラーページへリダイレクト
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (
+      !isAuthenticated &&
+      pathname === "/mypage" &&
+      !isLoggingOutRef.current
+    ) {
       router.push("/error");
     }
-  }, [isAuthenticated, router]);
+  }, [isAuthenticated, pathname, router, isLoggingOutRef]);
 
   useEffect(() => {
     const fetchResults = async () => {

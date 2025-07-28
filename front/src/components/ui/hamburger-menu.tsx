@@ -14,11 +14,13 @@ import { useAuth } from "@/contexts/AuthContext";
 import { logout } from "@/lib/axios";
 import toast from "react-hot-toast";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
 
 export function HamburgerMenu() {
   const [isLoginOpen, setIsLoginOpen] = useState(false);
   const [isMenuOpen, setIsMenuOpen] = useState(false);
-  const { isAuthenticated, setUser } = useAuth();
+  const { isAuthenticated, setUser, isLoggingOutRef } = useAuth();
+  const router = useRouter();
 
   const handleLoginClick = () => {
     setIsLoginOpen(true);
@@ -27,14 +29,20 @@ export function HamburgerMenu() {
 
   // ログアウト処理
   const handleLogout = async () => {
+    isLoggingOutRef.current = true;
+
+    // すぐにトップページにリダイレクト
+    router.replace("/");
     try {
       await logout();
       setUser(null);
       toast.success("ログアウトしました");
     } catch {
       toast.error("ログアウトに失敗しました");
+    } finally {
+      isLoggingOutRef.current = false;
+      setIsMenuOpen(false);
     }
-    setIsMenuOpen(false);
   };
 
   return (

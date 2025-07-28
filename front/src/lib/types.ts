@@ -30,6 +30,7 @@ export interface User {
     user: User | null;
     setUser: (user: User | null | ((prev: User | null) => User | null)) => void;
     isAuthenticated: boolean;
+    isLoggingOutRef: React.MutableRefObject<boolean>;
   }
 
   // 投稿の型定義
