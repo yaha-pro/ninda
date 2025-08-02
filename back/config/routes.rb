@@ -32,11 +32,12 @@ Rails.application.routes.draw do
       resources :posts, only: [ :index, :show, :create, :update, :destroy ] do
         member do
           post "upload_thumbnail", to: "posts#upload_thumbnail"
-          get "likes", to: "likes#index"
         end
 
         # likeのエンドポイント
-        resource :like, only: [:create, :destroy]
+        resource :like, only: [:create, :destroy] do
+          get :users, on: :collection
+        end
       end
 
       # タイピングゲームのエンドポイント
