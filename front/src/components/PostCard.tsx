@@ -4,7 +4,7 @@ import type React from "react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import { FiMoreVertical, FiEdit, FiTrash } from "react-icons/fi";
-// import { Heart } from 'lucide-react';
+import { AiFillHeart, AiOutlineHeart } from "react-icons/ai";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -17,7 +17,8 @@ import Image from "next/image";
 import Link from "next/link";
 import post_image_def from "/public/post_image_def.png";
 import { useDeletePost } from "@/hooks/useDeletePost";
-import { getUser } from "@/lib/axios";
+import { getUser, likePost, unlikePost } from "@/lib/axios";
+import toast from "react-hot-toast";
 
 interface PostCardProps {
   post: Post;
@@ -29,6 +30,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
   const { user } = useAuth(); // 現在のユーザー情報を取得
   const { handleDelete } = useDeletePost();
   const [postUser, setPostUser] = useState<User | null>(null);
+  const [isLiked, setIsLiked] = useState<boolean>(post.is_liked || false);
+  const [likesCount, setLikesCount] = useState<number>(post.likes_count || 0);
+  const [isLikeLoading, setIsLikeLoading] = useState<boolean>(false);
 
   // 投稿者の取得
   useEffect(() => {
@@ -46,10 +50,70 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
     fetchPostUser();
   }, [post?.user_id]);
 
+  // いいね状態の初期化
+  useEffect(() => {
+    setIsLiked(post.is_liked || false);
+    setLikesCount(post.likes_count || 0);
+  }, [post.is_liked, post.likes_count]);
+
   const handleDeleteClick = (event: React.MouseEvent) => {
     event.preventDefault(); // 親の Link の遷移を防ぐ
     event.stopPropagation(); // イベントの伝播を防ぐ
     handleDelete(post.id, post.title, setPosts, isMyPage);
+  };
+
+  // いいね/いいね解除の処理
+  const handleLikeClick = async (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (!user) {
+      toast.error("ログインが必要です");
+      return;
+    }
+
+    if (isLikeLoading) return;
+
+    try {
+      setIsLikeLoading(true);
+
+      if (isLiked) {
+        // いいね解除
+        const response = await unlikePost(post.id);
+        if (response.success) {
+          setIsLiked(false);
+          setLikesCount(response.likes_count);
+          // 投稿リストの状態も更新
+          setPosts((prevPosts) =>
+            prevPosts.map((p) =>
+              p.id === post.id
+                ? { ...p, is_liked: false, likes_count: response.likes_count }
+                : p
+            )
+          );
+        }
+      } else {
+        // いいね追加
+        const response = await likePost(post.id);
+        if (response.success) {
+          setIsLiked(true);
+          setLikesCount(response.likes_count);
+          // 投稿リストの状態も更新
+          setPosts((prevPosts) =>
+            prevPosts.map((p) =>
+              p.id === post.id
+                ? { ...p, is_liked: true, likes_count: response.likes_count }
+                : p
+            )
+          );
+        }
+      }
+    } catch (error) {
+      console.error("Like operation failed:", error);
+      toast.error("いいね操作に失敗しました");
+    } finally {
+      setIsLikeLoading(false);
+    }
   };
 
   // ユーザー名の表示用関数
@@ -181,9 +245,30 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
           </Avatar>
           <span className="text-sm text-gray-500">{getUserName()}</span>
         </div>
-        {/* <button className="text-red-500 hover:text-red-600 transition-colors">
-          <Heart className="w-5 h-5" />
-        </button> */}
+
+        {/* いいねボタンとカウント */}
+        <div className="flex items-center gap-2 pr-2">
+          <button
+            onClick={handleLikeClick}
+            disabled={isLikeLoading}
+            className={`transition-all duration-200 ease-in-out hover:scale-110 disabled:opacity-50 disabled:cursor-not-allowed ${
+              isLiked ? "text-red-500" : "text-gray-400 hover:text-red-400"
+            }`}
+          >
+            {isLiked ? (
+              <AiFillHeart className="w-7 h-7" />
+            ) : (
+              <AiOutlineHeart className="w-7 h-7" />
+            )}
+          </button>
+          <span
+            className={`text-lg font-medium ${
+              isLiked ? "text-red-500" : "text-gray-500"
+            }`}
+          >
+            {likesCount}
+          </span>
+        </div>
       </div>
     </div>
   );

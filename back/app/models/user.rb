@@ -8,7 +8,9 @@ class User < ActiveRecord::Base
   include DeviseTokenAuth::Concerns::User
 
   has_many :posts, dependent: :destroy # ユーザーが削除されたら、関連する投稿も削除
-  has_many :typing_games, dependent: :destroy # # ユーザーが削除されたら、タイピング成績も削除
+  has_many :typing_games, dependent: :destroy # ユーザーが削除されたら、タイピング成績も削除
+  has_many :likes, dependent: :destroy # ユーザーが削除されたら、いいねも削除
+  has_many :liked_posts, through: :likes, source: :post # いいねした投稿
 
   # プロフィール画像のアップローダー
   mount_uploader :profile_image, ProfileImageUploader

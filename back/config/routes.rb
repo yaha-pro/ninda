@@ -16,6 +16,7 @@ Rails.application.routes.draw do
       # マイページのエンドポイント
       get "mypage/posts", to: "mypage#posts"
       get "mypage/typing_results", to: "mypage#typing_results"
+      # get "mypage/liked_posts", to: "mypage#liked_posts"
       put "mypage/profile_image", to: "mypage#update_profile_image"
 
       # ユーザー情報取得のエンドポイント
@@ -23,6 +24,7 @@ Rails.application.routes.draw do
         member do
           get "posts", to: "users#posts"
           get "user_typing_results", to: "users#user_typing_results"
+          # get "liked_posts", to: "users#liked_posts"
         end
       end
 
@@ -30,7 +32,11 @@ Rails.application.routes.draw do
       resources :posts, only: [ :index, :show, :create, :update, :destroy ] do
         member do
           post "upload_thumbnail", to: "posts#upload_thumbnail"
+          get "likes", to: "likes#index"
         end
+
+        # likeのエンドポイント
+        resource :like, only: [:create, :destroy]
       end
 
       # タイピングゲームのエンドポイント
