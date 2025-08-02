@@ -13,8 +13,8 @@ class Api::V1::MypageController < ApplicationController
 
   # 自分の投稿を取得
   def posts
-    @posts = current_api_v1_user.posts.order(created_at: :desc)
-    render json: @posts
+    posts = current_api_v1_user.posts.includes(:likes)
+    render json: posts.map { |post| post_response(post) }
   end
 
   # いいねした投稿を取得
@@ -23,7 +23,7 @@ class Api::V1::MypageController < ApplicationController
   #   render json: posts, status: :ok
   # end
 
-  # 自分のプロフィール画像を更新
+  # 自分のプロフィール画像を更新
   def update_profile_image
     if current_api_v1_user.update(profile_image_params)
       render json: { profile_image_url: current_api_v1_user.profile_image.url }, status: :ok

@@ -253,12 +253,18 @@ export async function uploadThumbnailImage(
 
 // いいね追加
 export async function likePost(postId: string): Promise<LikeResponse> {
-  const response = await api.post(`/posts/${postId}/like`)
-  return response.data
+  const response = await api.post(`/posts/${postId}/like`);
+  return response.data;
 }
 
 // いいね削除
 export async function unlikePost(postId: string): Promise<LikeResponse> {
-  const response = await api.delete(`/posts/${postId}/like`)
-  return response.data
+  const response = await api.delete(`/posts/${postId}/like`);
+  return response.data;
+}
+
+// いいねしたユーザー一覧を取得
+export async function getLikedUsers(postId: string): Promise<User[]> {
+  const response = await api.get(`/posts/${postId}/like/users`);
+  return response.data;
 }
