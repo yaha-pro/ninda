@@ -1,6 +1,7 @@
 class Api::V1::MypageController < ApplicationController
   before_action :authenticate_api_v1_user!
 
+  # 自分のタイピング結果を取得
   def typing_results
     @typing_games = TypingGame
       .select("DISTINCT ON (post_id) *")
@@ -9,10 +10,20 @@ class Api::V1::MypageController < ApplicationController
 
     render json: @typing_games
   end
+
+  # 自分の投稿を取得
   def posts
     @posts = current_api_v1_user.posts.order(created_at: :desc)
     render json: @posts
   end
+
+  # いいねした投稿を取得
+  # def liked_posts
+  #   posts = current_api_v1_user.likes.includes(:post).map(&:post)
+  #   render json: posts, status: :ok
+  # end
+
+  # 自分のプロフィール画像を更新
   def update_profile_image
     if current_api_v1_user.update(profile_image_params)
       render json: { profile_image_url: current_api_v1_user.profile_image.url }, status: :ok

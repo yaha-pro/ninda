@@ -1,16 +1,16 @@
 class Api::V1::PostsController < ApplicationController
-  before_action :authenticate_api_v1_user!, only: [ :create, :update, :destroy ]
+  before_action :authenticate_api_v1_user!, only: [:create, :update, :destroy]
 
   # 全投稿の取得
   def index
-    posts = Post.all
-    render json: posts
+    posts = Post.includes(:likes, :user).all
+    render json: posts.map { |post| post_response(post) }
   end
 
   # 特定の投稿を取得
   def show
-    post = Post.find(params[:id])
-    render json: post
+    post = Post.includes(:likes, :user).find(params[:id])
+    render json: post_response(post)
   end
 
   # 新規投稿の作成
@@ -18,7 +18,7 @@ class Api::V1::PostsController < ApplicationController
     post = current_api_v1_user.posts.new(post_params)
 
     if post.save
-      render json: { message: "Post created successfully", post: post }, status: :created
+      render json: { message: "Post created successfully", post: post_response(post) }, status: :created
     else
       render json: { errors: post.errors.full_messages }, status: :unprocessable_entity
     end
@@ -29,7 +29,7 @@ class Api::V1::PostsController < ApplicationController
     post = current_api_v1_user.posts.find(params[:id])
 
     if post.update(post_params)
-      render json: { message: "Post updated successfully", post: post }, status: :ok
+      render json: { message: "Post updated successfully", post: post_response(post) }, status: :ok
     else
       render json: { errors: post.errors.full_messages }, status: :unprocessable_entity
     end
@@ -61,5 +61,23 @@ class Api::V1::PostsController < ApplicationController
 
   def post_params
     params.require(:post).permit(:title, :description, :display_text, :typing_text, :thumbnail_image, :remote_thumbnail_image_url)
+  end
+
+  # 投稿レスポンス用メソッド
+  def post_response(post)
+    {
+      id: post.id,
+      user_id: post.user_id,
+      title: post.title,
+      description: post.description,
+      display_text: post.display_text,
+      typing_text: post.typing_text,
+      thumbnail_image: post.thumbnail_image,
+      typing_play_count: post.typing_play_count,
+      likes_count: post.likes_count,
+      is_liked: current_api_v1_user ? post.likes.exists?(user_id: current_api_v1_user.id) : false,
+      created_at: post.created_at,
+      updated_at: post.updated_at
+    }
   end
 end

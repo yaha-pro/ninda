@@ -1,7 +1,9 @@
 class Post < ApplicationRecord
   belongs_to :user
-  # 削除時に関連するタイピングゲームも同時に削除
-  has_many :typing_games, dependent: :destroy
+  
+  has_many :typing_games, dependent: :destroy # 削除時に関連するタイピングゲームも同時に削除
+  has_many :likes, dependent: :destroy # 削除時に関連するいいねも同時に削除
+  has_many :liked_users, through: :likes, source: :user # いいねしたユーザーを取得
 
   validates :title, presence: true, length: { maximum: 40 }
   validates :description, length: { maximum: 500 }, allow_blank: true
@@ -11,12 +13,9 @@ class Post < ApplicationRecord
   mount_uploader :thumbnail_image, PostThumbnailUploader
 
   # コールバック
-  # 投稿削除時にサムネイルファイルも削除
-  before_destroy :remove_thumbnail_file
-  # サムネイル変更前に古いファイルのパスを記憶
-  before_update  :remember_old_thumbnail
-  # サムネイル変更後に古いファイルを削除
-  after_update   :remove_old_thumbnail
+  before_destroy :remove_thumbnail_file # 投稿削除時にサムネイルファイルも削除
+  before_update  :remember_old_thumbnail # サムネイル変更前に古いファイルのパスを記憶
+  after_update   :remove_old_thumbnail # サムネイル変更後に古いファイルを削除
 
   # 投稿削除時にサムネイル画像をストレージから削除
   def remove_thumbnail_file

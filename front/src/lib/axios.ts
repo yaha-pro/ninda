@@ -11,6 +11,7 @@ import {
   TypingResult,
   GetPseudoRankParams,
   PseudoRankResult,
+  LikeResponse,
 } from "./types";
 
 const api = axios.create({
@@ -248,4 +249,16 @@ export async function uploadThumbnailImage(
   });
 
   return response.data;
+}
+
+// いいね追加
+export async function likePost(postId: string): Promise<LikeResponse> {
+  const response = await api.post(`/posts/${postId}/like`)
+  return response.data
+}
+
+// いいね削除
+export async function unlikePost(postId: string): Promise<LikeResponse> {
+  const response = await api.delete(`/posts/${postId}/like`)
+  return response.data
 }

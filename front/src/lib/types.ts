@@ -9,31 +9,31 @@ export interface User {
   posts_count: number;
 }
 
-  export interface LoginResponse {
-    data: User;
-  }
+export interface LoginResponse {
+  data: User;
+}
 
-  export interface RegisterParams {
-    name: string;
-    email: string;
-    password: string;
-    password_confirmation: string;
-  }
+export interface RegisterParams {
+  name: string;
+  email: string;
+  password: string;
+  password_confirmation: string;
+}
 
-  export interface UpdateProfileParams {
-    name: string;
-    bio?: string;
-  }
+export interface UpdateProfileParams {
+  name: string;
+  bio?: string;
+}
 
-  // 認証コンテキストの型定義
-  export interface AuthContextType {
-    user: User | null;
-    setUser: (user: User | null | ((prev: User | null) => User | null)) => void;
-    isAuthenticated: boolean;
-    isLoggingOutRef: React.MutableRefObject<boolean>;
-  }
+// 認証コンテキストの型定義
+export interface AuthContextType {
+  user: User | null;
+  setUser: (user: User | null | ((prev: User | null) => User | null)) => void;
+  isAuthenticated: boolean;
+  isLoggingOutRef: React.MutableRefObject<boolean>;
+}
 
-  // 投稿の型定義
+// 投稿の型定義
 export interface Post {
   id: string;
   user_id: string;
@@ -45,7 +45,9 @@ export interface Post {
   created_at: string;
   updated_at: string;
   // tags: string[]; // タグ機能実装時に追加
-  user?: User
+  user?: User;
+  likes_count?: number;
+  is_liked?: boolean;
 }
 
 // 投稿作成時のパラメータ
@@ -59,14 +61,14 @@ export interface CreatePostParams {
 
 // タイピング結果の型定義
 export interface TypingResult {
-  id: string
-  user_id: string
-  post_id: string
-  play_time: number
-  accuracy: number
-  mistake_count: number
-  created_at: string
-  post?: Post
+  id: string;
+  user_id: string;
+  post_id: string;
+  play_time: number;
+  accuracy: number;
+  mistake_count: number;
+  created_at: string;
+  post?: Post;
   rank?: number;
   user_name?: string;
   total_players?: number;
@@ -74,21 +76,27 @@ export interface TypingResult {
 
 // タイピング結果を保存するためのパラメータ
 export interface SaveTypingResultParams {
-  post_id: string
-  play_time: number
-  accuracy: number
-  mistake_count: number
+  post_id: string;
+  play_time: number;
+  accuracy: number;
+  mistake_count: number;
 }
 
 // 擬似ランキングを取得するためのパラメータ
 export interface GetPseudoRankParams {
-  post_id: string
-  play_time: number
-  accuracy: number
+  post_id: string;
+  play_time: number;
+  accuracy: number;
 }
 
 // 擬似ランキングの型定義
 export interface PseudoRankResult {
   rank: number;
   total_players: number;
+}
+
+export interface LikeResponse {
+  success: boolean;
+  likes_count: number;
+  message?: string;
 }

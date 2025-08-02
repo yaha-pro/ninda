@@ -7,12 +7,14 @@ class Api::V1::UsersController < ApplicationController
     render json: { error: "ユーザーが見つかりません" }, status: :not_found
   end
 
+  # 全ユーザー情報を取得
   def index
     users = User.select(:id, :name, :profile_image, :bio, :total_play_count, :posts_count, :created_at).order(created_at: :desc)
 
     render json: users, status: :ok
   end
 
+  # ユーザーの投稿を取得
   def posts
     puts "Requested User ID: #{params[:id]}" # ログ確認
     user = User.find_by(id: params[:id])
@@ -25,6 +27,7 @@ class Api::V1::UsersController < ApplicationController
     end
   end
 
+  # ユーザーのタイピング結果を取得
   def user_typing_results
     user = User.find_by(id: params[:id])
 
@@ -39,4 +42,11 @@ class Api::V1::UsersController < ApplicationController
       render json: { error: "User not found" }, status: :not_found
     end
   end
+
+  # ユーザーのいいねした投稿を取得
+  # def liked_posts
+  #   user = User.find(params[:id])
+  #   posts = user.likes.includes(:post).map(&:post)
+  #   render json: posts, status: :ok
+  # end
 end
