@@ -19,6 +19,7 @@ import post_image_def from "/public/post_image_def.png";
 import { useDeletePost } from "@/hooks/useDeletePost";
 import { getUser, likePost, unlikePost, getLikedUsers } from "@/lib/axios";
 import toast from "react-hot-toast";
+import { LikedUsersModal } from "./LikedUsersModal";
 
 interface PostCardProps {
   post: Post;
@@ -41,6 +42,10 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
     useState<boolean>(false);
   const hoverTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const tooltipTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // モーダル関連の状態
+  const [showLikedUsersModal, setShowLikedUsersModal] =
+    useState<boolean>(false);
 
   // 投稿者の取得
   useEffect(() => {
@@ -90,7 +95,7 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
       clearTimeout(tooltipTimeoutRef.current);
     }
 
-    // 1秒後にツールチップを表示
+    // 400ms後にツールチップを表示
     hoverTimeoutRef.current = setTimeout(() => {
       setShowTooltip(true);
       fetchLikedUsers();
@@ -121,6 +126,12 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
     tooltipTimeoutRef.current = setTimeout(() => {
       setShowTooltip(false);
     }, 200);
+  };
+
+  // ツールチップ内でのクリックイベント処理
+  const handleTooltipClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
   };
 
   // コンポーネントのクリーンアップ
@@ -266,6 +277,21 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
     return likedUsers.map((user) => user.name).join("、");
   };
 
+  // モーダルを開く関数
+  const handleShowMoreClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setShowTooltip(false); // ツールチップを閉じる
+    setShowLikedUsersModal(true); // モーダルを開く
+  };
+
+  // いいね数をクリックした時のハンドラ
+  const handleLikesCountClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    setShowLikedUsersModal(true);
+  };
+
   const postUserProfileImageUrl = getPostUserProfileImageUrl();
 
   return (
@@ -372,8 +398,9 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
                 className="absolute bottom-full right-0 mb-2 w-64 bg-white border border-red-300 rounded-lg shadow-lg p-3 z-50 animate-in fade-in-0 zoom-in-95 duration-200"
                 onMouseEnter={handleTooltipMouseEnter}
                 onMouseLeave={handleTooltipMouseLeave}
+                onClick={handleTooltipClick}
               >
-                <div className="text-sm font-bold text-gray-800 mb-2">
+                <div className="text-sm font-medium text-gray-800 mb-2">
                   いいねしたユーザー
                 </div>
                 <div className="text-sm text-gray-600 max-h-20 overflow-hidden">
@@ -390,6 +417,17 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
                     <div className="text-gray-400">まだいいねがありません</div>
                   )}
                 </div>
+                {/* もっと見るボタン */}
+                {likedUsers.length > 0 && (
+                  <div className="pt-2 border-t border-gray-200 mt-2">
+                    <button
+                      onClick={handleShowMoreClick}
+                      className="text-xs text-blue-500 hover:text-blue-600 font-medium"
+                    >
+                      もっと見る
+                    </button>
+                  </div>
+                )}
                 {/* 矢印 */}
                 <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-l-transparent border-r-transparent border-t-red-300"></div>
               </div>
@@ -397,14 +435,22 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
           </div>
 
           <span
-            className={`text-lg font-medium ${
+            className={`text-lg font-medium cursor-pointer hover:underline ${
               isLiked ? "text-red-500" : "text-gray-500"
             }`}
+            onClick={handleLikesCountClick}
           >
             {likesCount}
           </span>
         </div>
       </div>
+      {/* いいねユーザー一覧モーダル */}
+      <LikedUsersModal
+        isOpen={showLikedUsersModal}
+        onClose={() => setShowLikedUsersModal(false)}
+        postId={post.id}
+        initialUsers={likedUsers}
+      />
     </div>
   );
 };
