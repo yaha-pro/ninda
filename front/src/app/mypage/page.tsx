@@ -361,10 +361,10 @@ export default function MyPage() {
           <div className="relative mt-6 min-h-[400px]">
             <TabsContent
               value="posts"
-              className={`absolute inset-0 transition-all duration-700 ease-out ${
+              className={`transition-all duration-700 ease-out ${
                 activeTab === "posts"
                   ? "opacity-100 translate-x-0 scale-100"
-                  : "opacity-0 translate-x-8 scale-95 pointer-events-none"
+                  : "opacity-0 translate-x-8 scale-95 pointer-events-none absolute inset-0"
               }`}
             >
               <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
@@ -374,10 +374,10 @@ export default function MyPage() {
 
             <TabsContent
               value="likes"
-              className={`absolute inset-0 transition-all duration-700 ease-out ${
+              className={`transition-all duration-700 ease-out ${
                 activeTab === "likes"
                   ? "opacity-100 translate-x-0 scale-100"
-                  : "opacity-0 translate-x-8 scale-95 pointer-events-none"
+                  : "opacity-0 translate-x-8 scale-95 pointer-events-none absolute inset-0"
               }`}
             >
               <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
@@ -387,10 +387,10 @@ export default function MyPage() {
 
             <TabsContent
               value="results"
-              className={`absolute inset-0 transition-all duration-700 ease-out ${
+              className={`transition-all duration-700 ease-out ${
                 activeTab === "results"
                   ? "opacity-100 translate-x-0 scale-100"
-                  : "opacity-0 translate-x-8 scale-95 pointer-events-none"
+                  : "opacity-0 translate-x-8 scale-95 pointer-events-none absolute inset-0"
               }`}
             >
               <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
@@ -398,7 +398,7 @@ export default function MyPage() {
               </div>
             </TabsContent>
           </div>
-        </Tabs>{" "}
+        </Tabs>
       </div>
 
       <ProfileEditModal

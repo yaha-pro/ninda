@@ -18,6 +18,7 @@ export default function UserPage() {
   const [results, setResults] = useState<TypingResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [profileImage, setProfileImage] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState("posts");
 
   // ユーザー情報の取得
   useEffect(() => {
@@ -141,30 +142,74 @@ export default function UserPage() {
         </div>
 
         {/* タブナビゲーション */}
-        <Tabs defaultValue="posts" className="mt-8">
-          <TabsList className="w-full justify-start">
-            <TabsTrigger value="posts" className="flex-1">
-              投稿一覧
+        <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
+          <TabsList className="w-full justify-start bg-white/80 backdrop-blur-sm shadow-md rounded-xl p-1">
+            <TabsTrigger
+              value="posts"
+              className="flex-1 relative overflow-hidden transition-all duration-500 ease-out hover:shadow-md"
+            >
+              <span className="relative z-10 font-bold">投稿一覧</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF8D76]/20 to-[#FF6B5A]/20 opacity-0 transition-opacity duration-300 hover:opacity-100" />
             </TabsTrigger>
-            <TabsTrigger value="likes" className="flex-1">
-              いいね一覧
+            <TabsTrigger
+              value="likes"
+              className="flex-1 relative overflow-hidden transition-all duration-500 ease-out hover:shadow-md"
+            >
+              <span className="relative z-10 font-bold">いいね一覧</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF8D76]/20 to-[#FF6B5A]/20 opacity-0 transition-opacity duration-300 hover:opacity-100" />
             </TabsTrigger>
-            <TabsTrigger value="results" className="flex-1">
-              成績
+            <TabsTrigger
+              value="results"
+              className="flex-1 relative overflow-hidden transition-all duration-500 ease-out hover:shadow-md"
+            >
+              <span className="relative z-10 font-bold">成績</span>
+              <div className="absolute inset-0 bg-gradient-to-r from-[#FF8D76]/20 to-[#FF6B5A]/20 opacity-0 transition-opacity duration-300 hover:opacity-100" />
             </TabsTrigger>
           </TabsList>
 
-          <TabsContent value="posts" className="mt-6">
-            <PostsList userId={userId} />
-          </TabsContent>
+          <div className="relative mt-6 min-h-[400px]">
+            <TabsContent
+              value="posts"
+              className={`transition-all duration-700 ease-out ${
+                activeTab === "posts"
+                  ? "opacity-100 translate-x-0 scale-100"
+                  : "opacity-0 translate-x-8 scale-95 pointer-events-none absolute inset-0"
+              }`}
+            >
+              <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
+                <PostsList userId={userId} />
+              </div>
+            </TabsContent>
 
-          {/* <TabsContent value="likes" className="mt-6">
-            <LikesList userId={userId} />
-          </TabsContent> */}
+            <TabsContent
+              value="likes"
+              className={`transition-all duration-700 ease-out ${
+                activeTab === "likes"
+                  ? "opacity-100 translate-x-0 scale-100"
+                  : "opacity-0 translate-x-8 scale-95 pointer-events-none absolute inset-0"
+              }`}
+            >
+              <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
+                {/* <LikesList userId={userId} /> */}
+                <div className="text-center py-12 text-gray-500">
+                  いいね一覧は準備中です
+                </div>
+              </div>
+            </TabsContent>
 
-          <TabsContent value="results" className="mt-6">
-            <ResultsTable results={results} isLoading={isLoading} />
-          </TabsContent>
+            <TabsContent
+              value="results"
+              className={`transition-all duration-700 ease-out ${
+                activeTab === "results"
+                  ? "opacity-100 translate-x-0 scale-100"
+                  : "opacity-0 translate-x-8 scale-95 pointer-events-none absolute inset-0"
+              }`}
+            >
+              <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
+                <ResultsTable results={results} isLoading={isLoading} />
+              </div>
+            </TabsContent>
+          </div>
         </Tabs>
       </div>
     </div>
