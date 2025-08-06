@@ -20,7 +20,7 @@ class Api::V1::UsersController < ApplicationController
 
     if user
       posts = user.posts.includes(:likes).order(created_at: :desc)
-      render json: posts.map { |post| post_response(post) }
+      render json: posts.map { |post| post_response(post) }, status: :ok
     else
       render json: { error: "User not found" }, status: :not_found
     end
@@ -42,15 +42,15 @@ class Api::V1::UsersController < ApplicationController
     end
   end
 
-  # # ユーザーのいいねした投稿を取得
-  # def liked_posts
-  #   user = User.find_by(id: params[:id])
+  # ユーザーのいいねした投稿を取得
+  def liked_posts
+    user = User.find_by(id: params[:id])
 
-  #   if user
-  #     posts = user.likes.includes(post: :likes).map(&:post)
-  #     render json: posts.map { |post| post_response(post) }
-  #   else
-  #     render json: { error: "User not found" }, status: :not_found
-  #   end
-  # end
+    if user
+      posts = user.likes.includes(post: :likes).map(&:post)
+      render json: posts.map { |post| post_response(post) }, status: :ok
+    else
+      render json: { error: "User not found" }, status: :not_found
+    end
+  end
 end

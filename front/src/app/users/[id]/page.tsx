@@ -9,7 +9,7 @@ import Link from "next/link";
 import { useParams } from "next/navigation";
 import ResultsTable from "@/components/Results-table";
 import PostsList from "@/components/Posts-list";
-// import LikesList from "./likes-list"
+import LikesList from "@/components/Likes-list"
 
 export default function UserPage() {
   const params = useParams();
@@ -190,7 +190,7 @@ export default function UserPage() {
               }`}
             >
               <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
-                {/* <LikesList userId={userId} /> */}
+                <LikesList userId={userId} />
                 <div className="text-center py-12 text-gray-500">
                   いいね一覧は準備中です
                 </div>

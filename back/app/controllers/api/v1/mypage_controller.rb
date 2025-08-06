@@ -14,14 +14,14 @@ class Api::V1::MypageController < ApplicationController
   # 自分の投稿を取得
   def posts
     posts = current_api_v1_user.posts.includes(:likes)
-    render json: posts.map { |post| post_response(post) }
+    render json: posts.map { |post| post_response(post) }, status: :ok
   end
 
   # いいねした投稿を取得
-  # def liked_posts
-  #   posts = current_api_v1_user.likes.includes(:post).map(&:post)
-  #   render json: posts, status: :ok
-  # end
+  def liked_posts
+    posts = current_api_v1_user.likes.includes(post: [ :user, :likes ]).map(&:post)
+    render json: posts.map { |post| post_response(post) }, status: :ok
+  end
 
   # 自分のプロフィール画像を更新
   def update_profile_image

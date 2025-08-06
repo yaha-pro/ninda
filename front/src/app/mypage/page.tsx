@@ -19,7 +19,7 @@ import { ProfileEditModal } from "@/components/ProfileEditModal";
 import Link from "next/link";
 import ResultsTable from "@/components/Results-table";
 import PostsList from "@/components/Posts-list";
-import LikesList from "./likes-list";
+import LikesList from "@/components/Likes-list";
 import { Pencil, Camera, ImageIcon, FolderOpen, Loader2 } from "lucide-react";
 import {
   DropdownMenu,
@@ -381,7 +381,7 @@ export default function MyPage() {
               }`}
             >
               <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
-                <LikesList />
+                <LikesList isMyPage/>
               </div>
             </TabsContent>
 
