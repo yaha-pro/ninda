@@ -268,3 +268,15 @@ export async function getLikedUsers(postId: string): Promise<User[]> {
   const response = await api.get(`/posts/${postId}/like/users`);
   return response.data;
 }
+
+// カレントユーザーがいいねした投稿を取得
+export async function getCurrentUserLikedPosts(): Promise<Post[]> {
+  const response = await api.get("/mypage/liked_posts")
+  return response.data
+}
+
+// ユーザーがいいねした投稿を取得
+export async function getUserLikedPosts(id: string): Promise<Post[]> {
+  const response = await api.get(`/users/${id}/liked_posts`)
+  return response.data
+}

@@ -8,7 +8,7 @@ class Api::V1::LikesController < ApplicationController
       {
         id: user.id,
         name: user.name,
-        profile_image: user.profile_image,
+        profile_image: user.profile_image
       }
     end
     render json: users, status: :ok

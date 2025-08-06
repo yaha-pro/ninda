@@ -1,6 +1,6 @@
 class Post < ApplicationRecord
   belongs_to :user
-  
+
   has_many :typing_games, dependent: :destroy # 削除時に関連するタイピングゲームも同時に削除
   has_many :likes, dependent: :destroy # 削除時に関連するいいねも同時に削除
   has_many :liked_users, through: :likes, source: :user # いいねしたユーザーを取得
