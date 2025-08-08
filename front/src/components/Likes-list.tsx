@@ -86,7 +86,13 @@ export default function LikesList({
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-6">
         {currentPosts.map((post) => (
           <Link href={`/posts/${post.id}`} key={post.id} className="block">
-            <PostCard post={post} setPosts={setPosts} isMyPage={false} />
+            <PostCard
+              post={post}
+              setPosts={setPosts}
+              isMyPage={isMyPage}
+              isLikesList={true}
+              userId={userId}
+            />
           </Link>
         ))}
       </div>
