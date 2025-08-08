@@ -1,6 +1,12 @@
 import { useRouter, usePathname } from "next/navigation";
 import toast from "react-hot-toast";
-import { deletePost, getPosts, getCurrentUserPosts } from "@/lib/axios";
+import {
+  deletePost,
+  getPosts,
+  getCurrentUserPosts,
+  getCurrentUserLikedPosts,
+  getUserLikedPosts,
+} from "@/lib/axios";
 import { Post } from "@/lib/types";
 
 export const useDeletePost = () => {
@@ -11,18 +17,30 @@ export const useDeletePost = () => {
     postId: string,
     postTitle: string,
     setPosts: React.Dispatch<React.SetStateAction<Post[]>>,
-    isMyPage: boolean = false
+    options: { isMyPage?: boolean; isLikesList?: boolean; userId?: string } = {}
   ) => {
-    if (window.confirm("" + postTitle + "を削除しますか？")) {
+    const { isMyPage = false, isLikesList = false, userId } = options;
+
+    if (window.confirm(`${postTitle}を削除しますか？`)) {
       try {
         // 投稿を削除
         await deletePost(postId);
-        toast.success("" + postTitle + "が削除されました");
+        toast.success(`${postTitle}が削除されました`);
 
         // 投稿情報を再取得
-        const updatedPosts = isMyPage
-          ? await getCurrentUserPosts()
-          : await getPosts();
+        let updatedPosts: Post[] = [];
+        if (isLikesList) {
+          updatedPosts = isMyPage
+            ? await getCurrentUserLikedPosts() // マイページのいいね一覧
+            : userId
+            ? await getUserLikedPosts(userId) // 他ユーザーページのいいね一覧
+            : [];
+        } else {
+          updatedPosts = isMyPage
+            ? await getCurrentUserPosts() // マイページの投稿一覧
+            : await getPosts(); // 通常の投稿一覧
+        }
+
         setPosts(updatedPosts);
 
         // カレントページにリダイレクト

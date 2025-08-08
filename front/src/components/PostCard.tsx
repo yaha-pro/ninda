@@ -25,9 +25,11 @@ interface PostCardProps {
   post: Post;
   setPosts: React.Dispatch<React.SetStateAction<Post[]>>;
   isMyPage?: boolean;
+  isLikesList?: boolean;
+  userId?: string;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
+const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage, isLikesList, userId }) => {
   const { user } = useAuth(); // 現在のユーザー情報を取得
   const { handleDelete } = useDeletePost();
   const [postUser, setPostUser] = useState<User | null>(null);
@@ -149,7 +151,11 @@ const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage }) => {
   const handleDeleteClick = (event: React.MouseEvent) => {
     event.preventDefault(); // 親の Link の遷移を防ぐ
     event.stopPropagation(); // イベントの伝播を防ぐ
-    handleDelete(post.id, post.title, setPosts, isMyPage);
+    handleDelete(post.id, post.title, setPosts, {
+      isMyPage,
+      isLikesList,
+      userId,
+    });
   };
 
   // いいね/いいね解除の処理
