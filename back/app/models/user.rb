@@ -11,6 +11,7 @@ class User < ActiveRecord::Base
   has_many :typing_games, dependent: :destroy # ユーザーが削除されたら、タイピング成績も削除
   has_many :likes, dependent: :destroy # ユーザーが削除されたら、いいねも削除
   has_many :liked_posts, through: :likes, source: :post # いいねした投稿
+  has_many :comments, dependent: :destroy # ユーザーが削除されたら、コメントも削除
 
   # プロフィール画像のアップローダー
   mount_uploader :profile_image, ProfileImageUploader

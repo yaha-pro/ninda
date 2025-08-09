@@ -4,6 +4,7 @@ class Post < ApplicationRecord
   has_many :typing_games, dependent: :destroy # 削除時に関連するタイピングゲームも同時に削除
   has_many :likes, dependent: :destroy # 削除時に関連するいいねも同時に削除
   has_many :liked_users, through: :likes, source: :user # いいねしたユーザーを取得
+  has_many :comments, dependent: :destroy # 削除時に関連するコメントも同時に削除
 
   validates :title, presence: true, length: { maximum: 40 }
   validates :description, length: { maximum: 500 }, allow_blank: true
