@@ -38,7 +38,13 @@ Rails.application.routes.draw do
         resource :like, only: [ :create, :destroy ] do
           get :users, on: :collection
         end
+
+        # commentのエンドポイント
+        resources :comments, only: [:index, :create]
       end
+
+      # commentの更新と削除
+      resources :comments, only: [:update, :destroy]
 
       # タイピングゲームのエンドポイント
       resources :typing_games, only: [ :index, :create ] do

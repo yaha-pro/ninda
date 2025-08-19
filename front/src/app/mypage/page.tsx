@@ -202,7 +202,7 @@ export default function MyPage() {
             <Button
               variant="outline"
               size="sm"
-              className="w-full max-w-xs text-md bg-transparent"
+              className="w-full max-w-xs text-md"
               onClick={() => setIsProfileEditModalOpen(true)}
               disabled={isUploading} // アップロード中は無効化
             >
