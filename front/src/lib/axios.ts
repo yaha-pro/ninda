@@ -12,6 +12,7 @@ import {
   GetPseudoRankParams,
   PseudoRankResult,
   LikeResponse,
+  Comment,
 } from "./types";
 
 const api = axios.create({
@@ -271,12 +272,45 @@ export async function getLikedUsers(postId: string): Promise<User[]> {
 
 // カレントユーザーがいいねした投稿を取得
 export async function getCurrentUserLikedPosts(): Promise<Post[]> {
-  const response = await api.get("/mypage/liked_posts")
-  return response.data
+  const response = await api.get("/mypage/liked_posts");
+  return response.data;
 }
 
 // ユーザーがいいねした投稿を取得
 export async function getUserLikedPosts(id: string): Promise<Post[]> {
-  const response = await api.get(`/users/${id}/liked_posts`)
-  return response.data
+  const response = await api.get(`/users/${id}/liked_posts`);
+  return response.data;
+}
+
+// コメント一覧を取得
+export async function getComments(postId: string): Promise<Comment[]> {
+  const response = await api.get(`/posts/${postId}/comments`);
+  return response.data;
+}
+
+// コメントを作成
+export async function createComment(
+  postId: string,
+  content: string
+): Promise<Comment> {
+  const response = await api.post(`/posts/${postId}/comments`, {
+    comment: { content },
+  });
+  return response.data;
+}
+
+// コメントを更新
+export async function updateComment(
+  commentId: string,
+  content: string
+): Promise<Comment> {
+  const response = await api.put(`/comments/${commentId}`, {
+    comment: { content },
+  });
+  return response.data;
+}
+
+// コメントを削除
+export async function deleteComment(commentId: string): Promise<void> {
+  await api.delete(`/comments/${commentId}`);
 }

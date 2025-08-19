@@ -29,7 +29,13 @@ interface PostCardProps {
   userId?: string;
 }
 
-const PostCard: React.FC<PostCardProps> = ({ post, setPosts, isMyPage, isLikesList, userId }) => {
+const PostCard: React.FC<PostCardProps> = ({
+  post,
+  setPosts,
+  isMyPage,
+  isLikesList,
+  userId,
+}) => {
   const { user } = useAuth(); // 現在のユーザー情報を取得
   const { handleDelete } = useDeletePost();
   const [postUser, setPostUser] = useState<User | null>(null);

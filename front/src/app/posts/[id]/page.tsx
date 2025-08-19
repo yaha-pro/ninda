@@ -1,15 +1,24 @@
 "use client";
 
+import type React from "react";
+
 import { useEffect, useState } from "react";
 import { useAuth } from "@/contexts/AuthContext";
 import Image from "next/image";
 import Link from "next/link";
-// import { Heart } from 'lucide-react';
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
-// import { Input } from "@/components/ui/input"
-import { getPost, getUser, getRanking } from "@/lib/axios";
-import type { Post, User, TypingResult } from "@/lib/types";
+import { Textarea } from "@/components/ui/textarea";
+import {
+  getPost,
+  getUser,
+  getRanking,
+  getComments,
+  createComment,
+  updateComment,
+  deleteComment,
+} from "@/lib/axios";
+import type { Post, User, TypingResult, Comment } from "@/lib/types";
 import post_image_def from "/public/post_image_def.png";
 import ranking_1_image from "/public/ranking_1_image.png";
 import ranking_2_image from "/public/ranking_2_image.png";
@@ -17,6 +26,31 @@ import ranking_3_image from "/public/ranking_3_image.png";
 import toast from "react-hot-toast";
 import { useParams, useRouter } from "next/navigation";
 import TypingGame from "@/components/TypingGame";
+import { FiMoreVertical, FiEdit, FiTrash, FiSend } from "react-icons/fi";
+import {
+  DropdownMenu,
+  DropdownMenuTrigger,
+  DropdownMenuContent,
+  DropdownMenuItem,
+} from "@/components/ui/dropdown-menu";
+
+// 共通のヘルパー関数
+const getProfileImageUrl = (profileImage?: string | { url: string }) => {
+  if (profileImage) {
+    return typeof profileImage === "string" ? profileImage : profileImage.url;
+  }
+  return null;
+};
+
+const getUserInitials = (name?: string, fallback?: string) => {
+  if (name && name.length > 0) {
+    return name.substring(0, 2).toUpperCase();
+  }
+  if (fallback) {
+    return fallback.substring(0, 2).toUpperCase();
+  }
+  return "U";
+};
 
 export default function PostDetailPage() {
   const { user } = useAuth(); // 現在のユーザー情報を取得
@@ -31,6 +65,15 @@ export default function PostDetailPage() {
   const [rankingLoading, setRankingLoading] = useState(true);
   const [showMoreRanking, setShowMoreRanking] = useState(false);
   const [rankingUsers, setRankingUsers] = useState<{ [key: string]: User }>({}); // ランキングユーザー情報をキャッシュ
+
+  // コメント関連の状態
+  const [comments, setComments] = useState<Comment[]>([]);
+  const [commentsLoading, setCommentsLoading] = useState(true);
+  const [showMoreComments, setShowMoreComments] = useState(false);
+  const [newComment, setNewComment] = useState("");
+  const [isSubmittingComment, setIsSubmittingComment] = useState(false);
+  const [editingCommentId, setEditingCommentId] = useState<string | null>(null);
+  const [editingContent, setEditingContent] = useState("");
 
   // 投稿の取得
   useEffect(() => {
@@ -53,6 +96,26 @@ export default function PostDetailPage() {
     };
 
     fetchPost();
+  }, [post_id]);
+
+  // コメントの取得
+  useEffect(() => {
+    if (!post_id) return;
+
+    const fetchComments = async () => {
+      try {
+        setCommentsLoading(true);
+        const commentsData = await getComments(post_id);
+        setComments(commentsData);
+      } catch (error) {
+        console.error("Error fetching comments:", error);
+        toast.error("コメントの取得に失敗しました");
+      } finally {
+        setCommentsLoading(false);
+      }
+    };
+
+    fetchComments();
   }, [post_id]);
 
   // ランキングの取得
@@ -120,7 +183,6 @@ export default function PostDetailPage() {
     if (!post_id) return;
     try {
       const rankingData = await getRanking(Number(post_id));
-
       // ランキングユーザーの情報を再取得
       const userPromises = rankingData.map(async (result) => {
         if (result.user_id && !rankingUsers[result.user_id]) {
@@ -150,6 +212,82 @@ export default function PostDetailPage() {
     }
   };
 
+  // コメント送信
+  const handleSubmitComment = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newComment.trim() || !user) {
+      toast.error("コメントを入力してください");
+      return;
+    }
+
+    try {
+      setIsSubmittingComment(true);
+      const comment = await createComment(post_id, newComment.trim());
+      setComments((prev) => [{ ...comment, user }, ...prev]);
+      setNewComment("");
+      toast.success("コメントを投稿しました");
+    } catch (error) {
+      console.error("Error creating comment:", error);
+      toast.error("コメントの投稿に失敗しました");
+    } finally {
+      setIsSubmittingComment(false);
+    }
+  };
+
+  // コメント編集開始
+  const handleEditComment = (comment: Comment) => {
+    setEditingCommentId(comment.id);
+    setEditingContent(comment.content);
+  };
+
+  // コメント編集保存
+  const handleSaveComment = async (commentId: string) => {
+    if (!editingContent.trim()) {
+      toast.error("コメントを入力してください");
+      return;
+    }
+
+    try {
+      const updatedComment = await updateComment(
+        commentId,
+        editingContent.trim()
+      );
+      setComments((prev) =>
+        prev.map((comment) =>
+          comment.id === commentId
+            ? { ...comment, content: updatedComment.content }
+            : comment
+        )
+      );
+      setEditingCommentId(null);
+      setEditingContent("");
+      toast.success("コメントを更新しました");
+    } catch (error) {
+      console.error("Error updating comment:", error);
+      toast.error("コメントの更新に失敗しました");
+    }
+  };
+
+  // コメント編集キャンセル
+  const handleCancelEdit = () => {
+    setEditingCommentId(null);
+    setEditingContent("");
+  };
+
+  // コメント削除
+  const handleDeleteComment = async (commentId: string) => {
+    if (!confirm("このコメントを削除しますか？")) return;
+
+    try {
+      await deleteComment(commentId);
+      setComments((prev) => prev.filter((comment) => comment.id !== commentId));
+      toast.success("コメントを削除しました");
+    } catch (error) {
+      console.error("Error deleting comment:", error);
+      toast.error("コメントの削除に失敗しました");
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f5f7ef] p-4">
@@ -171,18 +309,6 @@ export default function PostDetailPage() {
     );
   }
 
-  // ユーザー名の表示用関数
-  const getUserInitial = () => {
-    if (postUser && postUser.name) {
-      return postUser.name.substring(0, 2).toUpperCase();
-    }
-    return post.user_id.toString().substring(0, 2).toUpperCase();
-  };
-
-  const getUserName = () => {
-    return postUser?.name || "ユーザー";
-  };
-
   // サムネイル画像のURLを取得する関数
   const getThumbnailImageUrl = () => {
     if (post.thumbnail_image) {
@@ -194,14 +320,7 @@ export default function PostDetailPage() {
   };
 
   // 投稿者のプロフィール画像URL取得
-  const getPostUserProfileImageUrl = () => {
-    if (postUser?.profile_image) {
-      return typeof postUser.profile_image === "string"
-        ? postUser.profile_image
-        : postUser.profile_image.url;
-    }
-    return null;
-  };
+  const postUserProfileImageUrl = getProfileImageUrl(postUser?.profile_image);
 
   // ユーザープロフィールへの遷移処理
   const handleUserProfileClick = () => {
@@ -212,26 +331,6 @@ export default function PostDetailPage() {
       // それ以外は通常のユーザーページへ
       router.push(`/users/${post.user_id}`);
     }
-  };
-
-  // ランキング用のユーザー名取得関数
-  const getRankingUserInitial = (userId?: string, userName?: string) => {
-    if (userName && userName.length > 0) {
-      return userName.substring(0, 2).toUpperCase();
-    }
-    if (userId && rankingUsers[userId]?.name) {
-      return rankingUsers[userId].name.substring(0, 2).toUpperCase();
-    }
-    return "U";
-  };
-
-  // ランキングユーザーのプロフィール画像URL取得
-  const getRankingUserProfileImageUrl = (userId?: string) => {
-    if (userId && rankingUsers[userId]?.profile_image) {
-      const profileImage = rankingUsers[userId].profile_image;
-      return typeof profileImage === "string" ? profileImage : profileImage.url;
-    }
-    return null;
   };
 
   // 順位アイコンを取得する関数
@@ -272,13 +371,6 @@ export default function PostDetailPage() {
     return <span className="text-lg font-bold">{rank}</span>;
   };
 
-  const postUserProfileImageUrl = getPostUserProfileImageUrl();
-
-  // プレイ時間を秒に変換して表示する関数
-  // const formatPlayTime = (playTime: number) => {
-  //   return (playTime / 1000).toFixed(1) + "秒";
-  // };
-
   // ランキングユーザープロフィールへの遷移処理
   const handleRankingUserProfileClick = (userId: string) => {
     if (user && userId === user.id) {
@@ -311,7 +403,7 @@ export default function PostDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full max-w-xs text-md bg-transparent"
+                className="w-full max-w-xs text-md"
               >
                 編集する
               </Button>
@@ -357,46 +449,31 @@ export default function PostDetailPage() {
         {/* User Info */}
         <div className="flex items-center justify-between mt-2">
           <div
-            className="flex items-center gap-3 cursor-pointer hover:opacity-80 transition-opacity"
+            className="flex items-center gap-3 cursor-pointer hover:opacity-70 transition-opacity"
             onClick={handleUserProfileClick}
           >
-            <Avatar>
+            <Avatar className="h-12 w-12 border-white border-2 shadow-md transition-all duration-300">
               {postUserProfileImageUrl ? (
                 <AvatarImage
                   src={String(postUserProfileImageUrl)}
-                  alt={getUserName() || "投稿者画像"}
+                  alt={postUser?.name || "投稿者画像"}
                 />
               ) : (
                 <AvatarFallback className="bg-red-100 text-red-600">
-                  {getUserInitial()}
+                  {getUserInitials(postUser?.name, post.user_id.toString())}
                 </AvatarFallback>
               )}
             </Avatar>
-            <span className="text-gray-600">{getUserName()}</span>
+            <span className="text-gray-600">
+              {postUser?.name || "ユーザー"}
+            </span>
           </div>
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-500">
               公開日：{new Date(post.created_at).toLocaleDateString()}
             </div>
-            {/* <div className="text-sm text-gray-500">プレイ回数：{post.play_count || 0}</div> */}
-            {/* <Button
-              variant="ghost"
-              size="icon"
-              className="border border-[#FF8D76]"
-            >
-              <Heart className="w-5 h-5" />
-            </Button> */}
           </div>
         </div>
-
-        {/* Tags
-          <div className="flex flex-wrap gap-2 mt-4">
-            {["タグ", "タグ", "タグ", "タグ"].map((tag, index) => (
-              <Button key={index} variant="outline" size="sm">
-                {tag}
-              </Button>
-            ))}
-          </div> */}
 
         {/* Description */}
         <div className="mt-6 text-gray-700">
@@ -407,33 +484,207 @@ export default function PostDetailPage() {
       {/* Comments and Ranking */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Comments */}
-        {/* <div className="bg-white rounded-xl p-6 shadow-sm">
-            <h2 className="text-xl font-bold mb-4">
-              コメント <span className="text-gray-500">(999件)</span>
-            </h2>
-            <div className="space-y-4">
-              <div className="flex">
-                <Input placeholder="コメントを入力する" className="rounded-r-none" />
-                <Button className="rounded-l-none">送信</Button>
+        <div className="bg-white rounded-xl p-6 shadow-md">
+          <h2 className="text-center text-xl font-bold mb-6 text-[#FF8D76]">
+            コメント{" "}
+            <span className="text-gray-500">({comments.length}件)</span>
+          </h2>
+
+          {/* Comment Form */}
+          <form onSubmit={handleSubmitComment} className="mb-3">
+            <div className="flex gap-2">
+              <div className="flex-1">
+                <Textarea
+                  value={newComment}
+                  onChange={(e) => setNewComment(e.target.value)}
+                  placeholder="コメントを入力する"
+                  className="resize-none min-h-[40px] h-10"
+                  rows={3}
+                  disabled={isSubmittingComment || !user}
+                />
               </div>
-              <div className="space-y-4 mt-4">
-                {[1, 2, 3].map((_, index) => (
-                  <div key={index} className="flex gap-3">
-                    <Avatar className="h-8 w-8">
-                      <AvatarFallback className="bg-red-100 text-red-600">U</AvatarFallback>
-                    </Avatar>
-                    <div>
-                      <div className="flex items-center gap-2">
-                        <span className="font-medium">ユーザー</span>
-                        <span className="text-sm text-gray-500">yyyy/mm/dd</span>
+              <Button
+                type="submit"
+                variant="outline"
+                disabled={isSubmittingComment || !newComment.trim() || !user}
+                className="self-end h-10 items-center shadow-sm"
+              >
+                <FiSend className="w-4 h-4" />
+              </Button>
+            </div>
+            {!user && (
+              <p className="text-xs text-gray-500 mt-1 pl-2">
+                ※コメントするにはログインが必要です
+              </p>
+            )}
+          </form>
+
+          {/* Comments List */}
+          {commentsLoading ? (
+            <div className="space-y-4">
+              {[1, 2, 3].map((index) => (
+                <div key={index} className="animate-pulse">
+                  <div className="flex gap-3 py-4 border-b border-gray-100">
+                    <div className="w-10 h-10 bg-gray-200 rounded-full"></div>
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-2">
+                        <div className="w-20 h-4 bg-gray-200 rounded"></div>
+                        <div className="w-16 h-3 bg-gray-200 rounded"></div>
                       </div>
-                      <p className="text-sm text-gray-700">テキストテキストテキストテキスト</p>
+                      <div className="w-full h-4 bg-gray-200 rounded"></div>
                     </div>
                   </div>
-                ))}
-              </div>
+                </div>
+              ))}
             </div>
-          </div> */}
+          ) : comments.length > 0 ? (
+            <div className="overflow-hidden">
+              <div
+                className={`space-y-0 ${
+                  showMoreComments ? "max-h-96 overflow-y-auto" : ""
+                }`}
+              >
+                {comments
+                  .slice(0, showMoreComments ? comments.length : 5)
+                  .map((comment) => {
+                    const commentUserProfileImageUrl = getProfileImageUrl(
+                      comment.user?.profile_image
+                    );
+                    const isEditing = editingCommentId === comment.id;
+                    const isOwnComment = user && comment.user_id === user.id;
+
+                    return (
+                      <div
+                        key={comment.id}
+                        className="py-4 border-b border-gray-100 last:border-b-0"
+                      >
+                        <div className="flex gap-3">
+                          <Avatar className="h-10 w-10">
+                            {commentUserProfileImageUrl ? (
+                              <AvatarImage
+                                src={String(commentUserProfileImageUrl)}
+                                alt={
+                                  comment.user?.name || "コメントユーザー画像"
+                                }
+                              />
+                            ) : (
+                              <AvatarFallback className="bg-red-100 text-red-600 text-sm">
+                                {getUserInitials(comment.user?.name)}
+                              </AvatarFallback>
+                            )}
+                          </Avatar>
+                          <div className="flex-1 min-w-0">
+                            <div className="flex items-center justify-between">
+                              <div className="flex items-center gap-2">
+                                <span className="font-medium text-sm">
+                                  {comment.user?.name || "ユーザー"}
+                                </span>
+                                <span className="text-xs text-gray-500">
+                                  {new Date(
+                                    comment.created_at
+                                  ).toLocaleDateString()}
+                                </span>
+                              </div>
+                              {isOwnComment && !isEditing && (
+                                <DropdownMenu>
+                                  <DropdownMenuTrigger className="text-gray-400 hover:text-gray-600">
+                                    <FiMoreVertical className="w-5 h-5" />
+                                  </DropdownMenuTrigger>
+                                  <DropdownMenuContent align="end">
+                                    <DropdownMenuItem
+                                      onClick={() => handleEditComment(comment)}
+                                    >
+                                      <FiEdit className="w-4 h-4 mr-2" />
+                                      編集
+                                    </DropdownMenuItem>
+                                    <DropdownMenuItem
+                                      onClick={() =>
+                                        handleDeleteComment(comment.id)
+                                      }
+                                      className="text-red-600"
+                                    >
+                                      <FiTrash className="w-4 h-4 mr-2" />
+                                      削除
+                                    </DropdownMenuItem>
+                                  </DropdownMenuContent>
+                                </DropdownMenu>
+                              )}
+                            </div>
+                            {isEditing ? (
+                              <div className="mt-2 space-y-2">
+                                <Textarea
+                                  value={editingContent}
+                                  onChange={(e) =>
+                                    setEditingContent(e.target.value)
+                                  }
+                                  className="resize-none"
+                                  rows={3}
+                                />
+                                <div className="flex gap-2">
+                                  <Button
+                                    size="sm"
+                                    onClick={() =>
+                                      handleSaveComment(comment.id)
+                                    }
+                                    className="text-[#FF8D76] border-2 border-[#FF8D76] text-sm shadow-sm"
+                                  >
+                                    保存
+                                  </Button>
+                                  <Button
+                                    size="sm"
+                                    variant="outline"
+                                    onClick={handleCancelEdit}
+                                    className="text-sm shadow-sm"
+                                  >
+                                    キャンセル
+                                  </Button>
+                                </div>
+                              </div>
+                            ) : (
+                              <p className="text-sm text-gray-700 mt-1 pr-5 break-words">
+                                {comment.content}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                      </div>
+                    );
+                  })}
+              </div>
+
+              {/* もっと見るボタン */}
+              {!showMoreComments && comments.length > 5 && (
+                <div className="flex justify-center mt-2 mb-4">
+                  <Button
+                    variant="outline"
+                    onClick={() => setShowMoreComments(true)}
+                  >
+                    もっと見る
+                    <svg
+                      className="ml-2 w-4 h-4"
+                      fill="none"
+                      stroke="currentColor"
+                      viewBox="0 0 24 24"
+                    >
+                      <path
+                        strokeLinecap="round"
+                        strokeLinejoin="round"
+                        strokeWidth={2}
+                        d="M19 9l-7 7-7-7"
+                      />
+                    </svg>
+                  </Button>
+                </div>
+              )}
+            </div>
+          ) : (
+            <div className="text-center py-12 text-gray-500">
+              <div className="text-lg mb-2">💬</div>
+              <p>まだコメントがありません</p>
+              <p className="text-sm">最初にコメントしてみましょう！</p>
+            </div>
+          )}
+        </div>
 
         {/* Ranking */}
         <div className="bg-white rounded-xl p-6 shadow-md">
@@ -478,8 +729,9 @@ export default function PostDetailPage() {
                   .slice(0, showMoreRanking ? 100 : 5)
                   .map((result, index) => {
                     const rank = index + 1;
-                    const rankingUserProfileImageUrl =
-                      getRankingUserProfileImageUrl(result.user_id);
+                    const rankingUserProfileImageUrl = getProfileImageUrl(
+                      rankingUsers[result.user_id]?.profile_image
+                    );
                     return (
                       <div
                         key={result.id ?? index}
@@ -506,10 +758,10 @@ export default function PostDetailPage() {
                               />
                             ) : (
                               <AvatarFallback className="bg-red-100 text-red-600 text-sm">
-                                {getRankingUserInitial(
-                                  result.user_id,
-                                  result.user_name
-                                ) || "U"}
+                                {getUserInitials(
+                                  result.user_name,
+                                  rankingUsers[result.user_id]?.name
+                                )}
                               </AvatarFallback>
                             )}
                           </Avatar>

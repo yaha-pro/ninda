@@ -48,6 +48,7 @@ export interface Post {
   user?: User;
   likes_count?: number;
   is_liked?: boolean;
+  comments_count?: number;
 }
 
 // 投稿作成時のパラメータ
@@ -95,8 +96,25 @@ export interface PseudoRankResult {
   total_players: number;
 }
 
+// いいねの型定義
 export interface LikeResponse {
   success: boolean;
   likes_count: number;
   message?: string;
+}
+
+// コメントの型定義
+// Comment型を追加
+export interface Comment {
+  id: string;
+  content: string;
+  user_id: string;
+  post_id: string;
+  created_at: string;
+  updated_at: string;
+  user?: {
+    id: string;
+    name: string;
+    profile_image?: string | { url: string };
+  };
 }

@@ -1,12 +1,12 @@
 class Api::V1::CommentsController < ApplicationController
-  before_action :authenticate_api_v1_user!
+  before_action :authenticate_api_v1_user!, only: [:create, :update, :destroy]
   before_action :set_post, only: [:index, :create]
   before_action :set_comment, only: [:update, :destroy]
 
   # コメント一覧
   def index
     comments = @post.comments.includes(:user).order(created_at: :desc)
-    render json: comments, include: { user: { only: [:id, :name] } }
+    render json: comments, include: { user: { only: [:id, :name, :profile_image] } }
   end
 
   # コメント作成
