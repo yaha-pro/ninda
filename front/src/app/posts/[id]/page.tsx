@@ -288,6 +288,23 @@ export default function PostDetailPage() {
     }
   };
 
+  // コメントユーザープロフィールへの遷移処理
+  const handleCommentUserProfileClick = (
+    commentUserId: string,
+    event: React.MouseEvent
+  ) => {
+    event.preventDefault();
+    event.stopPropagation();
+
+    if (user && commentUserId === user.id) {
+      // コメントしたユーザーが現在のログインユーザーと同じ場合はマイページへ
+      router.push("/mypage");
+    } else {
+      // それ以外は通常のユーザーページへ
+      router.push(`/users/${commentUserId}`);
+    }
+  };
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f5f7ef] p-4">
@@ -403,7 +420,7 @@ export default function PostDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full max-w-xs text-md"
+                className="w-full max-w-xs text-md bg-transparent"
               >
                 編集する
               </Button>
@@ -507,7 +524,7 @@ export default function PostDetailPage() {
                 type="submit"
                 variant="outline"
                 disabled={isSubmittingComment || !newComment.trim() || !user}
-                className="self-end h-10 items-center shadow-sm"
+                className="self-end h-10 items-center shadow-sm bg-transparent"
               >
                 <FiSend className="w-4 h-4" />
               </Button>
@@ -559,24 +576,39 @@ export default function PostDetailPage() {
                         className="py-4 border-b border-gray-100 last:border-b-0"
                       >
                         <div className="flex gap-3">
-                          <Avatar className="h-10 w-10">
-                            {commentUserProfileImageUrl ? (
-                              <AvatarImage
-                                src={String(commentUserProfileImageUrl)}
-                                alt={
-                                  comment.user?.name || "コメントユーザー画像"
-                                }
-                              />
-                            ) : (
-                              <AvatarFallback className="bg-red-100 text-red-600 text-sm">
-                                {getUserInitials(comment.user?.name)}
-                              </AvatarFallback>
-                            )}
-                          </Avatar>
+                          <div
+                            className="cursor-pointer hover:opacity-70 transition-opacity"
+                            onClick={(e) =>
+                              handleCommentUserProfileClick(comment.user_id, e)
+                            }
+                          >
+                            <Avatar className="h-10 w-10">
+                              {commentUserProfileImageUrl ? (
+                                <AvatarImage
+                                  src={String(commentUserProfileImageUrl)}
+                                  alt={
+                                    comment.user?.name || "コメントユーザー画像"
+                                  }
+                                />
+                              ) : (
+                                <AvatarFallback className="bg-red-100 text-red-600 text-sm">
+                                  {getUserInitials(comment.user?.name)}
+                                </AvatarFallback>
+                              )}
+                            </Avatar>
+                          </div>
                           <div className="flex-1 min-w-0">
                             <div className="flex items-center justify-between">
                               <div className="flex items-center gap-2">
-                                <span className="font-medium text-sm">
+                                <span
+                                  className="font-medium text-sm cursor-pointer hover:text-blue-600 hover:underline transition-colors"
+                                  onClick={(e) =>
+                                    handleCommentUserProfileClick(
+                                      comment.user_id,
+                                      e
+                                    )
+                                  }
+                                >
                                   {comment.user?.name || "ユーザー"}
                                 </span>
                                 <span className="text-xs text-gray-500">
@@ -634,7 +666,7 @@ export default function PostDetailPage() {
                                     size="sm"
                                     variant="outline"
                                     onClick={handleCancelEdit}
-                                    className="text-sm shadow-sm"
+                                    className="text-sm shadow-sm bg-transparent"
                                   >
                                     キャンセル
                                   </Button>
