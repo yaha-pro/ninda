@@ -33,6 +33,7 @@ import {
   DropdownMenuContent,
   DropdownMenuItem,
 } from "@/components/ui/dropdown-menu";
+import { LikeButtonWithTooltip } from "@/components/LikeButtonWithTooltip";
 
 // 共通のヘルパー関数
 const getProfileImageUrl = (profileImage?: string | { url: string }) => {
@@ -66,6 +67,10 @@ export default function PostDetailPage() {
   const [showMoreRanking, setShowMoreRanking] = useState(false);
   const [rankingUsers, setRankingUsers] = useState<{ [key: string]: User }>({}); // ランキングユーザー情報をキャッシュ
 
+  // いいね関連の状態
+  const [isLiked, setIsLiked] = useState<boolean>(false);
+  const [likesCount, setLikesCount] = useState<number>(0);
+
   // コメント関連の状態
   const [comments, setComments] = useState<Comment[]>([]);
   const [commentsLoading, setCommentsLoading] = useState(true);
@@ -87,6 +92,9 @@ export default function PostDetailPage() {
       try {
         const data = await getPost(post_id);
         setPost(data);
+        // いいね状態の初期化
+        setIsLiked(data.is_liked || false);
+        setLikesCount(data.likes_count || 0);
       } catch (error) {
         console.error("Error fetching post:", error);
         toast.error("投稿の取得に失敗しました");
@@ -210,6 +218,12 @@ export default function PostDetailPage() {
     } catch (error) {
       console.error("Error refreshing ranking:", error);
     }
+  };
+
+  // いいね状態変更のハンドラ
+  const handleLikeChange = (newIsLiked: boolean, newLikesCount: number) => {
+    setIsLiked(newIsLiked);
+    setLikesCount(newLikesCount);
   };
 
   // コメント送信
@@ -355,7 +369,7 @@ export default function PostDetailPage() {
     if (rank === 1) {
       return (
         <Image
-          src={ranking_1_image}
+          src={ranking_1_image || "/placeholder.svg"}
           alt="1位"
           width={40}
           height={40}
@@ -366,7 +380,7 @@ export default function PostDetailPage() {
     if (rank === 2) {
       return (
         <Image
-          src={ranking_2_image}
+          src={ranking_2_image || "/placeholder.svg"}
           alt="2位"
           width={40}
           height={40}
@@ -377,7 +391,7 @@ export default function PostDetailPage() {
     if (rank === 3) {
       return (
         <Image
-          src={ranking_3_image}
+          src={ranking_3_image || "/placeholder.svg"}
           alt="3位"
           width={40}
           height={40}
@@ -420,7 +434,7 @@ export default function PostDetailPage() {
               <Button
                 variant="outline"
                 size="sm"
-                className="w-full max-w-xs text-md bg-transparent"
+                className="w-full max-w-xs text-md"
               >
                 編集する
               </Button>
@@ -472,7 +486,7 @@ export default function PostDetailPage() {
             <Avatar className="h-12 w-12 border-white border-2 shadow-md transition-all duration-300">
               {postUserProfileImageUrl ? (
                 <AvatarImage
-                  src={String(postUserProfileImageUrl)}
+                  src={String(postUserProfileImageUrl) || "/placeholder.svg"}
                   alt={postUser?.name || "投稿者画像"}
                 />
               ) : (
@@ -487,8 +501,18 @@ export default function PostDetailPage() {
           </div>
           <div className="flex items-center gap-4">
             <div className="text-sm text-gray-500">
-              公開日：{new Date(post.created_at).toLocaleDateString()}
+              {new Date(post.created_at).getTime() !==
+              new Date(post.updated_at).getTime()
+                ? `更新日：${new Date(post.updated_at).toLocaleDateString()}`
+                : `公開日：${new Date(post.created_at).toLocaleDateString()}`}
             </div>
+            {/* Like Button */}
+            <LikeButtonWithTooltip
+              postId={post_id}
+              isLiked={isLiked}
+              likesCount={likesCount}
+              onLikeChange={handleLikeChange}
+            />
           </div>
         </div>
 
@@ -585,7 +609,10 @@ export default function PostDetailPage() {
                             <Avatar className="h-10 w-10">
                               {commentUserProfileImageUrl ? (
                                 <AvatarImage
-                                  src={String(commentUserProfileImageUrl)}
+                                  src={
+                                    String(commentUserProfileImageUrl) ||
+                                    "/placeholder.svg"
+                                  }
                                   alt={
                                     comment.user?.name || "コメントユーザー画像"
                                   }
@@ -783,7 +810,10 @@ export default function PostDetailPage() {
                           <Avatar className="h-10 w-10">
                             {rankingUserProfileImageUrl ? (
                               <AvatarImage
-                                src={String(rankingUserProfileImageUrl)}
+                                src={
+                                  String(rankingUserProfileImageUrl) ||
+                                  "/placeholder.svg"
+                                }
                                 alt={
                                   result.user_name || "ランキングユーザー画像"
                                 }
