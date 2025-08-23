@@ -3,7 +3,12 @@
 import type React from "react";
 import { useState, useEffect } from "react";
 import { useAuth } from "@/contexts/AuthContext";
-import { FiMoreVertical, FiEdit, FiTrash } from "react-icons/fi";
+import {
+  FiMoreVertical,
+  FiEdit,
+  FiTrash,
+  FiMessageCircle,
+} from "react-icons/fi";
 import {
   DropdownMenu,
   DropdownMenuTrigger,
@@ -18,6 +23,7 @@ import post_image_def from "/public/post_image_def.png";
 import { useDeletePost } from "@/hooks/useDeletePost";
 import { getUser } from "@/lib/axios";
 import { LikeButtonWithTooltip } from "./LikeButtonWithTooltip";
+import { Button } from "@/components/ui/button";
 
 interface PostCardProps {
   post: Post;
@@ -72,6 +78,14 @@ const PostCard: React.FC<PostCardProps> = ({
     });
   };
 
+  // コメントボタンのクリックハンドラ
+  const handleCommentClick = (event: React.MouseEvent) => {
+    event.preventDefault();
+    event.stopPropagation();
+    // 投稿詳細ページのコメント欄にスクロール
+    window.location.href = `/posts/${post.id}#comments`;
+  };
+
   // いいね状態変更のハンドラ
   const handleLikeChange = (newIsLiked: boolean, newLikesCount: number) => {
     setIsLiked(newIsLiked);
@@ -121,6 +135,13 @@ const PostCard: React.FC<PostCardProps> = ({
     return null;
   };
 
+  // ユーザープロフィール部分をクリックした時のハンドラ
+  const handleUserProfileClick = (event: React.MouseEvent) => {
+    event.preventDefault(); // 親のLinkの遷移を防ぐ
+    event.stopPropagation(); // イベントの伝播を防ぐ
+    window.location.href = getUserProfileLink(); // 直接URLを変更
+  };
+
   // ユーザーのリンク先を決定する関数
   const getUserProfileLink = () => {
     // 投稿者が現在のログインユーザーと同じ場合はマイページへ
@@ -129,13 +150,6 @@ const PostCard: React.FC<PostCardProps> = ({
     }
     // それ以外は通常のユーザーページへ
     return `/users/${post.user_id}`;
-  };
-
-  // ユーザープロフィール部分をクリックした時のハンドラ
-  const handleUserProfileClick = (event: React.MouseEvent) => {
-    event.preventDefault(); // 親のLinkの遷移を防ぐ
-    event.stopPropagation(); // イベントの伝播を防ぐ
-    window.location.href = getUserProfileLink(); // 直接URLを変更
   };
 
   const postUserProfileImageUrl = getPostUserProfileImageUrl();
@@ -217,8 +231,20 @@ const PostCard: React.FC<PostCardProps> = ({
           <span className="text-sm text-gray-500">{getUserName()}</span>
         </div>
 
-        {/* いいねボタンとカウント */}
-        <div className="flex items-center gap-1 pr-2 relative">
+        {/* コメントボタンとカウント、いいねボタンとカウント */}
+        <div className="flex items-center gap-2 pr-2 relative">
+          {/* コメントボタン */}
+          <Button
+            variant="postIcon"
+            size="postIcon"
+            onClick={handleCommentClick}
+            className="h-9 gap-1 data-[liked=true]:bg-blue-50 data-[liked=true]:border-blue-400 data-[liked=true]:text-blue-500 hover:border-blue-300 hover:text-blue-400"
+          >
+            <FiMessageCircle className="w-5 h-5" />
+            <span className="font-medium">{post.comments_count || 0}</span>
+          </Button>
+
+          {/* いいねボタン */}
           <LikeButtonWithTooltip
             postId={post.id}
             isLiked={isLiked}

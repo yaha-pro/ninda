@@ -18,16 +18,17 @@ const buttonVariants = cva(
           "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
-        like: "bg-white border border-gray-300 text-gray-500 hover:border-red-300 hover:text-red-400 hover:scale-105 data-[liked=true]:text-red-500 rounded-full shadow-sm",
         linkSmall:
           "text-blue-500 hover:text-blue-600 font-medium text-xs p-0 h-auto shadow-none rounded-none bg-transparent hover:bg-transparent",
+        postIcon:
+          "bg-white border border-gray-300 text-gray-500 hover:border-red-300 hover:text-red-400 hover:scale-105 data-[liked=true]:text-red-500 rounded-full shadow-sm",
       },
       size: {
         default: "h-10 px-4 py-2",
         sm: "h-9 rounded-md px-3",
         lg: "h-12 px-8",
         icon: "h-10 w-10",
-        like: "px-4 py-2 text-sm",
+        postIcon: "px-4 py-2 text-sm",
         linkSmall: "p-0 h-auto",
       },
     },

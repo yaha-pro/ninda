@@ -319,6 +319,25 @@ export default function PostDetailPage() {
     }
   };
 
+  // ハッシュによるスクロール処理
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const hash = window.location.hash;
+      if (hash === "#comments") {
+        // 少し遅延してからスクロール（レンダリング完了を待つ）
+        setTimeout(() => {
+          const commentsSection = document.getElementById("comments");
+          if (commentsSection) {
+            commentsSection.scrollIntoView({
+              behavior: "smooth",
+              block: "start",
+            });
+          }
+        }, 200);
+      }
+    }
+  }, []);
+
   if (loading) {
     return (
       <div className="min-h-screen bg-[#f5f7ef] p-4">
@@ -525,7 +544,7 @@ export default function PostDetailPage() {
       {/* Comments and Ranking */}
       <div className="grid md:grid-cols-2 gap-6">
         {/* Comments */}
-        <div className="bg-white rounded-xl p-6 shadow-md">
+        <div id="comments" className="bg-white rounded-xl p-6 shadow-md">
           <h2 className="text-center text-xl font-bold mb-6 text-[#FF8D76]">
             コメント{" "}
             <span className="text-gray-500">({comments.length}件)</span>
