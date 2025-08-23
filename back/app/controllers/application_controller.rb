@@ -16,6 +16,7 @@ class ApplicationController < ActionController::API
       typing_play_count: post.typing_play_count,
       likes_count: post.likes_count,
       is_liked: current_api_v1_user ? post.likes.exists?(user_id: current_api_v1_user.id) : false,
+      comments_count: post.comments_count,
       created_at: post.created_at,
       updated_at: post.updated_at
     }

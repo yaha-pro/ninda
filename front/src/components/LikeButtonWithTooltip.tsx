@@ -17,7 +17,7 @@ interface LikeButtonWithTooltipProps {
   onLikeChange: (isLiked: boolean, likesCount: number) => void;
   disabled?: boolean;
   className?: string;
-  size?: "default" | "sm" | "lg" | "icon" | "like" | "linkSmall";
+  size?: "default" | "sm" | "lg" | "icon" | "postIcon" | "linkSmall";
   variant?:
     | "default"
     | "destructive"
@@ -25,8 +25,8 @@ interface LikeButtonWithTooltipProps {
     | "secondary"
     | "ghost"
     | "link"
-    | "like"
-    | "linkSmall";
+    | "linkSmall"
+    | "postIcon";
 }
 
 export function LikeButtonWithTooltip({
@@ -36,8 +36,8 @@ export function LikeButtonWithTooltip({
   onLikeChange,
   disabled = false,
   className = "",
-  size = "like",
-  variant = "like",
+  size = "postIcon",
+  variant = "postIcon",
 }: LikeButtonWithTooltipProps) {
   const { user } = useAuth();
   const [isLikeLoading, setIsLikeLoading] = useState<boolean>(false);
