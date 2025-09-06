@@ -1,5 +1,5 @@
 class Api::V1::LikesController < ApplicationController
-  before_action :authenticate_api_v1_user!
+  before_action :authenticate_api_v1_user!, except: [:users]
   before_action :set_post
 
   # 投稿にいいねしているユーザーの一覧を取得
