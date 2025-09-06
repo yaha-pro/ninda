@@ -147,6 +147,8 @@ GEM
     formatador (1.1.0)
     globalid (1.2.1)
       activesupport (>= 6.1)
+    google-id-token (1.4.2)
+      jwt (>= 1)
     i18n (1.14.7)
       concurrent-ruby (~> 1.0)
     image_processing (1.14.0)
@@ -158,6 +160,8 @@ GEM
       rdoc (>= 4.0.0)
       reline (>= 0.4.2)
     json (2.9.1)
+    jwt (3.1.2)
+      base64
     language_server-protocol (3.17.0.4)
     logger (1.6.5)
     loofah (2.24.0)
@@ -333,6 +337,7 @@ DEPENDENCIES
   dotenv (= 3.1.7)
   dotenv-rails (= 3.1.7)
   fog-aws
+  google-id-token
   mini_magick
   pg (~> 1.1)
   puma (>= 5.0)

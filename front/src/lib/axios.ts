@@ -82,6 +82,16 @@ export async function login(
   return response.data;
 }
 
+// Google認証用の関数（IDトークン方式）
+export async function googleLogin(idToken: string): Promise<LoginResponse> {
+  const response = await api.post<LoginResponse>("/auth/google", {
+    id_token: idToken,
+  });
+  // レスポンスからトークンを取得してヘッダーに保存
+  saveAuthHeaders(response.headers as { [key: string]: string });
+  return response.data;
+}
+
 // 新規登録
 export async function register(params: RegisterParams): Promise<LoginResponse> {
   const response = await api.post<LoginResponse>("/auth", {

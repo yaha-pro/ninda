@@ -10,6 +10,9 @@ Rails.application.routes.draw do
       devise_scope :api_v1_user do
         namespace :auth do
           resources :sessions, only: %i[index]
+
+          # Googleログイン用のAPIエンドポイント
+          post "google", to: "google#callback"
         end
       end
 

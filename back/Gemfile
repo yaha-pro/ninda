@@ -54,6 +54,9 @@ gem "devise_token_auth", ">= 1.2.0", git: "https://github.com/lynndylanhurley/de
 # Deviseのメッセージを多言語対応させる
 gem "devise-i18n"
 
+# GoogleIDToken
+gem 'google-id-token'
+
 gem "dotenv-rails", "3.1.7"
 gem "dockerfile-rails", ">= 1.6", group: :development
 gem "dotenv", "3.1.7"

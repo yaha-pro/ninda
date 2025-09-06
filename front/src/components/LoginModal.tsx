@@ -13,6 +13,7 @@ import { Button } from "@/components/ui/button";
 import { LuMail, LuLock } from "react-icons/lu";
 import { login, register, updateProfile } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
+import { GoogleLoginButton } from "@/components/GoogleLoginButton";
 import toast from "react-hot-toast";
 
 interface LoginModalProps {
@@ -61,6 +62,31 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     const state = { isProfile, email };
     sessionStorage.setItem("registrationState", JSON.stringify(state));
   }, [isProfile, email]);
+
+  // Google Identity Services のスクリプトを動的に読み込み
+  useEffect(() => {
+    if (isOpen && typeof window !== "undefined") {
+      const script = document.createElement("script");
+      script.src = "https://accounts.google.com/gsi/client";
+      script.async = true;
+      script.defer = true;
+      script.onload = () => {
+        // スクリプト読み込み完了後の処理（必要に応じて）
+        console.log("Google Identity Services loaded");
+      };
+      document.head.appendChild(script);
+
+      return () => {
+        // クリーンアップ
+        const existingScript = document.querySelector(
+          'script[src="https://accounts.google.com/gsi/client"]'
+        );
+        if (existingScript) {
+          document.head.removeChild(existingScript);
+        }
+      };
+    }
+  }, [isOpen]);
 
   /**
    * ログイン処理
@@ -154,6 +180,12 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
     }
   };
 
+  // Google認証成功時のハンドラ
+  const handleGoogleSuccess = () => {
+    sessionStorage.removeItem("registrationState");
+    onClose();
+  };
+
   // 新規登録（プロフィール設定）の表示
   if (isProfile) {
     return (
@@ -204,7 +236,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-[390px] h-[72vh]">
+      <DialogContent className="sm:max-w-[390px] h-[80vh]">
         <DialogHeader>
           <DialogTitle className="text-center text-2xl font-bold">
             {isLogin ? "ログイン" : "新規登録"}
@@ -218,7 +250,7 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                 e.preventDefault();
                 handleLogin();
               }}
-              className="space-y-6"
+              className="space-y-7"
             >
               {/* ログイン画面 */}
               <div className="space-y-1">
@@ -257,11 +289,6 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
               >
                 {isLoading ? "処理中..." : "ログイン"}
               </Button>
-              {/* <div className="text-center">
-                <a href="#" className="text-sm text-blue-500 hover:underline">
-                  パスワードを忘れた場合
-                </a>
-              </div> */}
               <div className="relative">
                 <div className="absolute inset-0 flex items-center">
                   <span className="w-full border-t" />
@@ -270,17 +297,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   <span className="bg-white px-2 text-gray-500">または</span>
                 </div>
               </div>
-              {/* <Button
-                variant="outline"
-                className="w-full border-2"
-              >
-                <img
-                  src="https://www.google.com/favicon.ico"
-                  alt="Google"
-                  className="mr-2 h-6 w-6"
-                />
-                Googleでログイン
-              </Button> */}
+              <GoogleLoginButton
+                isLogin={true}
+                onSuccess={handleGoogleSuccess}
+              />
               <div className="text-center">
                 <a
                   href="#"
@@ -357,17 +377,10 @@ export function LoginModal({ isOpen, onClose }: LoginModalProps) {
                   <span className="bg-white px-2 text-gray-500">または</span>
                 </div>
               </div>
-              {/* <Button
-                    variant="outline"
-                    className="w-full border-2"
-                  >
-                    <img
-                      src="https://www.google.com/favicon.ico"
-                      alt="Google"
-                      className="mr-2 h-6 w-6"
-                    />
-                    Googleで登録
-                  </Button> */}
+              <GoogleLoginButton
+                isLogin={false}
+                onSuccess={handleGoogleSuccess}
+              />
               <div className="text-center">
                 <a
                   href="#"
