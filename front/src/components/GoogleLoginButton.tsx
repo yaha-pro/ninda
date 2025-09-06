@@ -4,7 +4,13 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { googleLogin } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
+import { FcGoogle } from "react-icons/fc";
 import toast from "react-hot-toast";
+
+interface GoogleCredentialResponse {
+  credential: string;
+  select_by: string;
+}
 
 interface GoogleLoginButtonProps {
   isLogin: boolean; // ログインモードか新規登録モードかを判定
@@ -26,7 +32,7 @@ export function GoogleLoginButton({
       if (typeof window !== "undefined" && window.google) {
         window.google.accounts.id.initialize({
           client_id: process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID!,
-          callback: async (response: any) => {
+          callback: async (response: GoogleCredentialResponse) => {
             try {
               if (response.credential) {
                 // IDトークンをバックエンドに送信
@@ -88,15 +94,11 @@ export function GoogleLoginButton({
   return (
     <Button
       variant="outline"
-      className="w-full border-2 bg-transparent"
+      className="w-full border-2 bg-transparent hover:border-[#ff8d76] hover:bg-transparent hover:text-inherit"
       onClick={handleGoogleLogin}
       disabled={isLoading}
     >
-      <img
-        src="https://www.google.com/favicon.ico"
-        alt="Google"
-        className="mr-2 h-6 w-6"
-      />
+      <FcGoogle className="mr-2 h-6 w-6 bg-white rounded-full"/>
       {isLoading ? "処理中..." : isLogin ? "Googleでログイン" : "Googleで登録"}
     </Button>
   );
@@ -110,9 +112,17 @@ declare global {
         id: {
           initialize: (config: {
             client_id: string;
-            callback: (response: any) => void;
+            callback: (response: GoogleCredentialResponse) => void;
           }) => void;
-          renderButton: (element: HTMLElement | null, config: any) => void;
+          renderButton: (
+            element: HTMLElement | null,
+            config: {
+              theme?: string;
+              size?: string;
+              type?: string;
+              width?: string | number;
+            }
+          ) => void;
         };
       };
     };
