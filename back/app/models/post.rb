@@ -18,14 +18,14 @@ class Post < ApplicationRecord
   before_update  :remember_old_thumbnail # サムネイル変更前に古いファイルのパスを記憶
   after_update   :remove_old_thumbnail # サムネイル変更後に古いファイルを削除
 
+  private
+
   # 投稿削除時にサムネイル画像をストレージから削除
   def remove_thumbnail_file
     thumbnail_image.remove!
   rescue => e
     Rails.logger.error("Failed to remove thumbnail on destroy: #{e.message}")
   end
-
-  private
 
   # サムネイル画像が更新される場合、旧ファイルをインスタンス変数で保持
   def remember_old_thumbnail

@@ -1,6 +1,15 @@
 class Api::V1::MypageController < ApplicationController
   before_action :authenticate_api_v1_user!
 
+  # アカウント削除
+  def destroy
+    if current_api_v1_user.destroy
+      render json: { message: "アカウントを削除しました" }, status: :ok
+    else
+      render json: { errors: current_api_v1_user.errors.full_messages }, status: :unprocessable_entity
+    end
+  end
+
   # 自分のタイピング結果を取得
   def typing_results
     @typing_games = TypingGame

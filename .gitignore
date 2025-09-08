@@ -73,3 +73,6 @@ back/tmp/storage/*
 
 # Ignore master key for decrypting credentials and more.
 back/config/master.key
+
+# macOS
+.DS_Store
