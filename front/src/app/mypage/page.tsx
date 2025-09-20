@@ -9,6 +9,7 @@ import {
   getRanking,
   updateProfileImage,
   checkSession,
+  deleteAccount,
 } from "@/lib/axios";
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
@@ -21,17 +22,28 @@ import ResultsTable from "@/components/Results-table";
 import PostsList from "@/components/Posts-list";
 import LikesList from "@/components/Likes-list";
 import { Pencil, Camera, ImageIcon, FolderOpen, Loader2 } from "lucide-react";
+import { FiMoreVertical, FiAlertTriangle } from "react-icons/fi";
 import {
   DropdownMenu,
   DropdownMenuContent,
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+} from "@/components/ui/alert-dialog";
 import toast from "react-hot-toast";
 import { usePathname } from "next/navigation";
 
 export default function MyPage() {
-  const { user, isAuthenticated, setUser, isLoggingOutRef } = useAuth();
+  const { user, isAuthenticated, setUser, clearAuthState, isLoggingOutRef } = useAuth();
   const [isProfileEditModalOpen, setIsProfileEditModalOpen] = useState(false);
   const [results, setResults] = useState<TypingResult[]>([]);
   const [isLoading, setIsLoading] = useState(true);
@@ -39,6 +51,9 @@ export default function MyPage() {
   const [isHovered, setIsHovered] = useState(false);
   const [isUploading, setIsUploading] = useState(false);
   const [activeTab, setActiveTab] = useState("posts");
+  const [showAccountMenu, setShowAccountMenu] = useState(false);
+  const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+  const [isDeleting, setIsDeleting] = useState(false);
   const router = useRouter();
   const pathname = usePathname();
 
@@ -173,15 +188,34 @@ export default function MyPage() {
     event.target.value = "";
   };
 
+  // アカウント削除処理
+  const handleDeleteAccount = async () => {
+    router.replace("/"); // トップページにリダイレクト
+    try {
+      setIsDeleting(true);
+      await deleteAccount();
+      clearAuthState(); // クライアント認証情報クリア
+      toast.success("アカウントを削除しました");
+    } catch (error) {
+      console.error("アカウント削除エラー:", error);
+      toast.error("アカウントの削除に失敗しました");
+    } finally {
+      setIsDeleting(false);
+      setShowDeleteDialog(false);
+    }
+  };
+
   return (
     <div className="bg-[#f5f2ed] relative">
       {/* フルスクリーンローディングオーバーレイ */}
-      {isUploading && (
+      {(isUploading || isDeleting) && (
         <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-8 flex flex-col items-center gap-4 shadow-xl">
             <Loader2 className="w-12 h-12 animate-spin text-[#FF8D76]" />
             <p className="text-lg font-semibold text-gray-700">
-              プロフィール画像をアップロード中...
+              {isUploading
+                ? "プロフィール画像をアップロード中..."
+                : "アカウントを削除中..."}
             </p>
             <p className="text-sm text-gray-500">しばらくお待ちください</p>
           </div>
@@ -198,18 +232,46 @@ export default function MyPage() {
             <span className="text-gray-500">&gt;</span>
             <span className="text-gray-500">マイページ</span>
           </div>
-          <div className="flex">
+          <div className="flex items-center gap-2">
             <Button
               variant="outline"
               size="sm"
               className="w-full max-w-xs text-md"
               onClick={() => setIsProfileEditModalOpen(true)}
-              disabled={isUploading} // アップロード中は無効化
+              disabled={isUploading || isDeleting} // アップロード中・削除中は無効化
             >
               プロフィール編集
             </Button>
+            <DropdownMenu
+              open={showAccountMenu}
+              onOpenChange={setShowAccountMenu}
+            >
+              <DropdownMenuTrigger asChild>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  className="p-2"
+                  disabled={isUploading || isDeleting}
+                >
+                  <FiMoreVertical className="w-4 h-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent align="end" className="w-16">
+                <DropdownMenuItem
+                  onClick={() => {
+                    setShowAccountMenu(false);
+                    setShowDeleteDialog(true);
+                  }}
+                  className="flex items-center text-red-600 focus:text-red-600 font-bold"
+                >
+                  <FiAlertTriangle />
+                  退会する
+                </DropdownMenuItem>
+              </DropdownMenuContent>
+            </DropdownMenu>
           </div>
         </div>
+
         {/* ユーザー情報表示エリア */}
         <div className="flex flex-col items-center text-center justify-center mb-8">
           <div
@@ -224,7 +286,7 @@ export default function MyPage() {
             >
               {profileImage ? (
                 <AvatarImage
-                  src={String(profileImage)}
+                  src={String(profileImage) || "/placeholder.svg"}
                   alt="プロフィール画像"
                 />
               ) : (
@@ -313,29 +375,15 @@ export default function MyPage() {
           <p className="mt-2 text-sm text-muted-foreground max-w-md">
             {user?.bio || "自己紹介がありません"}
           </p>
-          {/* ユーザーステータス情報 */}
-          {/* <div className="flex justify-center gap-4 mt-4">
-          <div className="text-center">
-            <p className="text-lg font-semibold">プレイ回数</p>
-            <p className="text-xl font-bold">xxxxx</p>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-semibold">1位獲得数</p>
-            <p className="text-xl font-bold">xxxxx</p>
-          </div>
-          <div className="text-center">
-            <p className="text-lg font-semibold">投稿数</p>
-            <p className="text-xl font-bold">xxxxx</p>
-          </div>
-        </div> */}
         </div>
+
         {/* タブナビゲーション */}
         <Tabs value={activeTab} onValueChange={setActiveTab} className="mt-8">
           <TabsList className="w-full justify-start bg-white/80 backdrop-blur-sm shadow-md rounded-xl p-1">
             <TabsTrigger
               value="posts"
               className="flex-1 relative overflow-hidden transition-all duration-500 ease-out hover:shadow-md"
-              disabled={isUploading}
+              disabled={isUploading || isDeleting}
             >
               <span className="relative z-10 font-bold">投稿一覧</span>
               <div className="absolute inset-0 bg-gradient-to-r from-[#FF8D76]/20 to-[#FF6B5A]/20 opacity-0 transition-opacity duration-300 hover:opacity-100" />
@@ -343,7 +391,7 @@ export default function MyPage() {
             <TabsTrigger
               value="likes"
               className="flex-1 relative overflow-hidden transition-all duration-500 ease-out hover:shadow-md"
-              disabled={isUploading}
+              disabled={isUploading || isDeleting}
             >
               <span className="relative z-10 font-bold">いいね一覧</span>
               <div className="absolute inset-0 bg-gradient-to-r from-[#FF8D76]/20 to-[#FF6B5A]/20 opacity-0 transition-opacity duration-300 hover:opacity-100" />
@@ -351,7 +399,7 @@ export default function MyPage() {
             <TabsTrigger
               value="results"
               className="flex-1 relative overflow-hidden transition-all duration-500 ease-out hover:shadow-md"
-              disabled={isUploading}
+              disabled={isUploading || isDeleting}
             >
               <span className="relative z-10 font-bold">成績</span>
               <div className="absolute inset-0 bg-gradient-to-r from-[#FF8D76]/20 to-[#FF6B5A]/20 opacity-0 transition-opacity duration-300 hover:opacity-100" />
@@ -381,7 +429,7 @@ export default function MyPage() {
               }`}
             >
               <div className="animate-in fade-in-0 slide-in-from-bottom-4 duration-700">
-                <LikesList isMyPage/>
+                <LikesList isMyPage />
               </div>
             </TabsContent>
 
@@ -401,10 +449,39 @@ export default function MyPage() {
         </Tabs>
       </div>
 
+      {/* プロフィール編集モーダル */}
       <ProfileEditModal
-        isOpen={isProfileEditModalOpen && !isUploading} // アップロード中はモーダルを閉じる
+        isOpen={isProfileEditModalOpen && !isUploading && !isDeleting} // アップロード中・削除中はモーダルを閉じる
         onClose={() => setIsProfileEditModalOpen(false)}
       />
+
+      {/* アカウント削除確認ダイアログ */}
+      <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>アカウントを削除しますか？</AlertDialogTitle>
+            <AlertDialogDescription>
+              この操作は取り消すことができません。
+              <br />
+              アカウントを削除すると、すべての投稿、いいね、コメント、
+              <br />
+              タイピング結果が完全に削除されます。
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel disabled={isDeleting}>
+              キャンセル
+            </AlertDialogCancel>
+            <AlertDialogAction
+              onClick={handleDeleteAccount}
+              disabled={isDeleting}
+              className="bg-red-600 hover:bg-red-700 text-white"
+            >
+              {isDeleting ? "削除中..." : "削除する"}
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }

@@ -31,6 +31,7 @@ export interface AuthContextType {
   setUser: (user: User | null | ((prev: User | null) => User | null)) => void;
   isAuthenticated: boolean;
   isLoggingOutRef: React.MutableRefObject<boolean>;
+  clearAuthState: () => void;
 }
 
 // 投稿の型定義
