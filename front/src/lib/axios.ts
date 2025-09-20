@@ -324,3 +324,9 @@ export async function updateComment(
 export async function deleteComment(commentId: string): Promise<void> {
   await api.delete(`/comments/${commentId}`);
 }
+
+// アカウント削除
+export async function deleteAccount(): Promise<void> {
+  await api.delete("/mypage/account");
+  Cookies.remove("auth", { path: "/" });
+}

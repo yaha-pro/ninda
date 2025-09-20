@@ -1,5 +1,22 @@
 class Api::V1::MypageController < ApplicationController
   before_action :authenticate_api_v1_user!
+  
+  # devise_token_auth の after_action を destroy アクションでのみスキップする
+  skip_after_action :update_auth_header, only: [:destroy]
+
+  rescue_from ActiveRecord::RecordNotFound, with: :user_not_found
+
+  # アカウント削除
+  def destroy
+    user = current_api_v1_user
+    if user.destroy
+      render json: { message: "アカウントを削除しました" }, status: :ok
+      return
+    else
+      render json: { errors: user.errors.full_messages }, status: :unprocessable_entity
+      return
+    end
+  end
 
   # 自分のタイピング結果を取得
   def typing_results
@@ -36,5 +53,9 @@ class Api::V1::MypageController < ApplicationController
 
   def profile_image_params
     params.require(:user).permit(:profile_image)
+  end
+
+  def user_not_found
+    render json: { message: "アカウントを正常に削除しました" }, status: :ok
   end
 end

@@ -21,6 +21,7 @@ Rails.application.routes.draw do
       get "mypage/typing_results", to: "mypage#typing_results"
       get "mypage/liked_posts", to: "mypage#liked_posts"
       put "mypage/profile_image", to: "mypage#update_profile_image"
+      delete "mypage/account",     to: "mypage#destroy"
 
       # ユーザー情報取得のエンドポイント
       resources :users, only: [ :show, :index ] do

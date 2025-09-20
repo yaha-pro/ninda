@@ -4,10 +4,10 @@ import {
   createContext,
   useContext,
   useState,
-  ReactNode,
+  type ReactNode,
   useEffect,
 } from "react";
-import { User, AuthContextType } from "@/lib/types";
+import type { User, AuthContextType } from "@/lib/types";
 import { checkSession } from "@/lib/axios";
 import Cookies from "js-cookie";
 import { useRef } from "react";
@@ -22,6 +22,19 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const isLoggingOutRef = useRef(false);
 
   console.log("認証コンテキストプロバイダーコンポーネントチェック");
+
+  // 認証状態をクリア
+  const clearAuthState = () => {
+    try {
+      isLoggingOutRef.current = true;
+      Cookies.remove("auth", { path: "/" });
+      setUser(null); // ユーザー状態をクリア
+    } catch (error) {
+      console.error("Clear auth state failed:", error);
+    } finally {
+      isLoggingOutRef.current = false;
+    }
+  };
 
   // 初回マウント時にセッションを確認（自動ログイン）
   useEffect(() => {
@@ -60,6 +73,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setUser,
         isAuthenticated: !!user,
         isLoggingOutRef,
+        clearAuthState,
       }}
     >
       {children}
