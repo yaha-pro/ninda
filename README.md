@@ -105,10 +105,10 @@
 | インフラ | Vercel / Fly / Amazon S3 |
 | データベース | PostgreSQL |
 | CI/CD | Github Actions |
-| 認証 | DeviseTokenAuth |
+| 認証 | DeviseTokenAuth / google-id-token|
 | API | ひらがな化API |
 | npm | shadcn_ui / react_icons / ESLint / AOS.js / axios / react-hot-toast|
-| その他 | RSpec / Rubocop / CarrierWave / OmniAuth / kaminari / ransack|
+| その他 | RSpec / Rubocop / CarrierWave / kaminari / ransack|
 
 ## ■ 画面遷移図
 [画面遷移図-figma](https://www.figma.com/design/MUWyifE8X73gID227EqkEL/%E7%94%BB%E9%9D%A2%E9%81%B7%E7%A7%BB%E5%9B%B3?m=auto&t=SgrHqLoXZK9nIhRN-6)
